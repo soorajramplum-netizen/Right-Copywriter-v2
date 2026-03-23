@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Right Copywriter — Copy That Sells</title>
+  <meta name="description" content="Behavioral science-backed copywriting tool. Built on 62 psychological principles from Shotton, Kahneman, Sutherland.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── TOKENS ─────────────────────────────────────────── */
+    :root {
+      --bg:       #F7F5F0;
+      --surface:  #FFFFFF;
+      --ink:      #191B26;
+      --mid:      #636978;
+      --dim:      #A0A8B8;
+      --bd:       #E4DDD2;
+      --bdhi:     #CCC4B8;
+      --green:    #1B4332;
+      --greenbg:  #EEF5F1;
+      --greenbd:  #BFD8CA;
+      --amber:    #BF6E00;
+      --amberbg:  #FDF6E8;
+      --amberbd:  #F0C86A;
+      --red:      #C0392B;
+      --shadow-s: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
+      --shadow-m: 0 2px 6px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.06);
+      --r:        12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bdhi); border-radius: 2px; }
+
+    /* ── HEADER ─────────────────────────────────────────── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--bd);
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+    .header-inner { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 0 12px;
+      border-bottom: 1px solid var(--bd);
+    }
+    .logo {
+      width: 34px; height: 34px;
+      background: var(--green);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-letter {
+      font-family: 'Fraunces', serif;
+      font-size: 17px; font-weight: 600;
+      color: #fff; line-height: 1;
+    }
+    .brand-text { flex: 1; min-width: 0; }
+    .brand-name {
+      font-family: 'Fraunces', serif;
+      font-size: 17px; font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -.02em; line-height: 1;
+    }
+    .brand-sub { font-size: 11px; color: var(--mid); margin-top: 2px; }
+    .science-badge {
+      background: var(--greenbg);
+      color: var(--green);
+      border: 1px solid var(--greenbd);
+      font-size: 9px; font-weight: 700;
+      padding: 3px 9px; border-radius: 20px;
+      letter-spacing: .09em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .tab-bar {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: transparent; border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px; font-weight: 500;
+      color: var(--mid);
+      padding: 11px 18px 12px;
+      white-space: nowrap;
+      transition: color .18s, border-color .18s;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-btn.active { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
+
+    /* ── CONTENT ─────────────────────────────────────────── */
+    .content { max-width: 680px; margin: 0 auto; padding: 26px 20px 90px; }
+    .page-title {
+      font-family: 'Fraunces', serif;
+      font-size: 24px; font-weight: 600;
+      color: var(--ink); letter-spacing: -.025em;
+      margin-bottom: 4px;
+    }
+    .page-sub { font-size: 13.5px; color: var(--mid); line-height: 1.55; margin-bottom: 26px; }
+
+    /* ── FORM ────────────────────────────────────────────── */
+    .field { margin-bottom: 16px; }
+    .label {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 700;
+      color: var(--ink); letter-spacing: .07em;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .opt {
+      font-size: 10px; font-weight: 400;
+      color: var(--dim); text-transform: none;
+      letter-spacing: 0; background: var(--bg);
+      border: 1px solid var(--bd);
+      padding: 1px 7px; border-radius: 5px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--surface);
+      border: 1.5px solid var(--bd);
+      border-radius: var(--r);
+      color: var(--ink);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.55;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(27,67,50,.1);
+    }
+    input::placeholder, textarea::placeholder { color: var(--dim); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ── PILLS ───────────────────────────────────────────── */
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      padding: 7px 15px; border-radius: 30px;
+      font-size: 13px; font-weight: 500;
+      background: var(--surface); color: var(--mid);
+      border: 1.5px solid var(--bd);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .pill.on { background: var(--green); color: #fff; border-color: var(--green); font-weight: 600; }
+
+    /* ── GRID ────────────────────────────────────────────── */
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 440px) { .g2 { grid-template-columns: 1fr; } }
+    .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 440px) { .g3 { grid-template-columns: 1fr 1fr; } }
+
+    /* ── COLLAPSIBLE ─────────────────────────────────────── */
+    .ref-toggle {
+      width: 100%;
+      background: transparent;
+      border: 1.5px dashed var(--bdhi);
+      border-radius: var(--r);
+      padding: 10px 14px;
+      color: var(--mid); font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      text-align: left;
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 12px;
+      transition: border-color .2s, color .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ref-toggle:hover { border-color: var(--green); color: var(--green); }
+    .ref-toggle svg { flex-shrink: 0; }
+    .ref-area {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: var(--r);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    /* ── GENERATE BUTTON ─────────────────────────────────── */
+    .gen-btn {
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--green); color: #fff;
+      border: none; border-radius: var(--r);
+      font-size: 14.5px; font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: .02em;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .gen-btn:disabled { background: var(--bdhi); color: var(--mid); cursor: not-allowed; }
+    .gen-btn:active:not(:disabled) { transform: scale(.985); }
+
+    /* ── ERROR ───────────────────────────────────────────── */
+    .err {
+      font-size: 13px; color: var(--red);
+      background: rgba(192,57,43,.06);
+      border: 1px solid rgba(192,57,43,.18);
+      border-radius: 9px;
+      padding: 10px 14px; margin-top: 10px;
+    }
+
+    /* ── RESULTS LABEL ───────────────────────────────────── */
+    .results-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--mid); letter-spacing: .12em;
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 10px;
+      margin: 28px 0 16px;
+    }
+    .results-label::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+
+    /* ── COPY CARD ───────────────────────────────────────── */
+    .copy-card {
+      background: var(--surface);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-s);
+    }
+    .card-num {
+      font-size: 10px; font-weight: 700;
+      color: var(--dim); letter-spacing: .1em;
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    .copy-short {
+      font-family: 'Fraunces', serif;
+      font-size: 20px; font-weight: 500;
+      color: var(--ink); line-height: 1.4;
+      letter-spacing: -.01em; margin-bottom: 16px;
+    }
+    .copy-long {
+      font-size: 14px; color: var(--ink);
+      line-height: 1.8; margin-bottom: 16px;
+      white-space: pre-wrap;
+    }
+    .card-foot {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; gap: 12px; flex-wrap: wrap;
+    }
+
+    /* ── BIAS TAG ────────────────────────────────────────── */
+    .bias-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .bias-wrap { position: relative; }
+    .bias-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--amberbg);
+      border: 1px solid var(--amberbd);
+      border-radius: 30px;
+      padding: 4px 10px 4px 9px;
+      font-size: 10px; font-weight: 700;
+      color: var(--amber); letter-spacing: .07em;
+      text-transform: uppercase; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition: background .15s;
+    }
+    .bias-tag:hover { background: #F8EDD0; }
+    .info-i {
+      width: 15px; height: 15px; border-radius: 50%;
+      background: rgba(191,110,0,.18);
+      color: var(--amber);
+      font-size: 9px; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-style: normal; flex-shrink: 0;
+    }
+    /* bias popup */
+    .bias-popup {
+      position: absolute;
+      bottom: calc(100% + 10px); left: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--bd);
+      border-radius: 13px;
+      padding: 15px 17px;
+      width: min(290px, calc(100vw - 36px));
+      z-index: 200;
+      box-shadow: var(--shadow-m);
+      pointer-events: none;
+      opacity: 0; transform: translateY(4px);
+      transition: opacity .18s, transform .18s;
+    }
+    .bias-popup.open {
+      pointer-events: auto;
+      opacity: 1; transform: translateY(0);
+    }
+    .bp-name { font-size: 10px; font-weight: 700; color: var(--amber); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+    .bp-what { font-size: 12.5px; color: var(--mid); line-height: 1.65; margin-bottom: 10px; }
+    .bp-how-label { font-size: 9.5px; font-weight: 700; color: var(--green); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+    .bp-how { font-size: 12px; color: var(--ink); line-height: 1.6; }
+
+    /* ── COPY BTN ────────────────────────────────────────── */
+    .copy-btn {
+      background: transparent;
+      border: 1.5px solid var(--bd);
+      border-radius: 8px;
+      padding: 5px 13px;
+      font-size: 12px; font-weight: 500;
+      color: var(--mid);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all .18s;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .copy-btn.done { background: var(--greenbg); border-color: var(--greenbd); color: var(--green); font-weight: 600; }
+
+    /* ── NAME CARD ───────────────────────────────────────── */
+    .name-card {
+      background: var(--surface);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 10px;
+      display: flex; gap: 16px;
+      box-shadow: var(--shadow-s);
+    }
+    .name-num {
+      font-family: 'Fraunces', serif;
+      font-size: 13px; font-weight: 300;
+      color: var(--bdhi); min-width: 22px; padding-top: 8px;
+    }
+    .name-body { flex: 1; min-width: 0; }
+    .name-text {
+      font-family: 'Fraunces', serif;
+      font-size: 30px; font-weight: 600;
+      color: var(--ink); letter-spacing: -.025em; line-height: 1.1;
+      margin-bottom: 5px; word-break: break-word;
+    }
+    .name-desc { font-size: 12.5px; color: var(--mid); font-style: italic; margin-bottom: 4px; }
+    .name-tagline { font-size: 13px; color: var(--amber); font-weight: 600; margin-bottom: 14px; }
+    .name-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+
+    /* ── AUDIT ───────────────────────────────────────────── */
+    .audit-notice {
+      background: var(--greenbg);
+      border: 1px solid var(--greenbd);
+      border-radius: 11px;
+      padding: 13px 16px;
+      font-size: 13px; color: var(--green); line-height: 1.6;
+      margin-bottom: 22px;
+    }
+    .score-card {
+      background: var(--surface);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 22px;
+      display: flex; gap: 18px; align-items: center;
+      box-shadow: var(--shadow-s);
+    }
+    .score-num {
+      font-family: 'Fraunces', serif;
+      font-size: 52px; font-weight: 600;
+      line-height: 1; min-width: 70px; text-align: center;
+    }
+    .score-den { font-size: 11px; color: var(--dim); text-align: center; margin-top: 3px; }
+    .score-sep { width: 1px; background: var(--bd); align-self: stretch; flex-shrink: 0; }
+    .score-body { flex: 1; }
+    .score-label-text { font-size: 10px; font-weight: 700; color: var(--mid); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+    .score-summary { font-size: 13.5px; color: var(--ink); line-height: 1.6; }
+    .audit-group {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .audit-item {
+      background: var(--surface);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex; gap: 10px;
+    }
+    .a-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+    .a-bias-name { font-size: 12px; font-weight: 700; }
+    .a-bias-desc { font-size: 12.5px; color: var(--mid); }
+    .rewrite-card {
+      background: var(--surface);
+      border: 2px solid var(--amberbd);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: var(--shadow-s);
+    }
+    .rw-header {
+      font-size: 10px; font-weight: 700;
+      color: var(--amber); letter-spacing: .12em;
+      text-transform: uppercase; margin-bottom: 14px;
+    }
+    .rw-text {
+      font-family: 'Fraunces', serif;
+      font-size: 17px; font-weight: 300; font-style: italic;
+      color: var(--ink); line-height: 1.8;
+      margin-bottom: 16px; white-space: pre-wrap;
+    }
+
+    /* ── SPINNER ─────────────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    /* ── HIDDEN ──────────────────────────────────────────── */
+    .hidden { display: none !important; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 400px) {
+      .content { padding: 20px 16px 90px; }
+      .copy-short { font-size: 18px; }
+      .name-text { font-size: 26px; }
+      .score-num { font-size: 42px; min-width: 58px; }
+      .science-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<div class="header">
+  <div class="header-inner">
+    <div class="brand-row">
+      <div class="logo"><span class="logo-letter">R</span></div>
+      <div class="brand-text">
+        <div class="brand-name">Right Copywriter</div>
+        <div class="brand-sub">Copy that sells.</div>
+      </div>
+      <div class="science-badge">Behavioral Science</div>
+    </div>
+    <nav class="tab-bar" role="tablist">
+      <button class="tab-btn active" role="tab" onclick="switchTab('copy',this)">Copywriter</button>
+      <button class="tab-btn" role="tab" onclick="switchTab('names',this)">Name Generator</button>
+      <button class="tab-btn" role="tab" onclick="switchTab('audit',this)">Bias Audit</button>
+    </nav>
+  </div>
+</div>
+
+<main class="content">
+
+  <!-- ══════════════ COPYWRITER ══════════════ -->
+  <section id="tab-copy" role="tabpanel">
+    <h1 class="page-title">Copywriter</h1>
+    <p class="page-sub">Every word earned through behavioral logic.</p>
+
+    <!-- 1. Copy Type FIRST -->
+    <div class="field">
+      <div class="label">Copy Type</div>
+      <div class="pills" id="ct-pills">
+        <button class="pill on" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Headline</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Tagline</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Product Description</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">General Description</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Social Caption</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Email Subject</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Email Copy</button>
+      </div>
+    </div>
+
+    <!-- 2. Brand -->
+    <div class="field">
+      <div class="label">Brand / Product Name</div>
+      <input id="c-brand" placeholder="e.g. Zomato, Noise, Mamaearth" autocomplete="off">
+    </div>
+
+    <!-- 3. Dynamic context field (changes based on copy type) -->
+    <div class="field">
+      <div class="label" id="c-ctx-label">Core Message</div>
+      <textarea id="c-ctx" rows="3" placeholder="The single most important thing this headline must communicate..."></textarea>
+    </div>
+
+    <!-- 4. Product detail — shown only for Description/Email Copy -->
+    <div class="field hidden" id="c-product-wrap">
+      <div class="label">Product / Service Detail</div>
+      <textarea id="c-product" rows="3" placeholder="What does it do and why does it matter? Be specific..."></textarea>
+    </div>
+
+    <!-- 5. Audience — optional for all -->
+    <div class="field">
+      <div class="label">Target Audience <span class="opt">optional</span></div>
+      <input id="c-audience" placeholder="e.g. Urban millennials, first-time parents, 28–38">
+    </div>
+
+    <!-- 6. Tone — optional -->
+    <div class="field">
+      <div class="label">Tone <span class="opt">optional</span></div>
+      <input id="c-tone" placeholder="e.g. Witty, warm, authoritative, provocative">
+    </div>
+
+    <!-- 7. Reference copies — collapsible -->
+    <button class="ref-toggle" id="copy-ref-btn" onclick="toggleCollapse('copy-ref','copy-ref-btn','Reference copies for brand tone','Hide reference copies')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Reference copies for brand tone <span class="opt">optional</span>
+    </button>
+    <div class="ref-area hidden" id="copy-ref">
+      <div class="field"><div class="label">Copy 1</div><textarea id="c-r1" rows="2" placeholder="Paste existing copy that shows your brand's voice..."></textarea></div>
+      <div class="field"><div class="label">Copy 2</div><textarea id="c-r2" rows="2" placeholder="Another example..."></textarea></div>
+      <div class="field" style="margin-bottom:0"><div class="label">Copy 3</div><textarea id="c-r3" rows="2" placeholder="One more..."></textarea></div>
+    </div>
+
+    <button class="gen-btn" id="copy-btn" onclick="generateCopy()">
+      <span>Generate Copy</span><span style="opacity:.7">→</span>
+    </button>
+    <div class="err hidden" id="copy-err"></div>
+    <div id="copy-out"></div>
+  </section>
+
+  <!-- ══════════════ NAME GENERATOR ══════════════ -->
+  <section id="tab-names" class="hidden" role="tabpanel">
+    <h1 class="page-title">Name Generator</h1>
+    <p class="page-sub">Names built on fluency science, psycholinguistics, and memory research.</p>
+
+    <div class="field">
+      <div class="label">What does the product do?</div>
+      <textarea id="n-what" rows="3" placeholder="Describe clearly. What is the core benefit? How does it work? The more specific, the better the names..."></textarea>
+    </div>
+
+    <div class="field">
+      <div class="label">Who is it for? <span class="opt">optional</span></div>
+      <input id="n-audience" placeholder="e.g. First-time homebuyers, D2C skincare enthusiasts, Gen Z">
+    </div>
+
+    <div class="g2">
+      <div class="field">
+        <div class="label">Category <span class="opt">optional</span></div>
+        <input id="n-cat" placeholder="e.g. Fintech, Skincare">
+      </div>
+      <div class="field">
+        <div class="label">Include sounds <span class="opt">optional</span></div>
+        <input id="n-inc" placeholder="e.g. soft vowels, nature words">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label">Avoid <span class="opt">optional</span></div>
+      <input id="n-avoid" placeholder="e.g. harsh K/X sounds, tech jargon, Z endings">
+    </div>
+
+    <button class="ref-toggle" onclick="toggleCollapse('name-ref',this,'Existing names + guardrails','Hide existing names + guardrails')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Existing names + guardrails <span class="opt">optional</span>
+    </button>
+    <div class="ref-area hidden" id="name-ref">
+      <div class="g3" style="margin-bottom:14px;">
+        <div class="field" style="margin:0"><div class="label" style="font-size:10px">Name 1</div><input id="n-r1" placeholder="e.g. Aqua"></div>
+        <div class="field" style="margin:0"><div class="label" style="font-size:10px">Name 2</div><input id="n-r2" placeholder="e.g. Viva"></div>
+        <div class="field" style="margin:0"><div class="label" style="font-size:10px">Name 3</div><input id="n-r3" placeholder="e.g. Nexo"></div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <div class="label">Guardrails & Must-Haves</div>
+        <textarea id="n-guard" rows="2" placeholder="e.g. One word only, max 8 letters, must work in Tamil, no tech-bro clichés..."></textarea>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="name-btn" onclick="generateNames()">
+      <span>Generate Names</span><span style="opacity:.7">→</span>
+    </button>
+    <div class="err hidden" id="name-err"></div>
+    <div id="name-out"></div>
+  </section>
+
+  <!-- ══════════════ BIAS AUDIT ══════════════ -->
+  <section id="tab-audit" class="hidden" role="tabpanel">
+    <h1 class="page-title">Bias Audit</h1>
+    <p class="page-sub">Paste any copy and get a full behavioral science dissection.</p>
+
+    <div class="audit-notice">
+      We identify which of the 62 behavioral biases are working, which are missing, score the copy on behavioral effectiveness, and rewrite it with the gaps filled.
+    </div>
+
+    <div class="field">
+      <div class="label">Your Copy</div>
+      <textarea id="a-copy" rows="6" placeholder="Paste the headline, ad, tagline, email body, social post — anything..."></textarea>
+    </div>
+    <div class="field">
+      <div class="label">Brand / Product <span class="opt">optional</span></div>
+      <input id="a-brand" placeholder="e.g. Swiggy Instamart, a skincare brand...">
+    </div>
+
+    <button class="gen-btn" id="audit-btn" onclick="runAudit()">
+      <span>Audit My Copy</span><span style="opacity:.7">→</span>
+    </button>
+    <div class="err hidden" id="audit-err"></div>
+    <div id="audit-out"></div>
+  </section>
+
+</main>
+
+<script>
+'use strict';
+
+// ─── UI HELPERS ───────────────────────────────────────────────
+
+function switchTab(name, el) {
+  document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.remove('hidden');
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectPill(el, groupId) {
+  document.querySelectorAll('#' + groupId + ' .pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function getPill(groupId) {
+  const el = document.querySelector('#' + groupId + ' .pill.on');
+  return el ? el.textContent.trim() : '';
+}
+
+function toggleCollapse(areaId, btnEl, openLabel, closeLabel) {
+  const area = document.getElementById(areaId);
+  const isHidden = area.classList.contains('hidden');
+  area.classList.toggle('hidden', !isHidden);
+  const btn = typeof btnEl === 'string' ? document.getElementById(btnEl) : btnEl;
+  const svgPlus  = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+  const svgMinus = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+  const optTag = `<span class="opt">optional</span>`;
+  btn.innerHTML = isHidden
+    ? `${svgMinus} ${closeLabel} ${optTag}`
+    : `${svgPlus} ${openLabel} ${optTag}`;
+}
+
+function setLoading(btnId, on, label) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = on;
+  btn.innerHTML = on
+    ? `<span class="spinner"></span>Working…`
+    : `<span>${label}</span><span style="opacity:.7">→</span>`;
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg || '';
+  el.classList.toggle('hidden', !msg);
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyToClip(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 2000);
+  }).catch(() => {
+    btn.textContent = 'Copy'; // fail silently
+  });
+}
+
+// ─── COPY TYPE CONFIG ─────────────────────────────────────────
+
+const CT = {
+  'Headline':            { label: 'Core Message', ph: 'The single most important thing this headline must communicate...', product: false },
+  'Tagline':             { label: 'What the brand stands for', ph: 'What feeling or truth should this tagline capture?', product: false },
+  'Product Description': { label: 'Key Benefits to Highlight', ph: 'Top 2-3 features or benefits to focus on...', product: true },
+  'General Description': { label: 'What to Communicate', ph: 'What should readers understand and feel after reading?', product: true },
+  'Social Caption':      { label: 'Hook & Purpose', ph: "What's the one thing this post needs to do? What's the hook?", product: false },
+  'Email Subject':       { label: 'Email Context & Goal', ph: 'What is this email about and what action should it drive?', product: false },
+  'Email Copy':          { label: 'Core Message & CTA', ph: 'What is the main point and what do you want them to do?', product: true },
+};
+
+function updateCopyForm() {
+  const type = getPill('ct-pills');
+  const cfg = CT[type] || CT['Headline'];
+  document.getElementById('c-ctx-label').textContent = cfg.label;
+  document.getElementById('c-ctx').placeholder = cfg.ph;
+  document.getElementById('c-product-wrap').classList.toggle('hidden', !cfg.product);
+}
+updateCopyForm();
+
+// ─── BIAS TAG ─────────────────────────────────────────────────
+
+let activePop = null;
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.bias-wrap') && activePop) {
+    activePop.classList.remove('open');
+    activePop = null;
+  }
+});
+
+function makeBiasTag(b) {
+  if (!b || !b.name) return '';
+  const id = 'pop_' + Math.random().toString(36).slice(2,8);
+  return `
+    <div class="bias-wrap">
+      <div class="bias-tag" tabindex="0" role="button" onclick="togglePop('${id}',event)" onkeydown="if(event.key==='Enter')togglePop('${id}',event)">
+        ${esc(b.name)} <i class="info-i">i</i>
+      </div>
+      <div class="bias-popup" id="${id}" role="tooltip">
+        <div class="bp-name">${esc(b.name)}</div>
+        <div class="bp-what">${esc(b.explanation||'')}</div>
+        <div class="bp-how-label">Applied here</div>
+        <div class="bp-how">${esc(b.application||'')}</div>
+      </div>
+    </div>`;
+}
+
+function togglePop(id, e) {
+  if (e) e.stopPropagation();
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (activePop && activePop !== el) { activePop.classList.remove('open'); }
+  const opening = !el.classList.contains('open');
+  el.classList.toggle('open', opening);
+  activePop = opening ? el : null;
+}
+
+// ─── API CALL ─────────────────────────────────────────────────
+
+async function callAI(prompt) {
+  const res = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+  const d = await res.json();
+  const raw = (d.text || '').replace(/```json\n?|```\n?/g, '').trim();
+  return JSON.parse(raw);
+}
+
+// ─── COPYWRITER ───────────────────────────────────────────────
+
+async function generateCopy() {
+  const brand = document.getElementById('c-brand').value.trim();
+  const ctx   = document.getElementById('c-ctx').value.trim();
+  if (!brand || !ctx) { showErr('copy-err', 'Brand name and the key message are required.'); return; }
+
+  const type     = getPill('ct-pills');
+  const product  = document.getElementById('c-product').value.trim();
+  const audience = document.getElementById('c-audience').value.trim();
+  const tone     = document.getElementById('c-tone').value.trim();
+  const refs = ['c-r1','c-r2','c-r3'].map(id => document.getElementById(id).value.trim()).filter(Boolean);
+  const isLong = ['Product Description','General Description','Email Copy'].includes(type);
+
+  setLoading('copy-btn', true, 'Generate Copy');
+  showErr('copy-err', '');
+  document.getElementById('copy-out').innerHTML = '';
+
+  const prompt = `Write 3 behaviorally distinct ${type} variants for this brief. Each must apply a DIFFERENT behavioral bias from the library. Make each genuinely distinct in approach and angle — not subtle variations of each other.
+
+Brand: ${brand}
+${CT[type].label}: ${ctx}
+${product ? 'Product detail: ' + product : ''}
+${audience ? 'Target Audience: ' + audience : ''}
+${tone ? 'Tone: ' + tone : ''}
+${refs.length ? 'Brand Voice References (mirror this style/voice):\n' + refs.map((r,i)=>`${i+1}. "${r}"`).join('\n') : ''}
+
+Return JSON only (no markdown, no preamble):
+{"variants":[{"copy":"the copy text here","primaryBias":{"name":"Exact Bias Name from the library","explanation":"What this bias is in one clear sentence","application":"Precisely how it was applied in this copy — be specific"},"secondaryBias":{"name":"optional second bias name, or empty string","explanation":"...","application":"..."}}]}`;
+
+  try {
+    const data = await callAI(prompt);
+    const html = (data.variants || []).map((v, i) => `
+      <div class="copy-card">
+        <div class="card-num">VARIANT ${i+1}</div>
+        <div class="${isLong ? 'copy-long' : 'copy-short'}">${esc(v.copy)}</div>
+        <div class="card-foot">
+          <div class="bias-tags">
+            ${makeBiasTag(v.primaryBias)}
+            ${v.secondaryBias?.name ? makeBiasTag(v.secondaryBias) : ''}
+          </div>
+          <button class="copy-btn" onclick="copyToClip(this,${JSON.stringify(v.copy)})">Copy</button>
+        </div>
+      </div>`).join('');
+    document.getElementById('copy-out').innerHTML =
+      `<div class="results-label">3 Behaviorally-Engineered Variants</div>${html}`;
+  } catch(e) {
+    showErr('copy-err', 'Generation failed — ' + (e.message || 'please try again.'));
+  }
+  setLoading('copy-btn', false, 'Generate Copy');
+}
+
+// ─── NAME GENERATOR ───────────────────────────────────────────
+
+async function generateNames() {
+  const what = document.getElementById('n-what').value.trim();
+  if (!what) { showErr('name-err', 'Please describe what the product does.'); return; }
+
+  const audience = document.getElementById('n-audience').value.trim();
+  const cat      = document.getElementById('n-cat').value.trim();
+  const inc      = document.getElementById('n-inc').value.trim();
+  const avoid    = document.getElementById('n-avoid').value.trim();
+  const existing = ['n-r1','n-r2','n-r3'].map(id => document.getElementById(id).value.trim()).filter(Boolean);
+  const guard    = document.getElementById('n-guard').value.trim();
+
+  setLoading('name-btn', true, 'Generate Names');
+  showErr('name-err', '');
+  document.getElementById('name-out').innerHTML = '';
+
+  const prompt = `Generate exactly 8 product names. Each must use a DIFFERENT naming principle or behavioral bias from the library. Make each genuinely distinct in approach.
+
+Product: ${what}
+${audience ? 'Audience: ' + audience : ''}
+${cat ? 'Category: ' + cat : ''}
+${inc ? 'Must include/evoke: ' + inc : ''}
+${avoid ? 'Avoid: ' + avoid : ''}
+${existing.length ? 'Existing product names in portfolio (maintain family coherence): ' + existing.join(', ') : ''}
+${guard ? 'Guardrails: ' + guard : ''}
+
+Strict rules: description must be ≤50 characters. Tagline must be exactly 3-4 words. Each name must use a different principle.
+
+Return JSON only (no markdown, no preamble):
+{"names":[{"name":"ProductName","description":"max 50 chars — what it is","tagline":"3-4 word tagline","technique":{"name":"Naming Principle / Bias Name","explanation":"What this principle is — 1 sentence","application":"How it shaped this specific name — 1 sentence"}}]}`;
+
+  try {
+    const data = await callAI(prompt);
+    const html = (data.names || []).map((n, i) => `
+      <div class="name-card">
+        <div class="name-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="name-body">
+          <div class="name-text">${esc(n.name)}</div>
+          <div class="name-desc">${esc(n.description||'')}</div>
+          <div class="name-tagline">${esc(n.tagline||'')}</div>
+          <div class="name-foot">
+            ${n.technique?.name ? makeBiasTag(n.technique) : ''}
+            <button class="copy-btn" onclick="copyToClip(this,${JSON.stringify(n.name)})">Copy</button>
+          </div>
+        </div>
+      </div>`).join('');
+    document.getElementById('name-out').innerHTML =
+      `<div class="results-label">8 Behaviorally-Engineered Names</div>${html}`;
+  } catch(e) {
+    showErr('name-err', 'Generation failed — ' + (e.message || 'please try again.'));
+  }
+  setLoading('name-btn', false, 'Generate Names');
+}
+
+// ─── BIAS AUDIT ───────────────────────────────────────────────
+
+async function runAudit() {
+  const copy = document.getElementById('a-copy').value.trim();
+  if (!copy) { showErr('audit-err', 'Please paste your copy first.'); return; }
+  const brand = document.getElementById('a-brand').value.trim();
+
+  setLoading('audit-btn', true, 'Audit My Copy');
+  showErr('audit-err', '');
+  document.getElementById('audit-out').innerHTML = '';
+
+  const prompt = `Perform a comprehensive behavioral science audit of this copy.
+
+Copy: "${copy}"
+${brand ? 'Brand/Product context: ' + brand : ''}
+
+Identify present biases, missing opportunities, score out of 10 on behavioral effectiveness, and provide a superior rewrite.
+
+Return JSON only (no markdown, no preamble):
+{"score":7.5,"summary":"One-sentence overall behavioral assessment","working":[{"bias":"Exact Bias Name","how":"Precisely how this bias operates in the copy — 1 sentence"}],"missing":[{"bias":"Exact Bias Name","opportunity":"Exactly how adding this bias would improve this specific copy — 1-2 sentences"}],"rewrite":"The full improved copy here","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}`;
+
+  try {
+    const d = await callAI(prompt);
+    const sc = parseFloat(d.score) || 5;
+    const scoreCol = sc >= 7 ? 'var(--green)' : sc >= 5 ? 'var(--amber)' : 'var(--red)';
+    const workHtml = (d.working || []).map(w => `
+      <div class="audit-item">
+        <div class="a-dot" style="background:var(--green);"></div>
+        <div><span class="a-bias-name" style="color:var(--green);">${esc(w.bias)}: </span><span class="a-bias-desc">${esc(w.how)}</span></div>
+      </div>`).join('') || `<div class="audit-item"><div class="a-dot" style="background:var(--dim);"></div><div class="a-bias-desc">No strong biases detected.</div></div>`;
+    const missHtml = (d.missing || []).map(m => `
+      <div class="audit-item">
+        <div class="a-dot" style="background:var(--amber);"></div>
+        <div><span class="a-bias-name" style="color:var(--amber);">${esc(m.bias)}: </span><span class="a-bias-desc">${esc(m.opportunity)}</span></div>
+      </div>`).join('');
+
+    document.getElementById('audit-out').innerHTML = `
+      <div class="results-label">Audit Results</div>
+      <div class="score-card">
+        <div>
+          <div class="score-num" style="color:${scoreCol};">${sc}</div>
+          <div class="score-den">/ 10</div>
+        </div>
+        <div class="score-sep"></div>
+        <div class="score-body">
+          <div class="score-label-text">Behavioral Score</div>
+          <div class="score-summary">${esc(d.summary||'')}</div>
+        </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div class="audit-group" style="color:var(--green);">✓ What's Working</div>
+        ${workHtml}
+      </div>
+      <div style="margin-bottom:24px;">
+        <div class="audit-group" style="color:var(--amber);">⊕ Missing Opportunities</div>
+        ${missHtml}
+      </div>
+      <div class="rewrite-card">
+        <div class="rw-header">↑ Improved Version</div>
+        <div class="rw-text">${esc(d.rewrite||'')}</div>
+        <div class="bias-tags">
+          ${d.rwBias1?.name ? makeBiasTag(d.rwBias1) : ''}
+          ${d.rwBias2?.name ? makeBiasTag(d.rwBias2) : ''}
+        </div>
+      </div>`;
+  } catch(e) {
+    showErr('audit-err', 'Generation failed — ' + (e.message || 'please try again.'));
+  }
+  setLoading('audit-btn', false, 'Audit My Copy');
+}
+</script>
+</body>
+</html>
