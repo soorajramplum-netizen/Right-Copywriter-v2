@@ -434,6 +434,109 @@
       animation: spin .7s linear infinite;
     }
 
+    /* ── MORE DETAILS BLOCK ─────────────────────────────── */
+    .more-btn {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--bd); border-radius: var(--r);
+      padding: 11px 16px; margin-bottom: 2px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500; color: var(--mid);
+      transition: border-color .18s, color .18s, border-radius .18s;
+      -webkit-tap-highlight-color: transparent; text-align: left; gap: 10px;
+      box-shadow: var(--shadow-s);
+    }
+    .more-btn:hover { border-color: var(--bdhi); color: var(--ink); }
+    .more-btn.open {
+      border-color: var(--bdhi); color: var(--ink);
+      border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+      border-bottom-color: transparent; margin-bottom: 0; box-shadow: none;
+    }
+    .more-btn-left { display: flex; align-items: center; gap: 8px; }
+    .more-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--bd);
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 14px; line-height: 1; color: var(--mid);
+      transition: background .18s, border-color .18s, color .18s; font-weight: 400;
+    }
+    .more-btn.open .more-icon { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .more-panel {
+      background: var(--surface);
+      border: 1px solid var(--bdhi); border-top: none;
+      border-bottom-left-radius: var(--r); border-bottom-right-radius: var(--r);
+      padding: 18px 16px 14px; margin-bottom: 14px;
+      box-shadow: var(--shadow-s);
+    }
+    .more-sep {
+      font-size: 10px; font-weight: 700; color: var(--dim);
+      letter-spacing: .1em; text-transform: uppercase;
+      border-top: 1px solid var(--bd); padding-top: 12px; margin: 4px 0 10px;
+    }
+    /* ── AUDIT COLLAPSIBLE SECTIONS ──────────────────────── */
+    .audit-toggle {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--bd); border-radius: 10px;
+      padding: 11px 14px; margin-bottom: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+      transition: background .15s, border-color .15s;
+      -webkit-tap-highlight-color: transparent; box-shadow: var(--shadow-s);
+    }
+    .audit-toggle:hover { background: var(--bg); }
+    .audit-toggle.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; margin-bottom: 0; }
+    .audit-toggle-right { display: flex; align-items: center; gap: 6px; }
+    .audit-count {
+      font-size: 10px; font-weight: 700; border-radius: 20px;
+      padding: 1px 8px; letter-spacing: 0; text-transform: none;
+    }
+    .audit-chevron {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--bd);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 10px; color: var(--mid);
+      transition: transform .2s, background .18s, border-color .18s, color .18s;
+    }
+    .audit-toggle.open .audit-chevron { transform: rotate(180deg); background: var(--ink); border-color: var(--ink); color: #fff; }
+    .audit-body {
+      background: var(--surface); border: 1px solid var(--bdhi);
+      border-top: none;
+      border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
+      padding: 12px 12px 6px; margin-bottom: 12px;
+    }
+    .audit-body .audit-item:last-child { margin-bottom: 0; }
+    /* ── REFINE BLOCK ────────────────────────────────────── */
+    .refine-wrap { margin-top: 12px; }
+    .refine-btn {
+      background: transparent; border: 1px solid var(--bd);
+      border-radius: 8px; padding: 5px 13px;
+      font-size: 12px; font-weight: 500; color: var(--mid);
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all .15s; display: inline-flex; align-items: center; gap: 5px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .refine-btn:hover { border-color: var(--green); color: var(--green); }
+    .refine-panel {
+      margin-top: 10px; padding: 14px;
+      background: var(--bg); border: 1px solid var(--bd); border-radius: 10px;
+    }
+    .refine-panel textarea { margin-bottom: 10px; min-height: 62px; }
+    .refine-row { display: flex; gap: 8px; align-items: center; }
+    .refine-submit {
+      padding: 8px 18px; background: var(--green); color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: background .18s; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+    }
+    .refine-submit:disabled { background: var(--bdhi); color: var(--mid); cursor: not-allowed; }
+    .refine-spinner {
+      width: 13px; height: 13px;
+      border: 2px solid rgba(27,67,50,.2); border-top-color: var(--green);
+      border-radius: 50%; animation: spin .7s linear infinite; display: none;
+    }
+
     /* ── HIDDEN ──────────────────────────────────────────── */
     .hidden { display: none !important; }
 
@@ -505,7 +608,7 @@
 
     <button class="more-btn" id="copy-more-btn" onclick="toggleMore('copy-more','copy-more-btn')">
       <span class="more-btn-left">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span class="more-icon">+</span>
         Add more details for sharper copy
       </span>
       <span class="opt">optional</span>
@@ -519,7 +622,7 @@
         <div class="label">Tone</div>
         <input id="c-tone" placeholder="e.g. Witty, warm, authoritative, provocative">
       </div>
-      <div class="more-sub-label">Reference copies — so we match your brand voice</div>
+      <div class="more-sep">Reference copies — so we match your brand voice</div>
       <div class="field"><textarea id="c-r1" rows="2" placeholder="Paste existing copy 1..."></textarea></div>
       <div class="field"><textarea id="c-r2" rows="2" placeholder="Paste existing copy 2..."></textarea></div>
       <div class="field" style="margin-bottom:0"><textarea id="c-r3" rows="2" placeholder="Paste existing copy 3..."></textarea></div>
@@ -543,7 +646,7 @@
 
     <button class="more-btn" id="name-more-btn" onclick="toggleMore('name-more','name-more-btn')">
       <span class="more-btn-left">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span class="more-icon">+</span>
         Add more details for sharper names
       </span>
       <span class="opt">optional</span>
@@ -567,7 +670,7 @@
         <div class="label">Avoid</div>
         <input id="n-avoid" placeholder="e.g. harsh K/X sounds, tech jargon, Z endings">
       </div>
-      <div class="more-sub-label">Existing portfolio names</div>
+      <div class="more-sep">Existing portfolio names</div>
       <div class="g3" style="margin-bottom:14px;">
         <div><div class="label" style="font-size:10px">Name 1</div><input id="n-r1" placeholder="e.g. Aqua"></div>
         <div><div class="label" style="font-size:10px">Name 2</div><input id="n-r2" placeholder="e.g. Viva"></div>
@@ -601,7 +704,7 @@
 
     <button class="more-btn" id="audit-more-btn" onclick="toggleMore('audit-more','audit-more-btn')">
       <span class="more-btn-left">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span class="more-icon">+</span>
         Add context for a sharper audit
       </span>
       <span class="opt">optional</span>
@@ -625,6 +728,11 @@
 
 <script>
 'use strict';
+
+// ─── STATE ───────────────────────────────────────────────────
+let lastCopyPrompt = null;
+let lastNamePrompt = null;
+let lastAuditPrompt = null;
 
 // ─── UI HELPERS ───────────────────────────────────────────────
 
@@ -665,11 +773,57 @@ function toggleMore(panelId, btnId) {
   const isHidden = panel.classList.contains('hidden');
   panel.classList.toggle('hidden', !isHidden);
   btn.classList.toggle('open', isHidden);
-  // swap the circle icon between + and −
-  const svgPlus  = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
-  const svgMinus = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
-  const labelText = btn.querySelector('.more-btn-left').textContent.trim();
-  btn.querySelector('.more-btn-left').innerHTML = (isHidden ? svgMinus : svgPlus) + ' ' + labelText;
+  const icon = btn.querySelector('.more-icon');
+  if (icon) icon.textContent = isHidden ? '−' : '+';
+}
+
+function toggleAuditSection(bodyId, btnId) {
+  const body = document.getElementById(bodyId);
+  const btn  = document.getElementById(btnId);
+  const isHidden = body.classList.contains('hidden');
+  body.classList.toggle('hidden', !isHidden);
+  btn.classList.toggle('open', isHidden);
+}
+
+// ─── REFINE / REGENERATE ─────────────────────────────────────
+
+function toggleRefine(wrapId) {
+  const wrap = document.getElementById(wrapId);
+  const panel = wrap.querySelector('.refine-panel');
+  const btn   = wrap.querySelector('.refine-btn');
+  const isHidden = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden', !isHidden);
+  btn.textContent = isHidden ? '✕ Cancel' : '↻ Refine this';
+}
+
+async function submitRefine(wrapId, originalPrompt, resultHtmlTargetId, resultBuilder, loadingLabel) {
+  const wrap = document.getElementById(wrapId);
+  const ta   = wrap.querySelector('.refine-panel textarea');
+  const submitBtn = wrap.querySelector('.refine-submit');
+  const spinner   = wrap.querySelector('.refine-spinner');
+  const feedback  = ta.value.trim();
+  if (!feedback) { ta.focus(); return; }
+
+  submitBtn.disabled = true;
+  spinner.style.display = 'inline-block';
+  submitBtn.textContent = 'Reworking…';
+
+  const refinedPrompt = originalPrompt + '\n\nThe user wants this change: ' + feedback + '\nPlease rework accordingly.';
+  try {
+    const data = await callAI(refinedPrompt);
+    document.getElementById(resultHtmlTargetId).innerHTML = resultBuilder(data);
+  } catch(e) {
+    ta.value = '';
+    ta.placeholder = 'Error: ' + (e.message || 'try again');
+  }
+  submitBtn.disabled = false;
+  spinner.style.display = 'none';
+  submitBtn.textContent = 'Rework';
+  // Collapse the panel
+  const panel = wrap.querySelector('.refine-panel');
+  const btn   = wrap.querySelector('.refine-btn');
+  panel.classList.add('hidden');
+  btn.textContent = '↻ Refine this';
 }
 
 function setLoading(btnId, on, label) {
@@ -804,6 +958,8 @@ async function generateCopy() {
   showErr('copy-err', '');
   document.getElementById('copy-out').innerHTML = '';
 
+  lastCopyPrompt = null; // reset
+
   const prompt = `Write 3 behaviorally distinct ${type} variants for this brief. Each must apply a DIFFERENT behavioral bias from the library. Make each genuinely distinct in approach and angle — not subtle variations of each other.
 
 Brand: ${brand}
@@ -816,22 +972,37 @@ ${refs.length ? 'Brand Voice References (mirror this style/voice):\n' + refs.map
 Return JSON only (no markdown, no preamble):
 {"variants":[{"copy":"the copy text here","primaryBias":{"name":"Exact Bias Name from the library","explanation":"What this bias is in one clear sentence","application":"Precisely how it was applied in this copy — be specific"},"secondaryBias":{"name":"optional second bias name, or empty string","explanation":"...","application":"..."}}]}`;
 
+  lastCopyPrompt = prompt;
   try {
     const data = await callAI(prompt);
-    const html = (data.variants || []).map((v, i) => `
-      <div class="copy-card">
-        <div class="card-num">VARIANT ${i+1}</div>
-        <div class="${isLong ? 'copy-long' : 'copy-short'}">${esc(v.copy)}</div>
-        <div class="card-foot">
-          <div class="bias-tags">
-            ${makeBiasTag(v.primaryBias)}
-            ${v.secondaryBias?.name ? makeBiasTag(v.secondaryBias) : ''}
-          </div>
-          <button class="copy-btn" onclick="copyToClip(this,${JSON.stringify(v.copy)})">Copy</button>
-        </div>
-      </div>`).join('');
-    document.getElementById('copy-out').innerHTML =
-      `<div class="results-label">3 Behaviorally-Engineered Variants</div>${html}`;
+    const buildCopyHtml = (variants) => {
+      return `<div class="results-label">3 Behaviorally-Engineered Variants</div>` +
+        variants.map((v, i) => {
+          const wid = 'copy-refine-' + i;
+          return `<div class="copy-card">
+            <div class="card-num">VARIANT ${i+1}</div>
+            <div class="${isLong ? 'copy-long' : 'copy-short'}">${esc(v.copy)}</div>
+            <div class="card-foot">
+              <div class="bias-tags">
+                ${makeBiasTag(v.primaryBias)}
+                ${v.secondaryBias && v.secondaryBias.name ? makeBiasTag(v.secondaryBias) : ''}
+              </div>
+              <button class="copy-btn" onclick="copyToClip(this,${JSON.stringify(v.copy)})">Copy</button>
+            </div>
+            <div class="refine-wrap" id="${wid}">
+              <button class="refine-btn" onclick="toggleRefine('${wid}')">↻ Refine this</button>
+              <div class="refine-panel hidden">
+                <textarea placeholder="What would you like changed? e.g. Make it punchier, add more scarcity, shorter..."></textarea>
+                <div class="refine-row">
+                  <button class="refine-submit" onclick="submitRefine('${wid}', lastCopyPrompt, 'copy-out', (d) => buildCopyHtml(d.variants||[]), 'Generate Copy')">Rework</button>
+                  <span class="refine-spinner"></span>
+                </div>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+    };
+    document.getElementById('copy-out').innerHTML = buildCopyHtml(data.variants || []);
   } catch(e) {
     showErr('copy-err', 'Generation failed — ' + (e.message || 'please try again.'));
   }
@@ -854,6 +1025,7 @@ async function generateNames() {
   setLoading('name-btn', true, 'Generate Names');
   showErr('name-err', '');
   document.getElementById('name-out').innerHTML = '';
+  lastNamePrompt = null;
 
   const prompt = `Generate exactly 8 product names. Each must use a DIFFERENT naming principle or behavioral bias from the library. Make each genuinely distinct in approach.
 
@@ -870,23 +1042,38 @@ Strict rules: description must be ≤50 characters. Tagline must be exactly 3-4 
 Return JSON only (no markdown, no preamble):
 {"names":[{"name":"ProductName","description":"max 50 chars — what it is","tagline":"3-4 word tagline","technique":{"name":"Naming Principle / Bias Name","explanation":"What this principle is — 1 sentence","application":"How it shaped this specific name — 1 sentence"}}]}`;
 
+  lastNamePrompt = prompt;
   try {
     const data = await callAI(prompt);
-    const html = (data.names || []).map((n, i) => `
-      <div class="name-card">
-        <div class="name-num">${String(i+1).padStart(2,'0')}</div>
-        <div class="name-body">
-          <div class="name-text">${esc(n.name)}</div>
-          <div class="name-desc">${esc(n.description||'')}</div>
-          <div class="name-tagline">${esc(n.tagline||'')}</div>
-          <div class="name-foot">
-            ${n.technique?.name ? makeBiasTag(n.technique) : ''}
-            <button class="copy-btn" onclick="copyToClip(this,${JSON.stringify(n.name)})">Copy</button>
-          </div>
-        </div>
-      </div>`).join('');
-    document.getElementById('name-out').innerHTML =
-      `<div class="results-label">8 Behaviorally-Engineered Names</div>${html}`;
+    const buildNameHtml = (names) => {
+      return `<div class="results-label">8 Behaviorally-Engineered Names</div>` +
+        names.map((n, i) => {
+          const wid = 'name-refine-' + i;
+          return `<div class="name-card">
+            <div class="name-num">${String(i+1).padStart(2,'0')}</div>
+            <div class="name-body">
+              <div class="name-text">${esc(n.name)}</div>
+              <div class="name-desc">${esc(n.description||'')}</div>
+              <div class="name-tagline">${esc(n.tagline||'')}</div>
+              <div class="name-foot">
+                ${n.technique && n.technique.name ? makeBiasTag(n.technique) : ''}
+                <button class="copy-btn" onclick="copyToClip(this,${JSON.stringify(n.name)})">Copy</button>
+              </div>
+              <div class="refine-wrap" id="${wid}" style="margin-top:12px;">
+                <button class="refine-btn" onclick="toggleRefine('${wid}')">↻ Refine this name</button>
+                <div class="refine-panel hidden">
+                  <textarea placeholder="What would you like changed? e.g. Make it shorter, use softer sounds, more premium..."></textarea>
+                  <div class="refine-row">
+                    <button class="refine-submit" onclick="submitRefine('${wid}', lastNamePrompt, 'name-out', (d) => buildNameHtml(d.names||[]), 'Generate Names')">Rework</button>
+                    <span class="refine-spinner"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+    };
+    document.getElementById('name-out').innerHTML = buildNameHtml(data.names || []);
   } catch(e) {
     showErr('name-err', 'Generation failed — ' + (e.message || 'please try again.'));
   }
@@ -894,6 +1081,88 @@ Return JSON only (no markdown, no preamble):
 }
 
 // ─── BIAS AUDIT ───────────────────────────────────────────────
+
+// Deterministic score: 5 baseline + 0.7 per working bias − 0.5 per missing bias
+// Clamped 2.0–9.5 (no copy is perfect; none can score below 2)
+function calcBiasScore(working, missing) {
+  const raw = 5 + (Math.min(working.length, 5) * 0.7) - (Math.min(missing.length, 5) * 0.5);
+  return Math.round(Math.max(2.0, Math.min(9.5, raw)) * 2) / 2; // round to nearest 0.5
+}
+
+function buildAuditHtml(d) {
+  const working = d.working || [];
+  const missing = d.missing || [];
+  const sc = calcBiasScore(working, missing);
+  const scoreCol = sc >= 7.5 ? 'var(--green)' : sc >= 5 ? 'var(--amber)' : 'var(--red)';
+
+  const workItems = working.map(w => `
+    <div class="audit-item">
+      <div class="a-dot" style="background:var(--green);"></div>
+      <div><span class="a-bias-name" style="color:var(--green);">${esc(w.bias)}: </span><span class="a-bias-desc">${esc(w.how)}</span></div>
+    </div>`).join('') || `<div class="audit-item"><div class="a-dot" style="background:var(--dim);"></div><div class="a-bias-desc">No strong biases detected.</div></div>`;
+
+  const missItems = missing.map(m => `
+    <div class="audit-item">
+      <div class="a-dot" style="background:var(--amber);"></div>
+      <div><span class="a-bias-name" style="color:var(--amber);">${esc(m.bias)}: </span><span class="a-bias-desc">${esc(m.opportunity)}</span></div>
+    </div>`).join('');
+
+  const auditRid = 'audit-refine-main';
+  return `
+    <div class="results-label">Audit Results</div>
+    <div class="score-card">
+      <div>
+        <div class="score-num" style="color:${scoreCol};">${sc}</div>
+        <div class="score-den">/ 10</div>
+      </div>
+      <div class="score-sep"></div>
+      <div class="score-body">
+        <div class="score-label-text">Behavioral Score</div>
+        <div class="score-summary">${esc(d.summary||'')}</div>
+      </div>
+    </div>
+
+    <button class="audit-toggle" id="working-toggle" onclick="toggleAuditSection('working-body','working-toggle')">
+      <span class="audit-toggle-left" style="color:var(--green);">
+        ✓ What's Working
+      </span>
+      <span class="audit-toggle-right">
+        <span class="audit-count" style="background:var(--greenbg);color:var(--green);border:1px solid var(--greenbd);">${working.length}</span>
+        <span class="audit-chevron">▼</span>
+      </span>
+    </button>
+    <div class="audit-body hidden" id="working-body">${workItems}</div>
+
+    <button class="audit-toggle" id="missing-toggle" onclick="toggleAuditSection('missing-body','missing-toggle')">
+      <span class="audit-toggle-left" style="color:var(--amber);">
+        ⊕ Missing Opportunities
+      </span>
+      <span class="audit-toggle-right">
+        <span class="audit-count" style="background:var(--amberbg);color:var(--amber);border:1px solid var(--amberbd);">${missing.length}</span>
+        <span class="audit-chevron">▼</span>
+      </span>
+    </button>
+    <div class="audit-body hidden" id="missing-body" style="margin-bottom:20px;">${missItems}</div>
+
+    <div class="rewrite-card">
+      <div class="rw-header">↑ Improved Version</div>
+      <div class="rw-text">${esc(d.rewrite||'')}</div>
+      <div class="bias-tags" style="margin-bottom:14px;">
+        ${d.rwBias1 && d.rwBias1.name ? makeBiasTag(d.rwBias1) : ''}
+        ${d.rwBias2 && d.rwBias2.name ? makeBiasTag(d.rwBias2) : ''}
+      </div>
+      <div class="refine-wrap" id="${auditRid}">
+        <button class="refine-btn" onclick="toggleRefine('${auditRid}')">↻ Refine this rewrite</button>
+        <div class="refine-panel hidden">
+          <textarea placeholder="What would you like changed? e.g. Make it shorter, add more urgency, different angle..."></textarea>
+          <div class="refine-row">
+            <button class="refine-submit" onclick="submitRefine('${auditRid}', lastAuditPrompt, 'audit-out', buildAuditHtml, 'Audit My Copy')">Rework</button>
+            <span class="refine-spinner"></span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
 
 async function runAudit() {
   const copy = document.getElementById('a-copy').value.trim();
@@ -903,61 +1172,24 @@ async function runAudit() {
   setLoading('audit-btn', true, 'Audit My Copy');
   showErr('audit-err', '');
   document.getElementById('audit-out').innerHTML = '';
+  lastAuditPrompt = null;
 
   const prompt = `Perform a comprehensive behavioral science audit of this copy.
 
 Copy: "${copy}"
 ${brand ? 'Brand/Product context: ' + brand : ''}
 
-Identify present biases, missing opportunities, score out of 10 on behavioral effectiveness, and provide a superior rewrite.
+Identify which specific biases from the library are actively present in the copy (working), and which are missing but would significantly improve it (missing opportunities). Then write an improved version.
+
+DO NOT include a score — the score is calculated separately.
 
 Return JSON only (no markdown, no preamble):
-{"score":7.5,"summary":"One-sentence overall behavioral assessment","working":[{"bias":"Exact Bias Name","how":"Precisely how this bias operates in the copy — 1 sentence"}],"missing":[{"bias":"Exact Bias Name","opportunity":"Exactly how adding this bias would improve this specific copy — 1-2 sentences"}],"rewrite":"The full improved copy here","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}`;
+{"summary":"One sentence overall behavioral assessment — be specific about what the copy does well and what its biggest weakness is","working":[{"bias":"Exact Bias Code + Name e.g. [S1] Social Proof","how":"Precisely how this bias operates in the copy — 1 sentence"}],"missing":[{"bias":"Exact Bias Code + Name e.g. [K12] Loss Aversion","opportunity":"Exactly how adding this bias would improve this specific copy — 1-2 sentences"}],"rewrite":"The full improved copy here","rwBias1":{"name":"Bias name","explanation":"What this bias is","application":"How it was used in the rewrite"},"rwBias2":{"name":"Bias name","explanation":"What this bias is","application":"How it was used in the rewrite"}}`;
 
+  lastAuditPrompt = prompt;
   try {
     const d = await callAI(prompt);
-    const sc = parseFloat(d.score) || 5;
-    const scoreCol = sc >= 7 ? 'var(--green)' : sc >= 5 ? 'var(--amber)' : 'var(--red)';
-    const workHtml = (d.working || []).map(w => `
-      <div class="audit-item">
-        <div class="a-dot" style="background:var(--green);"></div>
-        <div><span class="a-bias-name" style="color:var(--green);">${esc(w.bias)}: </span><span class="a-bias-desc">${esc(w.how)}</span></div>
-      </div>`).join('') || `<div class="audit-item"><div class="a-dot" style="background:var(--dim);"></div><div class="a-bias-desc">No strong biases detected.</div></div>`;
-    const missHtml = (d.missing || []).map(m => `
-      <div class="audit-item">
-        <div class="a-dot" style="background:var(--amber);"></div>
-        <div><span class="a-bias-name" style="color:var(--amber);">${esc(m.bias)}: </span><span class="a-bias-desc">${esc(m.opportunity)}</span></div>
-      </div>`).join('');
-
-    document.getElementById('audit-out').innerHTML = `
-      <div class="results-label">Audit Results</div>
-      <div class="score-card">
-        <div>
-          <div class="score-num" style="color:${scoreCol};">${sc}</div>
-          <div class="score-den">/ 10</div>
-        </div>
-        <div class="score-sep"></div>
-        <div class="score-body">
-          <div class="score-label-text">Behavioral Score</div>
-          <div class="score-summary">${esc(d.summary||'')}</div>
-        </div>
-      </div>
-      <div style="margin-bottom:16px;">
-        <div class="audit-group" style="color:var(--green);">✓ What's Working</div>
-        ${workHtml}
-      </div>
-      <div style="margin-bottom:24px;">
-        <div class="audit-group" style="color:var(--amber);">⊕ Missing Opportunities</div>
-        ${missHtml}
-      </div>
-      <div class="rewrite-card">
-        <div class="rw-header">↑ Improved Version</div>
-        <div class="rw-text">${esc(d.rewrite||'')}</div>
-        <div class="bias-tags">
-          ${d.rwBias1?.name ? makeBiasTag(d.rwBias1) : ''}
-          ${d.rwBias2?.name ? makeBiasTag(d.rwBias2) : ''}
-        </div>
-      </div>`;
+    document.getElementById('audit-out').innerHTML = buildAuditHtml(d);
   } catch(e) {
     showErr('audit-err', 'Generation failed — ' + (e.message || 'please try again.'));
   }
