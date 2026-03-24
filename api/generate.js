@@ -4,13 +4,14 @@
 // The GEMINI_API_KEY is set as a Vercel environment variable.
 // ─────────────────────────────────────────────────────────────────
 
+// Model fallback chain — ordered by quality, falling back on any 4xx/5xx
+// Uses only stable model IDs confirmed on v1beta generateContent
 const MODELS = [
-  "gemini-2.5-pro-preview-05-06",
-  "gemini-2.5-pro",
-  "gemini-2.0-flash-001",
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite-preview-06-17",
-  "gemini-1.5-pro",
+  "gemini-2.5-flash",          // Tier 1 — fast, intelligent, generous daily quota
+  "gemini-2.0-flash",          // Tier 2 — reliable, good context window
+  "gemini-2.0-flash-lite",     // Tier 3 — highest free quota, ultra-fast
+  "gemini-1.5-flash",          // Tier 4 — broad availability safety net
+  "gemini-1.5-flash-8b",       // Tier 5 — smallest model, maximum quota headroom
 ];
 
 // ─── BEHAVIORAL SCIENCE ENGINE ───────────────────────────────────
@@ -251,8 +252,13 @@ export default async function handler(req, res) {
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        lastError = `${model}: ${response.status} — ${err?.error?.message || 'unknown error'}`;
+        const status = response.status;
+        const msg = err?.error?.message || 'unknown error';
+        lastError = `${model}: ${status} — ${msg}`;
         console.warn(`[RightCopywriter] Model failed: ${lastError}`);
+        // 429 = quota exceeded, 503 = overloaded — try next model
+        // 400 = bad request — no point retrying same model
+        // 404 = model not found / deprecated — skip
         continue;
       }
 
