@@ -10,23 +10,23 @@
   <style>
     /* ── TOKENS ─────────────────────────────────────────── */
     :root {
-      --bg:       #F7F5F0;
+      --bg:        #F7F5F0;
       --surface:  #FFFFFF;
-      --ink:      #191B26;
-      --mid:      #636978;
-      --dim:      #A0A8B8;
-      --bd:       #E4DDD2;
-      --bdhi:     #CCC4B8;
-      --green:    #1B4332;
-      --greenbg:  #EEF5F1;
-      --greenbd:  #BFD8CA;
-      --amber:    #BF6E00;
-      --amberbg:  #FDF6E8;
-      --amberbd:  #F0C86A;
-      --red:      #C0392B;
+      --ink:       #191B26;
+      --mid:       #636978;
+      --dim:       #A0A8B8;
+      --bd:        #E4DDD2;
+      --bdhi:      #CCC4B8;
+      --green:     #1B4332;
+      --greenbg:   #EEF5F1;
+      --greenbd:   #BFD8CA;
+      --amber:     #BF6E00;
+      --amberbg:   #FDF6E8;
+      --amberbd:   #F0C86A;
+      --red:       #C0392B;
       --shadow-s: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
       --shadow-m: 0 2px 6px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.06);
-      --r:        12px;
+      --r:         12px;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { font-size: 16px; scroll-behavior: smooth; }
@@ -434,6 +434,206 @@
       animation: spin .7s linear infinite;
     }
 
+    /* ── MORE DETAILS BLOCK ─────────────────────────────── */
+    .more-btn {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--bd); border-radius: var(--r);
+      padding: 11px 16px; margin-bottom: 2px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500; color: var(--mid);
+      transition: border-color .18s, color .18s, border-radius .18s;
+      -webkit-tap-highlight-color: transparent; text-align: left; gap: 10px;
+      box-shadow: var(--shadow-s);
+    }
+    .more-btn:hover { border-color: var(--bdhi); color: var(--ink); }
+    .more-btn.open {
+      border-color: var(--bdhi); color: var(--ink);
+      border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+      border-bottom-color: transparent; margin-bottom: 0; box-shadow: none;
+    }
+    .more-btn-left { display: flex; align-items: center; gap: 8px; }
+    .more-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--bd);
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 14px; line-height: 1; color: var(--mid);
+      transition: background .18s, border-color .18s, color .18s; font-weight: 400;
+    }
+    .more-btn.open .more-icon { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .more-panel {
+      background: var(--surface);
+      border: 1px solid var(--bdhi); border-top: none;
+      border-bottom-left-radius: var(--r); border-bottom-right-radius: var(--r);
+      padding: 18px 16px 14px; margin-bottom: 14px;
+      box-shadow: var(--shadow-s);
+    }
+    .more-sep {
+      font-size: 10px; font-weight: 700; color: var(--dim);
+      letter-spacing: .1em; text-transform: uppercase;
+      border-top: 1px solid var(--bd); padding-top: 12px; margin: 4px 0 10px;
+    }
+    /* ── AUDIT COLLAPSIBLE SECTIONS ──────────────────────── */
+    .audit-toggle {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--bd); border-radius: 10px;
+      padding: 11px 14px; margin-bottom: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+      transition: background .15s, border-color .15s;
+      -webkit-tap-highlight-color: transparent; box-shadow: var(--shadow-s);
+    }
+    .audit-toggle:hover { background: var(--bg); }
+    .audit-toggle.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; margin-bottom: 0; }
+    .audit-toggle-right { display: flex; align-items: center; gap: 6px; }
+    .audit-count {
+      font-size: 10px; font-weight: 700; border-radius: 20px;
+      padding: 1px 8px; letter-spacing: 0; text-transform: none;
+    }
+    .audit-chevron {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--bd);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 10px; color: var(--mid);
+      transition: transform .2s, background .18s, border-color .18s, color .18s;
+    }
+    .audit-toggle.open .audit-chevron { transform: rotate(180deg); background: var(--ink); border-color: var(--ink); color: #fff; }
+    .audit-body {
+      background: var(--surface); border: 1px solid var(--bdhi);
+      border-top: none;
+      border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
+      padding: 12px 12px 6px; margin-bottom: 12px;
+    }
+    .audit-body .audit-item:last-child { margin-bottom: 0; }
+    /* ── REFINE BLOCK ────────────────────────────────────── */
+    .refine-wrap { margin-top: 12px; }
+    .refine-btn {
+      background: transparent; border: 1px solid var(--bd);
+      border-radius: 8px; padding: 5px 13px;
+      font-size: 12px; font-weight: 500; color: var(--mid);
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all .15s; display: inline-flex; align-items: center; gap: 5px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .refine-btn:hover { border-color: var(--green); color: var(--green); }
+    .refine-panel {
+      margin-top: 10px; padding: 14px;
+      background: var(--bg); border: 1px solid var(--bd); border-radius: 10px;
+    }
+    .refine-panel textarea { margin-bottom: 10px; min-height: 62px; }
+    .refine-row { display: flex; gap: 8px; align-items: center; }
+    .refine-submit {
+      padding: 8px 18px; background: var(--green); color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: background .18s; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+    }
+    .refine-submit:disabled { background: var(--bdhi); color: var(--mid); cursor: not-allowed; }
+    .refine-spinner {
+      width: 13px; height: 13px;
+      border: 2px solid rgba(27,67,50,.2); border-top-color: var(--green);
+      border-radius: 50%; animation: spin .7s linear infinite; display: none;
+    }
+
+    /* ── MODAL ──────────────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(25,27,38,.55);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; transition: opacity .2s;
+      pointer-events: none;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--surface); border-radius: 18px;
+      padding: 26px 24px 22px; width: 100%; max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.22);
+      transform: translateY(12px); transition: transform .22s;
+    }
+    .modal-backdrop.open .modal { transform: translateY(0); }
+    .modal-title {
+      font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600;
+      color: var(--ink); letter-spacing: -.02em; margin-bottom: 6px;
+    }
+    .modal-sub { font-size: 13px; color: var(--mid); margin-bottom: 18px; line-height: 1.55; }
+    .modal-ta {
+      width: 100%; padding: 12px 14px;
+      background: var(--bg); border: 1.5px solid var(--bd);
+      border-radius: 10px; color: var(--ink);
+      font-size: 14px; font-family: 'DM Sans', sans-serif;
+      line-height: 1.55; outline: none; resize: none;
+      min-height: 80px; margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .modal-ta:focus { border-color: var(--green); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; align-items: center; }
+    .modal-cancel {
+      background: transparent; border: 1px solid var(--bd);
+      border-radius: 9px; padding: 9px 18px;
+      font-size: 13px; font-weight: 500; color: var(--mid);
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all .15s;
+    }
+    .modal-cancel:hover { border-color: var(--bdhi); color: var(--ink); }
+    .modal-go {
+      background: var(--green); color: #fff;
+      border: none; border-radius: 9px; padding: 9px 20px;
+      font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: background .15s;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .modal-go:disabled { background: var(--bdhi); color: var(--mid); cursor: not-allowed; }
+    .modal-spinner {
+      width: 13px; height: 13px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+      animation: spin .7s linear infinite; display: none;
+    }
+    .modal-loading {
+      text-align: center; padding: 20px 0 10px;
+    }
+    .modal-loading-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 3px solid var(--bd); border-top-color: var(--green);
+      animation: spin 1s linear infinite; margin: 0 auto 14px;
+    }
+    .modal-loading-text {
+      font-size: 13px; color: var(--mid); line-height: 1.55;
+    }
+    .modal-loading-step {
+      font-size: 11px; color: var(--dim); margin-top: 6px;
+      font-style: italic;
+    }
+    /* ── SHOW MORE BUTTON ────────────────────────────────── */
+    .show-more-bar {
+      display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;
+    }
+    .show-more-btn {
+      flex: 1; min-width: 140px;
+      padding: 11px 16px; border-radius: 10px;
+      border: 1.5px solid var(--bd); background: var(--surface);
+      font-size: 13px; font-weight: 600; color: var(--ink);
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: all .18s; box-shadow: var(--shadow-s);
+    }
+    .show-more-btn:hover { border-color: var(--green); color: var(--green); background: var(--greenbg); }
+    .show-more-btn.gold {
+      border-color: var(--amberbd); background: var(--amberbg); color: var(--amber);
+    }
+    .show-more-btn.gold:hover { border-color: var(--amber); background: #FBE8C3; }
+    /* ── VISUAL HINT ─────────────────────────────────────── */
+    .visual-hint {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--greenbg); border: 1px solid var(--greenbd);
+      border-radius: 6px; padding: 3px 9px;
+      font-size: 11px; font-weight: 600; color: var(--green);
+      margin: 2px 1px; vertical-align: middle;
+    }
+    .visual-hint::before { content: '📷'; font-size: 11px; }
+
     /* ── HIDDEN ──────────────────────────────────────────── */
     .hidden { display: none !important; }
 
@@ -449,7 +649,6 @@
 </head>
 <body>
 
-<!-- ── HEADER ─────────────────────────────────────────────── -->
 <div class="header">
   <div class="header-inner">
     <div class="brand-row">
@@ -464,13 +663,13 @@
       <button class="tab-btn active" role="tab" onclick="switchTab('copy',this)">Copywriter</button>
       <button class="tab-btn" role="tab" onclick="switchTab('names',this)">Name Generator</button>
       <button class="tab-btn" role="tab" onclick="switchTab('audit',this)">Bias Audit</button>
+      <button class="tab-btn" role="tab" onclick="switchTab('about',this)">About</button>
     </nav>
   </div>
 </div>
 
 <main class="content">
 
-  <!-- ══════════════ COPYWRITER ══════════════ -->
   <section id="tab-copy" role="tabpanel">
     <h1 class="page-title">Copywriter</h1>
     <p class="page-sub">Every word earned through behavioral logic.</p>
@@ -505,7 +704,7 @@
 
     <button class="more-btn" id="copy-more-btn" onclick="toggleMore('copy-more','copy-more-btn')">
       <span class="more-btn-left">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span class="more-icon">+</span>
         Add more details for sharper copy
       </span>
       <span class="opt">optional</span>
@@ -519,7 +718,7 @@
         <div class="label">Tone</div>
         <input id="c-tone" placeholder="e.g. Witty, warm, authoritative, provocative">
       </div>
-      <div class="more-sub-label">Reference copies — so we match your brand voice</div>
+      <div class="more-sep">Reference copies — so we match your brand voice</div>
       <div class="field"><textarea id="c-r1" rows="2" placeholder="Paste existing copy 1..."></textarea></div>
       <div class="field"><textarea id="c-r2" rows="2" placeholder="Paste existing copy 2..."></textarea></div>
       <div class="field" style="margin-bottom:0"><textarea id="c-r3" rows="2" placeholder="Paste existing copy 3..."></textarea></div>
@@ -531,7 +730,6 @@
     <div class="err hidden" id="copy-err"></div>
     <div id="copy-out"></div>
   </section>
-  <!-- ══════════════ NAME GENERATOR ══════════════ -->
   <section id="tab-names" class="hidden" role="tabpanel">
     <h1 class="page-title">Name Generator</h1>
     <p class="page-sub">Names built on fluency science, psycholinguistics, and memory research.</p>
@@ -543,7 +741,7 @@
 
     <button class="more-btn" id="name-more-btn" onclick="toggleMore('name-more','name-more-btn')">
       <span class="more-btn-left">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span class="more-icon">+</span>
         Add more details for sharper names
       </span>
       <span class="opt">optional</span>
@@ -567,7 +765,7 @@
         <div class="label">Avoid</div>
         <input id="n-avoid" placeholder="e.g. harsh K/X sounds, tech jargon, Z endings">
       </div>
-      <div class="more-sub-label">Existing portfolio names</div>
+      <div class="more-sep">Existing portfolio names</div>
       <div class="g3" style="margin-bottom:14px;">
         <div><div class="label" style="font-size:10px">Name 1</div><input id="n-r1" placeholder="e.g. Aqua"></div>
         <div><div class="label" style="font-size:10px">Name 2</div><input id="n-r2" placeholder="e.g. Viva"></div>
@@ -585,7 +783,6 @@
     <div class="err hidden" id="name-err"></div>
     <div id="name-out"></div>
   </section>
-  <!-- ══════════════ BIAS AUDIT ══════════════ -->
   <section id="tab-audit" class="hidden" role="tabpanel">
     <h1 class="page-title">Bias Audit</h1>
     <p class="page-sub">Paste any copy and get a full behavioral science dissection.</p>
@@ -601,7 +798,7 @@
 
     <button class="more-btn" id="audit-more-btn" onclick="toggleMore('audit-more','audit-more-btn')">
       <span class="more-btn-left">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span class="more-icon">+</span>
         Add context for a sharper audit
       </span>
       <span class="opt">optional</span>
@@ -620,349 +817,492 @@
     <div id="audit-out"></div>
   </section>
 
+  <section id="tab-about" class="hidden" role="tabpanel">
+    <h1 class="page-title">About</h1>
+    <p class="page-sub">Why this tool exists.</p>
+    <div style="background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;box-shadow:var(--shadow-s);max-width:620px;">
+      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">Today's performance marketing demands massive content volume at breakneck speed, creating a severe bandwidth crunch. Brands naturally turn to AI, but standard models just rephrase text to sound &quot;poetic&quot;. Because teams can't manually A/B test thousands of daily variations, copy is often approved on a subjective &quot;hunch&quot; &mdash; prioritizing what sounds nice over what actually influences a purchase.</p>
+      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">I realized the industry desperately needs objective certainty before going live. That's why I built <strong>Right Copywriter</strong>.</p>
+      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">You can simply input your requirements, and the tool automatically generates persuasive copy designed to influence purchase. Already have a draft? Run it through <strong>Bias Audit</strong> to evaluate and rephrase it for maximum conversions. By quantifying success pre-launch, we shift your marketing from a hopeful &quot;might work&quot; to a scientific &quot;will work.&quot;</p>
+      <div style="border-top:1px solid var(--bd);margin:22px 0;"></div>
+      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">This isn't a generic AI hallucinating internet pointers. I trained this custom engine using my 6 years in Consumer Insights &mdash; feeding it my handwritten ethnographic notes on exactly why real people buy and why they walk away. It also captures more than 60 human biases that influence purchase along with the gist of some of the best marketing research ever done.</p>
+      <p style="font-size:15px;font-family:'Fraunces',serif;font-weight:500;color:var(--green);line-height:1.7;font-style:italic;">Because at the end of the day, marketing isn't about sounding cool. If it doesn't sell, it isn't the right copy.</p>
+    </div>
+  </section>
+
 </main>
 
 
 <script>
 'use strict';
 
-// ─── UI HELPERS ───────────────────────────────────────────────
+var lastCopyPrompt  = null;
+var lastNamePrompt  = null;
+var lastAuditPrompt = null;
+var modalCallback   = null;
 
 function switchTab(name, el) {
-  document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.add('hidden'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[id^="tab-"]').forEach(function(t){ t.classList.add('hidden'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
   document.getElementById('tab-' + name).classList.remove('hidden');
   el.classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
 function selectPill(el, groupId) {
-  document.querySelectorAll('#' + groupId + ' .pill').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('#' + groupId + ' .pill').forEach(function(p){ p.classList.remove('on'); });
   el.classList.add('on');
 }
-
 function getPill(groupId) {
-  const el = document.querySelector('#' + groupId + ' .pill.on');
+  var el = document.querySelector('#' + groupId + ' .pill.on');
   return el ? el.textContent.trim() : '';
 }
-
-function toggleCollapse(areaId, btnEl, openLabel, closeLabel) {
-  const area = document.getElementById(areaId);
-  const isHidden = area.classList.contains('hidden');
-  area.classList.toggle('hidden', !isHidden);
-  const btn = typeof btnEl === 'string' ? document.getElementById(btnEl) : btnEl;
-  const svgPlus  = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
-  const svgMinus = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
-  const optTag = `<span class="opt">optional</span>`;
-  btn.innerHTML = isHidden
-    ? `${svgMinus} ${closeLabel} ${optTag}`
-    : `${svgPlus} ${openLabel} ${optTag}`;
-}
-
 function toggleMore(panelId, btnId) {
-  const panel = document.getElementById(panelId);
-  const btn   = document.getElementById(btnId);
-  const isHidden = panel.classList.contains('hidden');
+  var panel = document.getElementById(panelId);
+  var btn   = document.getElementById(btnId);
+  var isHidden = panel.classList.contains('hidden');
   panel.classList.toggle('hidden', !isHidden);
   btn.classList.toggle('open', isHidden);
-  // swap the circle icon between + and −
-  const svgPlus  = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
-  const svgMinus = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
-  const labelText = btn.querySelector('.more-btn-left').textContent.trim();
-  btn.querySelector('.more-btn-left').innerHTML = (isHidden ? svgMinus : svgPlus) + ' ' + labelText;
+  var icon = btn.querySelector('.more-icon');
+  if (icon) icon.textContent = isHidden ? '\u2212' : '+';
+}
+function toggleAuditSection(bodyId, btnId) {
+  var body = document.getElementById(bodyId);
+  var btn  = document.getElementById(btnId);
+  var isHidden = body.classList.contains('hidden');
+  body.classList.toggle('hidden', !isHidden);
+  btn.classList.toggle('open', isHidden);
 }
 
+// MODAL
+function openModal(title, sub, placeholder, onSubmit) {
+  modalCallback = onSubmit;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').textContent = sub;
+  document.getElementById('modal-ta').value = '';
+  document.getElementById('modal-ta').placeholder = placeholder;
+  document.getElementById('modal-form-state').classList.remove('hidden');
+  document.getElementById('modal-loading-state').classList.add('hidden');
+  document.getElementById('modal-go-btn').disabled = false;
+  document.getElementById('modal-go-label').textContent = 'Regenerate';
+  document.getElementById('modal-spinner').style.display = 'none';
+  document.getElementById('refine-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('modal-ta').focus(); }, 80);
+}
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('refine-modal')) return;
+  document.getElementById('refine-modal').classList.remove('open');
+  modalCallback = null;
+}
+function setModalLoading(text, step) {
+  document.getElementById('modal-form-state').classList.add('hidden');
+  document.getElementById('modal-loading-state').classList.remove('hidden');
+  document.getElementById('modal-loading-text').textContent = text || 'Working...';
+  document.getElementById('modal-loading-step').textContent = step || '';
+}
+async function submitModal() {
+  var feedback = document.getElementById('modal-ta').value.trim();
+  if (!feedback) { document.getElementById('modal-ta').focus(); return; }
+  if (modalCallback) await modalCallback(feedback);
+}
+
+// HELPERS
 function setLoading(btnId, on, label) {
-  const btn = document.getElementById(btnId);
+  var btn = document.getElementById(btnId);
   btn.disabled = on;
-  btn.innerHTML = on
-    ? `<span class="spinner"></span>Working…`
-    : `<span>${label}</span><span style="opacity:.7">→</span>`;
+  if (on) {
+    btn.innerHTML = '<span class="spinner"></span>Working\u2026';
+  } else {
+    btn.innerHTML = '<span>' + label + '</span><span style="opacity:.7">\u2192</span>';
+  }
 }
-
 function showErr(id, msg) {
-  const el = document.getElementById(id);
+  var el = document.getElementById(id);
   el.textContent = msg || '';
   el.classList.toggle('hidden', !msg);
 }
-
 function esc(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-function copyToClip(btn, text) {
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = '✓ Copied';
-    btn.classList.add('done');
-    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 2000);
-  }).catch(() => {
-    btn.textContent = 'Copy'; // fail silently
+function renderCopyText(raw) {
+  if (!raw) return '';
+  var s = String(raw).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\[(Visual:[^\]]+|Image:[^\]]+|Add\s[^\]]+)\]/g, function(m, inner){
+    return '<span class="visual-hint">' + inner.trim() + '</span>';
   });
+  s = s.replace(/\n/g, '<br>');
+  return s;
+}
+function copyToClip(btn, text) {
+  navigator.clipboard.writeText(text).then(function(){
+    btn.textContent = '\u2713 Copied';
+    btn.classList.add('done');
+    setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('done'); }, 2000);
+  }).catch(function(){});
 }
 
-// ─── COPY TYPE CONFIG ─────────────────────────────────────────
-
-const CT = {
-  'Headline':            { label: 'Core Message', ph: 'The single most important thing this headline must communicate...', product: false },
-  'Tagline':             { label: 'What the brand stands for', ph: 'What feeling or truth should this tagline capture?', product: false },
-  'Product Description': { label: 'Key Benefits to Highlight', ph: 'Top 2-3 features or benefits to focus on...', product: true },
-  'General Description': { label: 'What to Communicate', ph: 'What should readers understand and feel after reading?', product: true },
-  'Social Caption':      { label: 'Hook & Purpose', ph: "What's the one thing this post needs to do? What's the hook?", product: false },
-  'Email Subject':       { label: 'Email Context & Goal', ph: 'What is this email about and what action should it drive?', product: false },
-  'Email Copy':          { label: 'Core Message & CTA', ph: 'What is the main point and what do you want them to do?', product: true },
+var CT = {
+  'Headline':            { label: 'Core Message',            ph: 'The single most important thing this headline must communicate...', product: false },
+  'Tagline':              { label: 'What the brand stands for', ph: 'What feeling or truth should this tagline capture?',                 product: false },
+  'Product Description': { label: 'Key Benefits to Highlight', ph: 'Top 2-3 features or benefits to focus on...',                         product: true  },
+  'General Description': { label: 'What to Communicate',      ph: 'What should readers understand and feel after reading?',               product: true  },
+  'Social Caption':      { label: 'Hook & Purpose',            ph: "What's the one thing this post needs to do?",                        product: false },
+  'Email Subject':       { label: 'Email Context & Goal',      ph: 'What is this email about and what action should it drive?',         product: false },
+  'Email Copy':          { label: 'Core Message & CTA',        ph: 'What is the main point and what do you want them to do?',            product: true  },
 };
-
 function updateCopyForm() {
-  const type = getPill('ct-pills');
-  const cfg = CT[type] || CT['Headline'];
+  var type = getPill('ct-pills');
+  var cfg  = CT[type] || CT['Headline'];
   document.getElementById('c-ctx-label').textContent = cfg.label;
   document.getElementById('c-ctx').placeholder = cfg.ph;
   document.getElementById('c-product-wrap').classList.toggle('hidden', !cfg.product);
 }
 updateCopyForm();
 
-// ─── BIAS TAG ─────────────────────────────────────────────────
-
-let activePop = null;
-
-document.addEventListener('click', (e) => {
+var activePop = null;
+document.addEventListener('click', function(e){
   if (!e.target.closest('.bias-wrap') && activePop) {
-    activePop.classList.remove('open');
-    activePop = null;
+    activePop.classList.remove('open'); activePop = null;
   }
 });
-
 function makeBiasTag(b) {
   if (!b || !b.name) return '';
-  const id = 'pop_' + Math.random().toString(36).slice(2,8);
-  return `
-    <div class="bias-wrap">
-      <div class="bias-tag" tabindex="0" role="button" onclick="togglePop('${id}',event)" onkeydown="if(event.key==='Enter')togglePop('${id}',event)">
-        ${esc(b.name)} <i class="info-i">i</i>
-      </div>
-      <div class="bias-popup" id="${id}" role="tooltip">
-        <div class="bp-name">${esc(b.name)}</div>
-        <div class="bp-what">${esc(b.explanation||'')}</div>
-        <div class="bp-how-label">Applied here</div>
-        <div class="bp-how">${esc(b.application||'')}</div>
-      </div>
-    </div>`;
+  var id = 'pop_' + Math.random().toString(36).slice(2,8);
+  return '<div class="bias-wrap">'
+    + '<div class="bias-tag" tabindex="0" role="button" onclick="togglePop(\'' + id + '\',event)">'
+    + esc(b.name) + ' <i class="info-i">i</i></div>'
+    + '<div class="bias-popup" id="' + id + '" role="tooltip">'
+    + '<div class="bp-name">' + esc(b.name) + '</div>'
+    + '<div class="bp-what">' + esc(b.explanation||'') + '</div>'
+    + '<div class="bp-how-label">Applied here</div>'
+    + '<div class="bp-how">' + esc(b.application||'') + '</div>'
+    + '</div></div>';
 }
-
 function togglePop(id, e) {
   if (e) e.stopPropagation();
-  const el = document.getElementById(id);
+  var el = document.getElementById(id);
   if (!el) return;
-  if (activePop && activePop !== el) { activePop.classList.remove('open'); }
-  const opening = !el.classList.contains('open');
+  if (activePop && activePop !== el) activePop.classList.remove('open');
+  var opening = !el.classList.contains('open');
   el.classList.toggle('open', opening);
   activePop = opening ? el : null;
 }
 
-// ─── API CALL ─────────────────────────────────────────────────
-
 async function callAI(prompt) {
-  const res = await fetch('/api/generate', {
+  var res = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt })
+    body: JSON.stringify({ prompt: prompt })
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
+    var err = await res.json().catch(function(){ return {}; });
     throw new Error(err.error || 'Server error (HTTP ' + res.status + ')');
   }
-  const d = await res.json();
-  // Server already validates JSON before sending — parse directly
-  try {
-    return JSON.parse(d.text);
-  } catch(e) {
-    // Fallback: try to extract a JSON object from any surrounding text
-    const match = (d.text || '').match(/\{[\s\S]*\}/);
-    if (match) {
-      try { return JSON.parse(match[0]); } catch(_) {}
-    }
+  var d = await res.json();
+  try { return JSON.parse(d.text); } catch(e) {
+    var match = (d.text || '').match(/\{[\s\S]*\}/);
+    if (match) { try { return JSON.parse(match[0]); } catch(_){} }
     throw new Error('Could not parse response. Please try again.');
   }
 }
 
-// ─── COPYWRITER ───────────────────────────────────────────────
+function calcBiasScore(working, missing) {
+  var raw = 5 + (Math.min((working||[]).length, 6) * 0.7) - (Math.min((missing||[]).length, 5) * 0.5);
+  return Math.round(Math.max(2.0, Math.min(9.5, raw)) * 2) / 2;
+}
+function scoreCopyVariant(v) {
+  var biases = v.biases && v.biases.length ? v.biases : [v.primaryBias, v.secondaryBias].filter(function(b){ return b && b.name; });
+  return calcBiasScore(biases, []);
+}
+
+function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo, feedback) {
+  var biasNote = turbo
+    ? 'CRITICAL: Each variant MUST apply at least 6 distinct named biases. List ALL in the biases array. Copy must be extraordinary.'
+    : 'Each variant must apply at least 4 distinct named biases. List ALL in the biases array.';
+  var label = (CT[type] && CT[type].label) ? CT[type].label : 'Core Message';
+  var lines = ['Write 3 behaviorally distinct ' + type + ' variants. Each must be genuinely different.',
+    '', 'Brand: ' + brand, label + ': ' + ctx];
+  if (product)  lines.push('Product detail: ' + product);
+  if (audience) lines.push('Target Audience: ' + audience);
+  if (tone)      lines.push('Tone: ' + tone);
+  if (refs.length) lines.push('Brand Voice References:', refs.map(function(r,i){ return (i+1)+'. "'+r+'"'; }).join('\n'));
+  lines.push('', biasNote);
+  if (feedback) lines.push('User feedback: ' + feedback + '. Rework all variants accordingly.');
+  lines.push('', 'Return JSON only:', '{"variants":[{"copy":"text","biases":[{"name":"Bias Name","explanation":"one sentence","application":"exactly how applied"}],"primaryBias":{"name":"...","explanation":"...","application":"..."},"secondaryBias":{"name":"...","explanation":"...","application":"..."}}]}');
+  return lines.join('\n');
+}
+
+function buildCopyHtml(variants, isLong) {
+  var html = '<div class="results-label">3 Behaviorally-Engineered Variants</div>';
+  variants.forEach(function(v, i) {
+    var biases = v.biases && v.biases.length ? v.biases : [v.primaryBias, v.secondaryBias].filter(function(b){ return b && b.name; });
+    var sc = calcBiasScore(biases, []);
+    var scCol = sc >= 8.5 ? 'var(--green)' : sc >= 7 ? 'var(--amber)' : 'var(--red)';
+    html += '<div class="copy-card">'
+      + '<div class="card-num" style="display:flex;justify-content:space-between;align-items:center;">'
+      + '<span>VARIANT ' + (i+1) + '</span>'
+      + '<span style="font-size:11px;font-weight:700;color:' + scCol + ';">\u25cf ' + sc + '/10</span></div>'
+      + '<div class="' + (isLong ? 'copy-long' : 'copy-short') + '">' + renderCopyText(v.copy) + '</div>'
+      + '<div class="card-foot"><div class="bias-tags">' + biases.slice(0,3).map(makeBiasTag).join('') + '</div>'
+      + '<button class="copy-btn" onclick="copyToClip(this,' + JSON.stringify(v.copy).replace(/"/g, '&quot;') + ')">Copy</button>'
+      + '</div></div>';
+  });
+  html += '<div class="show-more-bar"><button class="show-more-btn" onclick="openCopyMoreOptions()">'
+    + '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
+    + ' Show me more options</button></div>';
+  return html;
+}
 
 async function generateCopy() {
-  const brand = document.getElementById('c-brand').value.trim();
-  const ctx   = document.getElementById('c-ctx').value.trim();
-  if (!brand || !ctx) { showErr('copy-err', 'Brand name and the key message are required.'); return; }
-
-  const type     = getPill('ct-pills');
-  const product  = document.getElementById('c-product').value.trim();
-  const audience = document.getElementById('c-audience').value.trim();
-  const tone     = document.getElementById('c-tone').value.trim();
-  const refs = ['c-r1','c-r2','c-r3'].map(id => document.getElementById(id).value.trim()).filter(Boolean);
-  const isLong = ['Product Description','General Description','Email Copy'].includes(type);
-
+  var brand = document.getElementById('c-brand').value.trim();
+  var ctx   = document.getElementById('c-ctx').value.trim();
+  if (!brand || !ctx) { showErr('copy-err', 'Brand name and core message are required.'); return; }
+  var type    = getPill('ct-pills');
+  var product = document.getElementById('c-product').value.trim();
+  var audience= document.getElementById('c-audience').value.trim();
+  var tone    = document.getElementById('c-tone').value.trim();
+  var refs    = ['c-r1','c-r2','c-r3'].map(function(id){ return document.getElementById(id).value.trim(); }).filter(Boolean);
+  var isLong  = ['Product Description','General Description','Email Copy'].indexOf(type) >= 0;
   setLoading('copy-btn', true, 'Generate Copy');
   showErr('copy-err', '');
   document.getElementById('copy-out').innerHTML = '';
-
-  const prompt = `Write 3 behaviorally distinct ${type} variants for this brief. Each must apply a DIFFERENT behavioral bias from the library. Make each genuinely distinct in approach and angle — not subtle variations of each other.
-
-Brand: ${brand}
-${CT[type].label}: ${ctx}
-${product ? 'Product detail: ' + product : ''}
-${audience ? 'Target Audience: ' + audience : ''}
-${tone ? 'Tone: ' + tone : ''}
-${refs.length ? 'Brand Voice References (mirror this style/voice):\n' + refs.map((r,i)=>`${i+1}. "${r}"`).join('\n') : ''}
-
-Return JSON only (no markdown, no preamble):
-{"variants":[{"copy":"the copy text here","primaryBias":{"name":"Exact Bias Name from the library","explanation":"What this bias is in one clear sentence","application":"Precisely how it was applied in this copy — be specific"},"secondaryBias":{"name":"optional second bias name, or empty string","explanation":"...","application":"..."}}]}`;
-
+  lastCopyPrompt = { type:type, brand:brand, ctx:ctx, product:product, audience:audience, tone:tone, refs:refs, isLong:isLong };
   try {
-    const data = await callAI(prompt);
-    const html = (data.variants || []).map((v, i) => `
-      <div class="copy-card">
-        <div class="card-num">VARIANT ${i+1}</div>
-        <div class="${isLong ? 'copy-long' : 'copy-short'}">${esc(v.copy)}</div>
-        <div class="card-foot">
-          <div class="bias-tags">
-            ${makeBiasTag(v.primaryBias)}
-            ${v.secondaryBias?.name ? makeBiasTag(v.secondaryBias) : ''}
-          </div>
-          <button class="copy-btn" onclick="copyToClip(this,${JSON.stringify(v.copy)})">Copy</button>
-        </div>
-      </div>`).join('');
-    document.getElementById('copy-out').innerHTML =
-      `<div class="results-label">3 Behaviorally-Engineered Variants</div>${html}`;
+    var data = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, false, ''));
+    var variants = data.variants || [];
+    var minScore = variants.length ? Math.min.apply(null, variants.map(scoreCopyVariant)) : 0;
+    if (minScore < 8.5 && variants.length > 0) {
+      try {
+        var data2 = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, true, ''));
+        if (data2.variants && data2.variants.length > 0) {
+          var newMin = Math.min.apply(null, data2.variants.map(scoreCopyVariant));
+          if (newMin >= minScore) variants = data2.variants;
+        }
+      } catch(_) {}
+    }
+    document.getElementById('copy-out').innerHTML = buildCopyHtml(variants, isLong);
   } catch(e) {
-    showErr('copy-err', 'Generation failed — ' + (e.message || 'please try again.'));
+    showErr('copy-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
   }
   setLoading('copy-btn', false, 'Generate Copy');
 }
+function openCopyMoreOptions() {
+  if (!lastCopyPrompt) return;
+  openModal('Show me more options', 'Tell us what to change and we will regenerate all 3 variants.',
+    'e.g. More urgency, try a different emotional angle, shorter, more playful...',
+    async function(feedback) {
+      var p = lastCopyPrompt;
+      setModalLoading('Regenerating with your feedback\u2026', 'Applying behavioral biases\u2026');
+      try {
+        var data = await callAI(buildCopyPrompt(p.type, p.brand, p.ctx, p.product, p.audience, p.tone, p.refs, false, feedback));
+        document.getElementById('copy-out').innerHTML = buildCopyHtml(data.variants || [], p.isLong);
+        closeModal();
+      } catch(e) { closeModal(); showErr('copy-err', 'Regeneration failed \u2014 ' + (e.message||'please try again.')); }
+    });
+}
 
-// ─── NAME GENERATOR ───────────────────────────────────────────
-
+function buildNamePrompt(what, audience, cat, inc, avoid, existing, guard, feedback) {
+  var lines = ['Generate exactly 8 product names. Each uses a DIFFERENT naming principle. Make each genuinely distinct.',
+    '', 'Product: ' + what];
+  if (audience) lines.push('Audience: ' + audience);
+  if (cat)      lines.push('Category: ' + cat);
+  if (inc)      lines.push('Must include/evoke: ' + inc);
+  if (avoid)    lines.push('Avoid: ' + avoid);
+  if (existing.length) lines.push('Portfolio names: ' + existing.join(', '));
+  if (guard)    lines.push('Guardrails: ' + guard);
+  if (feedback) lines.push('User feedback: ' + feedback);
+  lines.push('', 'Rules: description max 50 chars. Tagline exactly 3-4 words.',
+    '', 'Return JSON only:',
+    '{"names":[{"name":"ProductName","description":"max 50 chars","tagline":"3-4 word tagline","technique":{"name":"Principle","explanation":"1 sentence","application":"1 sentence"}}]}');
+  return lines.join('\n');
+}
+function buildNameHtml(names) {
+  var html = '<div class="results-label">8 Behaviorally-Engineered Names</div>';
+  names.forEach(function(n, i) {
+    html += '<div class="name-card"><div class="name-num">' + String(i+1).padStart(2,'0') + '</div>'
+      + '<div class="name-body"><div class="name-text">' + esc(n.name) + '</div>'
+      + '<div class="name-desc">' + esc(n.description||'') + '</div>'
+      + '<div class="name-tagline">' + esc(n.tagline||'') + '</div>'
+      + '<div class="name-foot">'
+      + (n.technique && n.technique.name ? makeBiasTag(n.technique) : '')
+      + '<button class="copy-btn" onclick="copyToClip(this,' + JSON.stringify(n.name).replace(/"/g, '&quot;') + ')">Copy</button>'
+      + '</div></div></div>';
+  });
+  html += '<div class="show-more-bar"><button class="show-more-btn" onclick="openNameMoreOptions()">'
+    + '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
+    + ' Show me more options</button></div>';
+  return html;
+}
 async function generateNames() {
-  const what = document.getElementById('n-what').value.trim();
+  var what = document.getElementById('n-what').value.trim();
   if (!what) { showErr('name-err', 'Please describe what the product does.'); return; }
-
-  const audience = document.getElementById('n-audience').value.trim();
-  const cat      = document.getElementById('n-cat').value.trim();
-  const inc      = document.getElementById('n-inc').value.trim();
-  const avoid    = document.getElementById('n-avoid').value.trim();
-  const existing = ['n-r1','n-r2','n-r3'].map(id => document.getElementById(id).value.trim()).filter(Boolean);
-  const guard    = document.getElementById('n-guard').value.trim();
-
+  var audience = document.getElementById('n-audience').value.trim();
+  var cat       = document.getElementById('n-cat').value.trim();
+  var inc       = document.getElementById('n-inc').value.trim();
+  var avoid     = document.getElementById('n-avoid').value.trim();
+  var existing = ['n-r1','n-r2','n-r3'].map(function(id){ return document.getElementById(id).value.trim(); }).filter(Boolean);
+  var guard     = document.getElementById('n-guard').value.trim();
   setLoading('name-btn', true, 'Generate Names');
   showErr('name-err', '');
   document.getElementById('name-out').innerHTML = '';
-
-  const prompt = `Generate exactly 8 product names. Each must use a DIFFERENT naming principle or behavioral bias from the library. Make each genuinely distinct in approach.
-
-Product: ${what}
-${audience ? 'Audience: ' + audience : ''}
-${cat ? 'Category: ' + cat : ''}
-${inc ? 'Must include/evoke: ' + inc : ''}
-${avoid ? 'Avoid: ' + avoid : ''}
-${existing.length ? 'Existing product names in portfolio (maintain family coherence): ' + existing.join(', ') : ''}
-${guard ? 'Guardrails: ' + guard : ''}
-
-Strict rules: description must be ≤50 characters. Tagline must be exactly 3-4 words. Each name must use a different principle.
-
-Return JSON only (no markdown, no preamble):
-{"names":[{"name":"ProductName","description":"max 50 chars — what it is","tagline":"3-4 word tagline","technique":{"name":"Naming Principle / Bias Name","explanation":"What this principle is — 1 sentence","application":"How it shaped this specific name — 1 sentence"}}]}`;
-
+  lastNamePrompt = { what:what, audience:audience, cat:cat, inc:inc, avoid:avoid, existing:existing, guard:guard };
   try {
-    const data = await callAI(prompt);
-    const html = (data.names || []).map((n, i) => `
-      <div class="name-card">
-        <div class="name-num">${String(i+1).padStart(2,'0')}</div>
-        <div class="name-body">
-          <div class="name-text">${esc(n.name)}</div>
-          <div class="name-desc">${esc(n.description||'')}</div>
-          <div class="name-tagline">${esc(n.tagline||'')}</div>
-          <div class="name-foot">
-            ${n.technique?.name ? makeBiasTag(n.technique) : ''}
-            <button class="copy-btn" onclick="copyToClip(this,${JSON.stringify(n.name)})">Copy</button>
-          </div>
-        </div>
-      </div>`).join('');
-    document.getElementById('name-out').innerHTML =
-      `<div class="results-label">8 Behaviorally-Engineered Names</div>${html}`;
+    var data = await callAI(buildNamePrompt(what, audience, cat, inc, avoid, existing, guard, ''));
+    document.getElementById('name-out').innerHTML = buildNameHtml(data.names || []);
   } catch(e) {
-    showErr('name-err', 'Generation failed — ' + (e.message || 'please try again.'));
+    showErr('name-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
   }
   setLoading('name-btn', false, 'Generate Names');
 }
+function openNameMoreOptions() {
+  if (!lastNamePrompt) return;
+  openModal('Show me more options', 'What direction should the new names explore? All 8 names will be refreshed.',
+    'e.g. More playful, shorter names, avoid foreign words, more premium sounding...',
+    async function(feedback) {
+      var p = lastNamePrompt;
+      setModalLoading('Generating 8 new names\u2026', 'Applying naming science\u2026');
+      try {
+        var data = await callAI(buildNamePrompt(p.what, p.audience, p.cat, p.inc, p.avoid, p.existing, p.guard, feedback));
+        document.getElementById('name-out').innerHTML = buildNameHtml(data.names || []);
+        closeModal();
+      } catch(e) { closeModal(); showErr('name-err', 'Regeneration failed \u2014 ' + (e.message||'please try again.')); }
+    });
+}
 
-// ─── BIAS AUDIT ───────────────────────────────────────────────
-
+function buildAuditPrompt(copy, brand, extra) {
+  return 'Perform a comprehensive behavioral science audit of this copy.\n\n'
+    + 'Copy: "' + copy.replace(/"/g, '\\"') + '"\n'
+    + (brand ? 'Brand/Product: ' + brand + '\n' : '')
+    + (extra  ? extra + '\n' : '')
+    + '\nIdentify biases actively present (working) and missing but impactful (missing). Write an improved rewrite.\n'
+    + 'DO NOT include a score.\n'
+    + 'In the rewrite: use **bold** for key phrases. Include [Visual: your suggestion] tags for image ideas.\n\n'
+    + 'Return JSON only:\n'
+    + '{"summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence"}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}';
+}
+function buildAuditHtml(d) {
+  var working = d.working || [], missing = d.missing || [];
+  var sc = calcBiasScore(working, missing);
+  var scoreCol = sc >= 7.5 ? 'var(--green)' : sc >= 5 ? 'var(--amber)' : 'var(--red)';
+  var workItems = working.map(function(w){
+    return '<div class="audit-item"><div class="a-dot" style="background:var(--green);"></div>'
+      + '<div><span class="a-bias-name" style="color:var(--green);">' + esc(w.bias) + ': </span>'
+      + '<span class="a-bias-desc">' + esc(w.how) + '</span></div></div>';
+  }).join('') || '<div class="audit-item"><div class="a-dot" style="background:var(--dim);"></div><div class="a-bias-desc">No strong biases detected.</div></div>';
+  var missItems = missing.map(function(m){
+    return '<div class="audit-item"><div class="a-dot" style="background:var(--amber);"></div>'
+      + '<div><span class="a-bias-name" style="color:var(--amber);">' + esc(m.bias) + ': </span>'
+      + '<span class="a-bias-desc">' + esc(m.opportunity) + '</span></div></div>';
+  }).join('');
+  return '<div class="results-label">Audit Results</div>'
+    + '<div class="score-card"><div>'
+    + '<div class="score-num" style="color:' + scoreCol + ';">' + sc + '</div>'
+    + '<div class="score-den">/ 10</div></div><div class="score-sep"></div>'
+    + '<div class="score-body"><div class="score-label-text">Behavioral Score</div>'
+    + '<div class="score-summary">' + esc(d.summary||'') + '</div></div></div>'
+    + '<button class="audit-toggle" id="working-toggle" onclick="toggleAuditSection(\'working-body\',\'working-toggle\')">'
+    + '<span class="audit-toggle-left" style="color:var(--green);">\u2713 What\'s Working</span>'
+    + '<span class="audit-toggle-right"><span class="audit-count" style="background:var(--greenbg);color:var(--green);border:1px solid var(--greenbd);">' + working.length + '</span>'
+    + '<span class="audit-chevron">\u25bc</span></span></button>'
+    + '<div class="audit-body hidden" id="working-body">' + workItems + '</div>'
+    + '<button class="audit-toggle" id="missing-toggle" onclick="toggleAuditSection(\'missing-body\',\'missing-toggle\')">'
+    + '<span class="audit-toggle-left" style="color:var(--amber);">\u2295 Missing Opportunities</span>'
+    + '<span class="audit-toggle-right"><span class="audit-count" style="background:var(--amberbg);color:var(--amber);border:1px solid var(--amberbd);">' + missing.length + '</span>'
+    + '<span class="audit-chevron">\u25bc</span></span></button>'
+    + '<div class="audit-body hidden" id="missing-body" style="margin-bottom:20px;">' + missItems + '</div>'
+    + '<div class="rewrite-card"><div class="rw-header">\u2191 Improved Version</div>'
+    + '<div class="rw-text">' + renderCopyText(d.rewrite||'') + '</div>'
+    + '<div class="bias-tags" style="margin-bottom:16px;">'
+    + (d.rwBias1 && d.rwBias1.name ? makeBiasTag(d.rwBias1) : '')
+    + (d.rwBias2 && d.rwBias2.name ? makeBiasTag(d.rwBias2) : '')
+    + '</div><div class="show-more-bar">'
+    + '<button class="show-more-btn" onclick="openAuditMoreOptions()">'
+    + '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
+    + ' Show me more options</button>'
+    + '<button class="show-more-btn gold" onclick="generateMax9Copy()">\u2605 Give me a 9+ copy</button>'
+    + '</div></div>';
+}
 async function runAudit() {
-  const copy = document.getElementById('a-copy').value.trim();
+  var copy = document.getElementById('a-copy').value.trim();
   if (!copy) { showErr('audit-err', 'Please paste your copy first.'); return; }
-  const brand = document.getElementById('a-brand').value.trim();
-
+  var brand = document.getElementById('a-brand').value.trim();
   setLoading('audit-btn', true, 'Audit My Copy');
   showErr('audit-err', '');
   document.getElementById('audit-out').innerHTML = '';
-
-  const prompt = `Perform a comprehensive behavioral science audit of this copy.
-
-Copy: "${copy}"
-${brand ? 'Brand/Product context: ' + brand : ''}
-
-Identify present biases, missing opportunities, score out of 10 on behavioral effectiveness, and provide a superior rewrite.
-
-Return JSON only (no markdown, no preamble):
-{"score":7.5,"summary":"One-sentence overall behavioral assessment","working":[{"bias":"Exact Bias Name","how":"Precisely how this bias operates in the copy — 1 sentence"}],"missing":[{"bias":"Exact Bias Name","opportunity":"Exactly how adding this bias would improve this specific copy — 1-2 sentences"}],"rewrite":"The full improved copy here","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}`;
-
+  lastAuditPrompt = { copy:copy, brand:brand };
   try {
-    const d = await callAI(prompt);
-    const sc = parseFloat(d.score) || 5;
-    const scoreCol = sc >= 7 ? 'var(--green)' : sc >= 5 ? 'var(--amber)' : 'var(--red)';
-    const workHtml = (d.working || []).map(w => `
-      <div class="audit-item">
-        <div class="a-dot" style="background:var(--green);"></div>
-        <div><span class="a-bias-name" style="color:var(--green);">${esc(w.bias)}: </span><span class="a-bias-desc">${esc(w.how)}</span></div>
-      </div>`).join('') || `<div class="audit-item"><div class="a-dot" style="background:var(--dim);"></div><div class="a-bias-desc">No strong biases detected.</div></div>`;
-    const missHtml = (d.missing || []).map(m => `
-      <div class="audit-item">
-        <div class="a-dot" style="background:var(--amber);"></div>
-        <div><span class="a-bias-name" style="color:var(--amber);">${esc(m.bias)}: </span><span class="a-bias-desc">${esc(m.opportunity)}</span></div>
-      </div>`).join('');
-
-    document.getElementById('audit-out').innerHTML = `
-      <div class="results-label">Audit Results</div>
-      <div class="score-card">
-        <div>
-          <div class="score-num" style="color:${scoreCol};">${sc}</div>
-          <div class="score-den">/ 10</div>
-        </div>
-        <div class="score-sep"></div>
-        <div class="score-body">
-          <div class="score-label-text">Behavioral Score</div>
-          <div class="score-summary">${esc(d.summary||'')}</div>
-        </div>
-      </div>
-      <div style="margin-bottom:16px;">
-        <div class="audit-group" style="color:var(--green);">✓ What's Working</div>
-        ${workHtml}
-      </div>
-      <div style="margin-bottom:24px;">
-        <div class="audit-group" style="color:var(--amber);">⊕ Missing Opportunities</div>
-        ${missHtml}
-      </div>
-      <div class="rewrite-card">
-        <div class="rw-header">↑ Improved Version</div>
-        <div class="rw-text">${esc(d.rewrite||'')}</div>
-        <div class="bias-tags">
-          ${d.rwBias1?.name ? makeBiasTag(d.rwBias1) : ''}
-          ${d.rwBias2?.name ? makeBiasTag(d.rwBias2) : ''}
-        </div>
-      </div>`;
+    var d = await callAI(buildAuditPrompt(copy, brand, ''));
+    document.getElementById('audit-out').innerHTML = buildAuditHtml(d);
   } catch(e) {
-    showErr('audit-err', 'Generation failed — ' + (e.message || 'please try again.'));
+    showErr('audit-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
   }
   setLoading('audit-btn', false, 'Audit My Copy');
 }
+function openAuditMoreOptions() {
+  if (!lastAuditPrompt) return;
+  openModal('Show me more options', 'Tell us how to refine the improved version.',
+    'e.g. Make it shorter, add more urgency, try a completely different angle...',
+    async function(feedback) {
+      var p = lastAuditPrompt;
+      setModalLoading('Rewriting with your feedback\u2026', 'Applying behavioral science\u2026');
+      try {
+        var d = await callAI(buildAuditPrompt(p.copy, p.brand, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.'));
+        document.getElementById('audit-out').innerHTML = buildAuditHtml(d);
+        closeModal();
+      } catch(e) { closeModal(); showErr('audit-err', 'Regeneration failed \u2014 ' + (e.message||'please try again.')); }
+    });
+}
+async function generateMax9Copy() {
+  if (!lastAuditPrompt) return;
+  var p = lastAuditPrompt;
+  var biasTargets = '[S1] Social Proof, [K12] Loss Aversion, [S41] Scarcity, [S10] Precision, [P3] Emotional Dynamism, [S9] Concreteness, [S34] Pratfall Effect';
+  document.getElementById('refine-modal').classList.add('open');
+  setModalLoading('Targeting a 9+ behavioral score\u2026', 'Attempt 1 of 3\u2026');
+  var bestResult = null, bestScore = 0;
+  for (var attempt = 1; attempt <= 3; attempt++) {
+    document.getElementById('modal-loading-step').textContent = 'Attempt ' + attempt + ' of 3...';
+    var prevMissing = bestResult ? (bestResult.missing||[]).map(function(m){ return m.bias; }).join(', ') : '';
+    var instruction = attempt === 1
+      ? 'CRITICAL: The rewrite MUST apply ALL 7 of these biases: ' + biasTargets + '. Use **bold** for key phrases and [Visual: ...] for image ideas.'
+      : 'CRITICAL: Previous attempt missed these biases: ' + prevMissing + '. Ensure ALL of these are now applied: ' + biasTargets + '. Use **bold** and [Visual: ...] tags.';
+    try {
+      var d = await callAI(buildAuditPrompt(p.copy, p.brand, instruction));
+      var sc = calcBiasScore(d.working||[], d.missing||[]);
+      if (sc > bestScore) { bestScore = sc; bestResult = d; }
+      if (sc >= 9) break;
+    } catch(e) { break; }
+  }
+  document.getElementById('refine-modal').classList.remove('open');
+  if (bestResult) {
+    document.getElementById('audit-out').innerHTML = buildAuditHtml(bestResult);
+    document.getElementById('audit-out').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    showErr('audit-err', 'Could not generate a 9+ copy. Please try again.');
+  }
+}
 </script>
+<div class="modal-backdrop" id="refine-modal" onclick="closeModal(event)">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div id="modal-form-state">
+      <div class="modal-title" id="modal-title">Show me more options</div>
+      <div class="modal-sub" id="modal-sub">Tell us what direction you want to explore. We'll regenerate with that in mind.</div>
+      <textarea class="modal-ta" id="modal-ta" placeholder="e.g. Make it more urgent, try a different angle, shorter copy, more emotional..."></textarea>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-go" id="modal-go-btn" onclick="submitModal()">
+          <span id="modal-go-label">Regenerate</span>
+          <span class="modal-spinner" id="modal-spinner"></span>
+        </button>
+      </div>
+    </div>
+    <div id="modal-loading-state" class="modal-loading hidden">
+      <div class="modal-loading-icon"></div>
+      <div class="modal-loading-text" id="modal-loading-text">Regenerating with your feedback…</div>
+      <div class="modal-loading-step" id="modal-loading-step"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
