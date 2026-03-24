@@ -475,7 +475,6 @@
     <h1 class="page-title">Copywriter</h1>
     <p class="page-sub">Every word earned through behavioral logic.</p>
 
-    <!-- 1. Copy Type FIRST -->
     <div class="field">
       <div class="label">Copy Type</div>
       <div class="pills" id="ct-pills">
@@ -489,54 +488,49 @@
       </div>
     </div>
 
-    <!-- 2. Brand -->
     <div class="field">
       <div class="label">Brand / Product Name</div>
       <input id="c-brand" placeholder="e.g. Zomato, Noise, Mamaearth" autocomplete="off">
     </div>
 
-    <!-- 3. Dynamic context field (changes based on copy type) -->
     <div class="field">
       <div class="label" id="c-ctx-label">Core Message</div>
       <textarea id="c-ctx" rows="3" placeholder="The single most important thing this headline must communicate..."></textarea>
     </div>
 
-    <!-- 4. Product detail — shown only for Description/Email Copy -->
     <div class="field hidden" id="c-product-wrap">
       <div class="label">Product / Service Detail</div>
       <textarea id="c-product" rows="3" placeholder="What does it do and why does it matter? Be specific..."></textarea>
     </div>
 
-    <!-- 5. Audience — optional for all -->
-    <div class="field">
-      <div class="label">Target Audience <span class="opt">optional</span></div>
-      <input id="c-audience" placeholder="e.g. Urban millennials, first-time parents, 28–38">
-    </div>
-
-    <!-- 6. Tone — optional -->
-    <div class="field">
-      <div class="label">Tone <span class="opt">optional</span></div>
-      <input id="c-tone" placeholder="e.g. Witty, warm, authoritative, provocative">
-    </div>
-
-    <!-- 7. Reference copies — collapsible -->
-    <button class="ref-toggle" id="copy-ref-btn" onclick="toggleCollapse('copy-ref','copy-ref-btn','Reference copies for brand tone','Hide reference copies')">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      Reference copies for brand tone <span class="opt">optional</span>
+    <button class="more-btn" id="copy-more-btn" onclick="toggleMore('copy-more','copy-more-btn')">
+      <span class="more-btn-left">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Add more details for sharper copy
+      </span>
+      <span class="opt">optional</span>
     </button>
-    <div class="ref-area hidden" id="copy-ref">
-      <div class="field"><div class="label">Copy 1</div><textarea id="c-r1" rows="2" placeholder="Paste existing copy that shows your brand's voice..."></textarea></div>
-      <div class="field"><div class="label">Copy 2</div><textarea id="c-r2" rows="2" placeholder="Another example..."></textarea></div>
-      <div class="field" style="margin-bottom:0"><div class="label">Copy 3</div><textarea id="c-r3" rows="2" placeholder="One more..."></textarea></div>
+    <div class="more-panel hidden" id="copy-more">
+      <div class="field">
+        <div class="label">Target Audience</div>
+        <input id="c-audience" placeholder="e.g. Urban millennials, first-time parents, 28-38">
+      </div>
+      <div class="field">
+        <div class="label">Tone</div>
+        <input id="c-tone" placeholder="e.g. Witty, warm, authoritative, provocative">
+      </div>
+      <div class="more-sub-label">Reference copies — so we match your brand voice</div>
+      <div class="field"><textarea id="c-r1" rows="2" placeholder="Paste existing copy 1..."></textarea></div>
+      <div class="field"><textarea id="c-r2" rows="2" placeholder="Paste existing copy 2..."></textarea></div>
+      <div class="field" style="margin-bottom:0"><textarea id="c-r3" rows="2" placeholder="Paste existing copy 3..."></textarea></div>
     </div>
 
     <button class="gen-btn" id="copy-btn" onclick="generateCopy()">
-      <span>Generate Copy</span><span style="opacity:.7">→</span>
+      <span>Generate Copy</span><span style="opacity:.7">&#8594;</span>
     </button>
     <div class="err hidden" id="copy-err"></div>
     <div id="copy-out"></div>
   </section>
-
   <!-- ══════════════ NAME GENERATOR ══════════════ -->
   <section id="tab-names" class="hidden" role="tabpanel">
     <h1 class="page-title">Name Generator</h1>
@@ -544,53 +538,53 @@
 
     <div class="field">
       <div class="label">What does the product do?</div>
-      <textarea id="n-what" rows="3" placeholder="Describe clearly. What is the core benefit? How does it work? The more specific, the better the names..."></textarea>
+      <textarea id="n-what" rows="3" placeholder="Describe clearly. What is the core benefit? The more specific, the better the names..."></textarea>
     </div>
 
-    <div class="field">
-      <div class="label">Who is it for? <span class="opt">optional</span></div>
-      <input id="n-audience" placeholder="e.g. First-time homebuyers, D2C skincare enthusiasts, Gen Z">
-    </div>
-
-    <div class="g2">
-      <div class="field">
-        <div class="label">Category <span class="opt">optional</span></div>
-        <input id="n-cat" placeholder="e.g. Fintech, Skincare">
-      </div>
-      <div class="field">
-        <div class="label">Include sounds <span class="opt">optional</span></div>
-        <input id="n-inc" placeholder="e.g. soft vowels, nature words">
-      </div>
-    </div>
-
-    <div class="field">
-      <div class="label">Avoid <span class="opt">optional</span></div>
-      <input id="n-avoid" placeholder="e.g. harsh K/X sounds, tech jargon, Z endings">
-    </div>
-
-    <button class="ref-toggle" onclick="toggleCollapse('name-ref',this,'Existing names + guardrails','Hide existing names + guardrails')">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      Existing names + guardrails <span class="opt">optional</span>
+    <button class="more-btn" id="name-more-btn" onclick="toggleMore('name-more','name-more-btn')">
+      <span class="more-btn-left">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Add more details for sharper names
+      </span>
+      <span class="opt">optional</span>
     </button>
-    <div class="ref-area hidden" id="name-ref">
+    <div class="more-panel hidden" id="name-more">
+      <div class="field">
+        <div class="label">Who is it for?</div>
+        <input id="n-audience" placeholder="e.g. First-time homebuyers, D2C skincare enthusiasts, Gen Z">
+      </div>
+      <div class="g2">
+        <div class="field">
+          <div class="label">Category</div>
+          <input id="n-cat" placeholder="e.g. Fintech, Skincare">
+        </div>
+        <div class="field">
+          <div class="label">Include sounds</div>
+          <input id="n-inc" placeholder="e.g. soft vowels, nature words">
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">Avoid</div>
+        <input id="n-avoid" placeholder="e.g. harsh K/X sounds, tech jargon, Z endings">
+      </div>
+      <div class="more-sub-label">Existing portfolio names</div>
       <div class="g3" style="margin-bottom:14px;">
-        <div class="field" style="margin:0"><div class="label" style="font-size:10px">Name 1</div><input id="n-r1" placeholder="e.g. Aqua"></div>
-        <div class="field" style="margin:0"><div class="label" style="font-size:10px">Name 2</div><input id="n-r2" placeholder="e.g. Viva"></div>
-        <div class="field" style="margin:0"><div class="label" style="font-size:10px">Name 3</div><input id="n-r3" placeholder="e.g. Nexo"></div>
+        <div><div class="label" style="font-size:10px">Name 1</div><input id="n-r1" placeholder="e.g. Aqua"></div>
+        <div><div class="label" style="font-size:10px">Name 2</div><input id="n-r2" placeholder="e.g. Viva"></div>
+        <div><div class="label" style="font-size:10px">Name 3</div><input id="n-r3" placeholder="e.g. Nexo"></div>
       </div>
       <div class="field" style="margin-bottom:0">
-        <div class="label">Guardrails & Must-Haves</div>
-        <textarea id="n-guard" rows="2" placeholder="e.g. One word only, max 8 letters, must work in Tamil, no tech-bro clichés..."></textarea>
+        <div class="label">Guardrails &amp; Must-Haves</div>
+        <textarea id="n-guard" rows="2" placeholder="e.g. One word only, max 8 letters, must work in Tamil..."></textarea>
       </div>
     </div>
 
     <button class="gen-btn" id="name-btn" onclick="generateNames()">
-      <span>Generate Names</span><span style="opacity:.7">→</span>
+      <span>Generate Names</span><span style="opacity:.7">&#8594;</span>
     </button>
     <div class="err hidden" id="name-err"></div>
     <div id="name-out"></div>
   </section>
-
   <!-- ══════════════ BIAS AUDIT ══════════════ -->
   <section id="tab-audit" class="hidden" role="tabpanel">
     <h1 class="page-title">Bias Audit</h1>
@@ -602,21 +596,32 @@
 
     <div class="field">
       <div class="label">Your Copy</div>
-      <textarea id="a-copy" rows="6" placeholder="Paste the headline, ad, tagline, email body, social post — anything..."></textarea>
+      <textarea id="a-copy" rows="6" placeholder="Paste the headline, ad, tagline, email body, social post -- anything..."></textarea>
     </div>
-    <div class="field">
-      <div class="label">Brand / Product <span class="opt">optional</span></div>
-      <input id="a-brand" placeholder="e.g. Swiggy Instamart, a skincare brand...">
+
+    <button class="more-btn" id="audit-more-btn" onclick="toggleMore('audit-more','audit-more-btn')">
+      <span class="more-btn-left">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Add context for a sharper audit
+      </span>
+      <span class="opt">optional</span>
+    </button>
+    <div class="more-panel hidden" id="audit-more">
+      <div class="field" style="margin-bottom:0">
+        <div class="label">Brand / Product</div>
+        <input id="a-brand" placeholder="e.g. Swiggy Instamart, a skincare brand...">
+      </div>
     </div>
 
     <button class="gen-btn" id="audit-btn" onclick="runAudit()">
-      <span>Audit My Copy</span><span style="opacity:.7">→</span>
+      <span>Audit My Copy</span><span style="opacity:.7">&#8594;</span>
     </button>
     <div class="err hidden" id="audit-err"></div>
     <div id="audit-out"></div>
   </section>
 
 </main>
+
 
 <script>
 'use strict';
@@ -652,6 +657,19 @@ function toggleCollapse(areaId, btnEl, openLabel, closeLabel) {
   btn.innerHTML = isHidden
     ? `${svgMinus} ${closeLabel} ${optTag}`
     : `${svgPlus} ${openLabel} ${optTag}`;
+}
+
+function toggleMore(panelId, btnId) {
+  const panel = document.getElementById(panelId);
+  const btn   = document.getElementById(btnId);
+  const isHidden = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden', !isHidden);
+  btn.classList.toggle('open', isHidden);
+  // swap the circle icon between + and −
+  const svgPlus  = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+  const svgMinus = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 7.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+  const labelText = btn.querySelector('.more-btn-left').textContent.trim();
+  btn.querySelector('.more-btn-left').innerHTML = (isHidden ? svgMinus : svgPlus) + ' ' + labelText;
 }
 
 function setLoading(btnId, on, label) {
@@ -752,11 +770,20 @@ async function callAI(prompt) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `HTTP ${res.status}`);
+    throw new Error(err.error || 'Server error (HTTP ' + res.status + ')');
   }
   const d = await res.json();
-  const raw = (d.text || '').replace(/```json\n?|```\n?/g, '').trim();
-  return JSON.parse(raw);
+  // Server already validates JSON before sending — parse directly
+  try {
+    return JSON.parse(d.text);
+  } catch(e) {
+    // Fallback: try to extract a JSON object from any surrounding text
+    const match = (d.text || '').match(/\{[\s\S]*\}/);
+    if (match) {
+      try { return JSON.parse(match[0]); } catch(_) {}
+    }
+    throw new Error('Could not parse response. Please try again.');
+  }
 }
 
 // ─── COPYWRITER ───────────────────────────────────────────────

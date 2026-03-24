@@ -242,8 +242,8 @@ export default async function handler(req, res) {
           system_instruction: { parts: [{ text: BIAS_ENGINE }] },
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           generationConfig: {
-            temperature: 0.85,
-            maxOutputTokens: 2048,
+            temperature: 0.82,
+            maxOutputTokens: 8192,
             responseMimeType: 'application/json',
           }
         })
@@ -257,13 +257,32 @@ export default async function handler(req, res) {
       }
 
       const data = await response.json();
+
+      // Check finish reason — STOP means complete, MAX_TOKENS means truncated
+      const finishReason = data.candidates?.[0]?.finishReason;
+      if (finishReason === 'MAX_TOKENS') {
+        lastError = `${model}: response truncated (MAX_TOKENS) — try a shorter prompt`;
+        console.warn(`[RightCopywriter] ${lastError}`);
+        continue; // try next model
+      }
+
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!text) {
-        lastError = `${model}: empty response`;
+        lastError = `${model}: empty response (finishReason: ${finishReason})`;
         continue;
       }
 
-      return res.status(200).json({ text, model });
+      // Server-side JSON validation before returning to client
+      const cleaned = text.replace(/```json\n?|```\n?/g, '').trim();
+      try {
+        JSON.parse(cleaned); // validate — throw if invalid
+      } catch (jsonErr) {
+        lastError = `${model}: invalid JSON — ${jsonErr.message}`;
+        console.warn(`[RightCopywriter] ${lastError}\nRaw: ${cleaned.slice(0, 200)}`);
+        continue; // try next model
+      }
+
+      return res.status(200).json({ text: cleaned, model });
 
     } catch (err) {
       lastError = `${model}: ${err.message}`;
