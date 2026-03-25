@@ -854,12 +854,26 @@
       <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">This isn't a generic AI hallucinating internet pointers. I trained this custom engine using my 6 years in Consumer Insights &mdash; feeding it my handwritten ethnographic notes on exactly why real people buy and why they walk away. It also captures more than 60 human biases that influence purchase along with the gist of some of the best marketing research ever done.</p>
       <p style="font-size:15px;font-family:'Fraunces',serif;font-weight:500;color:var(--green);line-height:1.7;font-style:italic;">Because at the end of the day, marketing isn't about sounding cool. If it doesn't sell, it isn't the right copy.</p>
     </div>
+
+    <div style="margin-top:20px;background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;box-shadow:var(--shadow-s);max-width:620px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:14px;">How Does This Work</div>
+      <p style="font-size:14px;color:var(--ink);line-height:1.85;margin-bottom:14px;">You describe your brand, your message, and what you want the copy to do. The engine takes it from there &mdash; selecting the most relevant psychological principles for your specific brief, your format, and your audience, then writing copy that is engineered to those principles rather than written by feel.</p>
+      <p style="font-size:14px;color:var(--ink);line-height:1.85;">Every output tells you exactly which principle was used and why &mdash; so you are not just getting copy, you are getting a rationale you can defend.</p>
+    </div>
+
+    <div style="margin-top:16px;background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;box-shadow:var(--shadow-s);max-width:620px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:14px;">The Behavioral Score</div>
+      <p style="font-size:14px;color:var(--ink);line-height:1.85;margin-bottom:14px;">Every piece of copy is evaluated against a proprietary framework built from decades of consumer psychology research. The score reflects how many of the relevant psychological levers are being activated &mdash; and how many are being left on the table.</p>
+      <p style="font-size:14px;color:var(--ink);line-height:1.85;margin-bottom:14px;">It is not a readability score. It is not a sentiment score. It is a measure of how hard your copy is working at a subconscious level &mdash; the level where purchase decisions are actually made.</p>
+      <p style="font-size:14px;color:var(--ink);line-height:1.85;">The Bias Audit shows you the gap between your current copy and its potential &mdash; and then closes it.</p>
+    </div>
   </section>
 
 </main>
 
 
 <script>
+'use strict';
 'use strict';
 'use strict';
 'use strict';
@@ -1070,33 +1084,145 @@ async function callAI(prompt) {
 
 // ── SCORING ──────────────────────────────────────────────────
 // Deterministic: 5 base + 0.7 per working bias (cap 6) - 0.5 per missing (cap 5). Range 2-9.5.
-function calcBiasScore(working, missing) {
+// ── UPGRADE 1: Copy-type bias applicability matrix ──────────────
+// Defines which biases are APPLICABLE per copy type.
+// Scoring only penalises for missing biases that are actually relevant.
+// Sourced from Shotton, Kahneman, Sutherland — applied per format logic.
+var BIAS_MATRIX = {
+  'Headline': {
+    priority: ['Distinctiveness','Keats Heuristic','Concreteness','Loss Aversion','Generation Effect','Cognitive Ease','Labelling','Framing'],
+    applicable: ['Distinctiveness','Keats Heuristic','Concreteness','Loss Aversion','Generation Effect','Cognitive Ease','Labelling','Framing','Social Proof','Scarcity','Anchoring','Primacy Effect'],
+    maxApplicable: 12
+  },
+  'Tagline': {
+    priority: ['Keats Heuristic','Concreteness','Cognitive Ease','Distinctiveness','Labelling','Emotional Dynamism'],
+    applicable: ['Keats Heuristic','Concreteness','Cognitive Ease','Distinctiveness','Labelling','Emotional Dynamism','Fluent Innovation','Social Identity'],
+    maxApplicable: 8
+  },
+  'Product Description': {
+    priority: ['Concreteness','Expectancy Theory','Social Proof','Loss Aversion','Precision','Pratfall Effect','Framing','Halo Effect'],
+    applicable: ['Concreteness','Expectancy Theory','Social Proof','Loss Aversion','Precision','Pratfall Effect','Framing','Halo Effect','Anchoring','Endowment Effect','Veblen Goods','Scarcity','Confirmation Bias','Cognitive Ease','Peak-End Rule'],
+    maxApplicable: 15
+  },
+  'General Description': {
+    priority: ['Concreteness','Narrative Fallacy','Expectancy Theory','Social Proof','Halo Effect','Cognitive Ease'],
+    applicable: ['Concreteness','Narrative Fallacy','Expectancy Theory','Social Proof','Halo Effect','Cognitive Ease','Framing','Primacy Effect','Labelling','Fluent Innovation','Affect Heuristic'],
+    maxApplicable: 11
+  },
+  'Social Caption': {
+    priority: ['Distinctiveness','Generation Effect','Social Proof','Emotional Dynamism','Scarcity','Loss Aversion','Wisdom of Wit'],
+    applicable: ['Distinctiveness','Generation Effect','Social Proof','Emotional Dynamism','Scarcity','Loss Aversion','Wisdom of Wit','Cocktail Party Effect','Concreteness','Keats Heuristic','Availability Heuristic'],
+    maxApplicable: 11
+  },
+  'Email Subject': {
+    priority: ['Scarcity','Loss Aversion','Generation Effect','Distinctiveness','Cocktail Party Effect','Curiosity Gap'],
+    applicable: ['Scarcity','Loss Aversion','Generation Effect','Distinctiveness','Cocktail Party Effect','Social Proof','Concreteness','Keats Heuristic','Fresh Start Effect'],
+    maxApplicable: 9
+  },
+  'Email Copy': {
+    priority: ['Loss Aversion','Social Proof','Concreteness','Expectancy Theory','Scarcity','Precision','Narrative Fallacy','Peak-End Rule','Emotional Dynamism'],
+    applicable: ['Loss Aversion','Social Proof','Concreteness','Expectancy Theory','Scarcity','Precision','Narrative Fallacy','Peak-End Rule','Emotional Dynamism','Pratfall Effect','Framing','Anchoring','Halo Effect','Labelling','Fear of Regret','Endowment Effect'],
+    maxApplicable: 16
+  }
+};
+
+// ── UPGRADE 3: Confidence-adjusted scoring ───────────────────────
+// Only counts biases as 'missing' if they are applicable to this copy type.
+// Prevents penalising copy for not using biases irrelevant to the format.
+function calcBiasScore(working, missing, copyType) {
+  var matrix = copyType ? BIAS_MATRIX[copyType] : null;
+  var maxApp  = matrix ? matrix.maxApplicable : 10;
+
+  // Filter missing to only applicable biases for this copy type
+  var filteredMissing = missing;
+  if (matrix && matrix.applicable) {
+    filteredMissing = missing.filter(function(m) {
+      var biasName = (m.bias || m.name || '').toLowerCase();
+      return matrix.applicable.some(function(a) {
+        return biasName.indexOf(a.toLowerCase()) >= 0;
+      });
+    });
+  }
+
+  // Score: 5 base + 0.7 per working (cap at maxApplicable)
+  //        - 0.5 per applicable-missing (cap at 5)
   var raw = 5
-    + (Math.min((working||[]).length, 6) * 0.7)
-    - (Math.min((missing||[]).length, 5) * 0.5);
+    + (Math.min((working||[]).length, Math.min(maxApp, 6)) * 0.7)
+    - (Math.min(filteredMissing.length, 5) * 0.5);
   return Math.round(Math.max(2.0, Math.min(9.5, raw)) * 2) / 2;
 }
 
+// ── UPGRADE 2: Copy-type bias stacks + objection inference ───────
+// Each copy type gets a recommended lead-bias stack.
+// The objection is inferred from the brief — no new field needed.
+function getCopyTypeStack(type) {
+  var matrix = BIAS_MATRIX[type];
+  if (!matrix) return '';
+  return 'PRIORITY BIAS STACK for ' + type + ': Lead with these in order — '
+    + matrix.priority.join(', ')
+    + '. These are the highest-conversion biases for this specific format based on behavioral research.';
+}
 
-// ── COPYWRITER ───────────────────────────────────────────────
+function inferObjection(brand, ctx, product, audience) {
+  // Infer the most likely purchase objection from brief signals
+  // Maps to specific counter-biases from the engine
+  var brief = (brand + ' ' + ctx + ' ' + product + ' ' + audience).toLowerCase();
+  var objection = '';
+  var counterBiases = '';
+
+  if (/premium|luxury|high.end|expensive|price|cost|afford/.test(brief)) {
+    objection = 'Price justification — audience may hesitate on cost';
+    counterBiases = 'Veblen Goods (price = quality signal), Costly Signalling, Anchoring (set a high reference point), Expectancy Theory (presentation justifies price)';
+  } else if (/new|launch|first|unknown|startup|unfamiliar|trust/.test(brief)) {
+    objection = 'Trust deficit — audience unfamiliar with the brand';
+    counterBiases = 'Pratfall Effect (admit a small flaw to build credibility), Social Proof (specific numbers), Halo Effect (lead with one undeniable strength), Cognitive Ease (familiarity breeds trust)';
+  } else if (/switch|change|habit|already|current|existing|competitor/.test(brief)) {
+    objection = 'Switching inertia — audience is habituated to a competitor';
+    counterBiases = 'Fresh Start Effect (target transition moments), Loss Aversion (frame staying put as losing), Endowment Effect (help them imagine owning this instead), Sunk Cost reframe';
+  } else if (/health|safe|natural|organic|clean|eco|green/.test(brief)) {
+    objection = 'Efficacy doubt — does natural/clean mean it actually works?';
+    counterBiases = 'Precision (specific efficacy numbers), Expectancy Theory (presentation signals potency), Concreteness (tangible outcomes not abstract claims), Confirmation Bias (speak to believers first)';
+  } else if (/app|digital|tech|software|platform|online/.test(brief)) {
+    objection = 'Complexity fear — will this be too complicated to use?';
+    counterBiases = 'Make It Easy (emphasise frictionlessness), Cognitive Ease (simple language = trusted), Fluent Innovation (80% familiar, 20% new), Default Choice Bias (make adopting the obvious move)';
+  } else {
+    objection = 'Generic hesitation — audience needs a reason to act now';
+    counterBiases = 'Scarcity, Loss Aversion, Social Proof, Precision';
+  }
+
+  return 'INFERRED PURCHASE OBJECTION: ' + objection
+    + '. Counter it using: ' + counterBiases + '.';
+}
+
+// ── COPYWRITER ───────────────────────────────────────────────────
 function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo, feedback) {
   var biasNote = turbo
-    ? 'CRITICAL: Each variant MUST apply at least 6 distinct named biases from the library. List ALL in the biases array. Copy must be extraordinary.'
+    ? 'CRITICAL: Each variant MUST apply at least 6 distinct named biases. List ALL in the biases array. Copy must be extraordinary — not safe or generic.'
     : 'Each variant must apply at least 4 distinct named biases. List ALL in the biases array.';
   var label = (CT[type] && CT[type].label) ? CT[type].label : 'Core Message';
+
   var lines = [
-    'Write 3 behaviorally distinct ' + type + ' variants. Each must be genuinely different.',
+    'Write 3 behaviorally distinct ' + type + ' variants. Each must be genuinely different in approach and angle.',
     'Brand: ' + brand,
     label + ': ' + ctx
   ];
-  if (product)       lines.push('Product detail: ' + product);
-  if (audience)      lines.push('Target Audience: ' + audience);
-  if (tone)          lines.push('Tone: ' + tone);
-  if (refs.length)   lines.push('Brand Voice References:', refs.map(function(r,i){ return (i+1)+'. '+r; }).join(' | '));
+  if (product)     lines.push('Product detail: ' + product);
+  if (audience)    lines.push('Target Audience: ' + audience);
+  if (tone)        lines.push('Tone: ' + tone);
+  if (refs.length) lines.push('Brand Voice References:', refs.map(function(r,i){ return (i+1)+'. '+r; }).join(' | '));
+
+  // Upgrade 1: inject copy-type priority stack
+  lines.push('');
+  lines.push(getCopyTypeStack(type));
+
+  // Upgrade 2: inject inferred objection + counter-biases
+  lines.push(inferObjection(brand, ctx, product, audience));
+
+  lines.push('');
   lines.push(biasNote);
-  if (feedback)      lines.push('User feedback: ' + feedback + '. Rework all variants accordingly.');
+  if (feedback) lines.push('User feedback: ' + feedback + '. Rework all variants accordingly.');
   lines.push('Return JSON only (no markdown):');
-  lines.push('{"variants":[{"copy":"text","biases":[{"name":"Bias Name","explanation":"one sentence","application":"exactly how"}],"primaryBias":{"name":"...","explanation":"...","application":"..."},"secondaryBias":{"name":"...","explanation":"...","application":"..."}}]}');
+  lines.push('{"variants":[{"copy":"text","biases":[{"name":"Bias Name","explanation":"one sentence","application":"exactly how applied in this copy"}],"primaryBias":{"name":"...","explanation":"...","application":"..."},"secondaryBias":{"name":"...","explanation":"...","application":"..."}}]}');
   return lines.join('\n');
 }
 function buildCopyHtml(variants, isLong) {
@@ -1105,7 +1231,7 @@ function buildCopyHtml(variants, isLong) {
     var biases = (v.biases && v.biases.length)
       ? v.biases
       : [v.primaryBias, v.secondaryBias].filter(function(b){ return b && b.name; });
-    var sc = calcBiasScore(biases, []);
+    var sc = calcBiasScore(biases, [], lastCopyPrompt ? lastCopyPrompt.type : null);
     var scCol = sc >= 8.5 ? 'var(--green)' : sc >= 7 ? 'var(--amber)' : 'var(--red)';
     html += '<div class="copy-card">'
       + '<div class="card-num" style="display:flex;justify-content:space-between;align-items:center;">'
@@ -1260,6 +1386,10 @@ function buildAuditPrompt(copy, brand, extra) {
     'Copy: "' + copy.replace(/\\/g,'\\\\').replace(/"/g,'\\"') + '"'
   ];
   if (brand) lines.push('Brand/Product: ' + brand);
+  // Upgrade 2: infer objection for audit rewrites too
+  if (brand || copy) {
+    lines.push(inferObjection(brand, copy.slice(0, 200), '', ''));
+  }
   if (extra) lines.push(extra);
   lines.push(
     'Identify biases actively present (working) and missing but impactful (missing). Write an improved rewrite.',
@@ -1273,7 +1403,7 @@ function buildAuditPrompt(copy, brand, extra) {
 // origScore: optional score of the original (un-improved) copy, for delta display
 function buildAuditHtml(d, origScore, improvedScore) {
   var working = d.working || [], missing = d.missing || [];
-  var sc = calcBiasScore(working, missing);
+  var sc = calcBiasScore(working, missing, null); // audit: no copy type filter — score universally
   var scoreCol = sc >= 7.5 ? 'var(--green)' : sc >= 5 ? 'var(--amber)' : 'var(--red)';
 
   var workItems = working.map(function(w){
@@ -1358,7 +1488,7 @@ async function runAudit() {
     // Improved score: assume the rewrite fixes all missing biases (they become working)
     // So improved working = all working + all missing, improved missing = 0
     var improvedWorking = (d.working||[]).concat(d.missing||[]);
-    var improvedScore = calcBiasScore(improvedWorking, []);
+    var improvedScore = calcBiasScore(improvedWorking, [], null);
     document.getElementById('audit-out').innerHTML = buildAuditHtml(d, origScore, improvedScore);
     flashNew('audit-out');
   } catch(e) {
