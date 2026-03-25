@@ -4,14 +4,16 @@
 // The GEMINI_API_KEY is set as a Vercel environment variable.
 // ─────────────────────────────────────────────────────────────────
 
-// Model fallback chain — ordered by quality, falling back on any 4xx/5xx
-// Uses only stable model IDs confirmed on v1beta generateContent
+// Model fallback chain — tries in order, skips on any error/quota/404
 const MODELS = [
-  "gemini-2.5-flash",          // Tier 1 — fast, intelligent, generous daily quota
-  "gemini-2.0-flash",          // Tier 2 — reliable, good context window
-  "gemini-2.0-flash-lite",     // Tier 3 — highest free quota, ultra-fast
-  "gemini-1.5-flash",          // Tier 4 — broad availability safety net
-  "gemini-1.5-flash-8b",       // Tier 5 — smallest model, maximum quota headroom
+  "gemini-2.5-flash-preview-05-20",  // Tier 1 preview
+  "gemini-2.5-flash",                // Tier 1 stable
+  "gemini-2.5-pro",                  // Tier 1 pro
+  "gemini-2.0-flash",                // Tier 2
+  "gemini-2.0-flash-lite",           // Tier 2 lite
+  "gemini-1.5-flash",                // Tier 3 — very high quota
+  "gemini-1.5-flash-002",            // Tier 3 alt
+  "gemini-1.5-pro",                  // Tier 3 pro (deprecated on some regions but keep as fallback)
 ];
 
 // ─── BEHAVIORAL SCIENCE ENGINE ───────────────────────────────────

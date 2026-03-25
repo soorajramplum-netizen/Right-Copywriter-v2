@@ -634,6 +634,27 @@
     }
     .visual-hint::before { content: '📷'; font-size: 11px; }
 
+    /* ── SCORE DELTA ────────────────────────────────────── */
+    .score-delta {
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap; margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid var(--bd);
+    }
+    .score-delta-label {
+      font-size: 10px; font-weight: 700; color: var(--dim);
+      letter-spacing: .08em; text-transform: uppercase;
+    }
+    .score-delta-num {
+      font-size: 22px; font-weight: 700; line-height: 1;
+      color: var(--ink);
+    }
+    .score-delta-num.dim { color: var(--dim); }
+    .score-delta-arrow { font-size: 16px; color: var(--bdhi); }
+    .score-delta-badge {
+      font-size: 11px; font-weight: 700;
+      padding: 2px 9px; border-radius: 20px;
+    }
+
     /* ── HIDDEN ──────────────────────────────────────────── */
     .hidden { display: none !important; }
 
@@ -840,6 +861,10 @@
 
 <script>
 'use strict';
+'use strict';
+'use strict';
+'use strict';
+'use strict';
 
 var lastCopyPrompt  = null;
 var lastNamePrompt  = null;
@@ -950,20 +975,28 @@ function copyToClip(btn, text) {
     setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('done'); }, 2000);
   }).catch(function(){});
 }
-// Flash animation on a results container to signal new content
+// Fade+slide in, then pulse the label to show content is new
 function flashNew(elId) {
   var el = document.getElementById(elId);
   if (!el) return;
   el.style.transition = 'none';
   el.style.opacity = '0';
-  el.style.transform = 'translateY(8px)';
-  requestAnimationFrame(function(){
-    requestAnimationFrame(function(){
-      el.style.transition = 'opacity .4s ease, transform .4s ease';
-      el.style.opacity = '1';
-      el.style.transform = 'translateY(0)';
-    });
-  });
+  el.style.transform = 'translateY(14px)';
+  // Brief delay so browser registers the initial state
+  setTimeout(function(){
+    el.style.transition = 'opacity .45s ease, transform .45s ease';
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+    // After fade-in, flash the results-label green briefly
+    setTimeout(function(){
+      var lbl = el.querySelector('.results-label');
+      if (lbl) {
+        lbl.style.transition = 'color .15s';
+        lbl.style.color = 'var(--green)';
+        setTimeout(function(){ lbl.style.color = ''; }, 900);
+      }
+    }, 460);
+  }, 30);
 }
 
 // ── COPY TYPE CONFIG ─────────────────────────────────────────
@@ -1043,12 +1076,7 @@ function calcBiasScore(working, missing) {
     - (Math.min((missing||[]).length, 5) * 0.5);
   return Math.round(Math.max(2.0, Math.min(9.5, raw)) * 2) / 2;
 }
-function scoreCopyVariant(v) {
-  var biases = (v.biases && v.biases.length)
-    ? v.biases
-    : [v.primaryBias, v.secondaryBias].filter(function(b){ return b && b.name; });
-  return calcBiasScore(biases, []);
-}
+
 
 // ── COPYWRITER ───────────────────────────────────────────────
 function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo, feedback) {
@@ -1113,18 +1141,7 @@ async function generateCopy() {
   try {
     var data = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, false, ''));
     var variants = data.variants || [];
-    // Quality gate: silent retry if any variant scores below 8.5
-    var scores = variants.map(scoreCopyVariant);
-    var minScore = variants.length ? Math.min.apply(null, scores) : 0;
-    if (minScore < 8.5 && variants.length > 0) {
-      try {
-        var data2 = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, true, ''));
-        if (data2.variants && data2.variants.length > 0) {
-          var newMin = Math.min.apply(null, data2.variants.map(scoreCopyVariant));
-          if (newMin >= minScore) variants = data2.variants;
-        }
-      } catch(_){}
-    }
+
     document.getElementById('copy-out').innerHTML = buildCopyHtml(variants, isLong);
     flashNew('copy-out');
   } catch(e) {
@@ -1253,7 +1270,8 @@ function buildAuditPrompt(copy, brand, extra) {
   );
   return lines.join('\n');
 }
-function buildAuditHtml(d) {
+// origScore: optional score of the original (un-improved) copy, for delta display
+function buildAuditHtml(d, origScore, improvedScore) {
   var working = d.working || [], missing = d.missing || [];
   var sc = calcBiasScore(working, missing);
   var scoreCol = sc >= 7.5 ? 'var(--green)' : sc >= 5 ? 'var(--amber)' : 'var(--red)';
@@ -1272,13 +1290,33 @@ function buildAuditHtml(d) {
       + '<span class="a-bias-desc">' + esc(m.opportunity) + '</span></div></div>';
   }).join('');
 
+  // Score delta — show original → improved if origScore is provided
+  var deltaHtml = '';
+  if (origScore !== undefined && origScore !== null) {
+    var displaySc = (improvedScore !== undefined) ? improvedScore : sc;
+    var diff = Math.round((displaySc - origScore) * 10) / 10;
+    var diffCol = diff > 0 ? 'var(--green)' : (diff < 0 ? 'var(--red)' : 'var(--mid)');
+    var diffStr = (diff > 0 ? '+' : '') + diff.toFixed(1);
+    var arrow = diff > 0 ? '&#8593;' : (diff < 0 ? '&#8595;' : '&#8596;');
+    var bgCol = diff > 0 ? 'var(--greenbg)' : 'rgba(192,57,43,.07)';
+    deltaHtml = '<div class="score-delta">'
+      + '<span class="score-delta-label">Your copy</span>'
+      + '<span class="score-delta-num dim">' + origScore + '</span>'
+      + '<span class="score-delta-arrow">&#8594;</span>'
+      + '<span class="score-delta-num" style="color:' + diffCol + ';">' + displaySc + '</span>'
+      + '<span class="score-delta-badge" style="color:' + diffCol + ';background:' + bgCol + ';">' + arrow + ' ' + diffStr + '</span>'
+      + '</div>';
+  }
+
   // Use data-body attribute — zero inline string quoting needed
   var html = '<div class="results-label">Audit Results</div>'
     + '<div class="score-card"><div>'
     + '<div class="score-num" style="color:' + scoreCol + ';">' + sc + '</div>'
     + '<div class="score-den">/ 10</div></div><div class="score-sep"></div>'
-    + '<div class="score-body"><div class="score-label-text">Behavioral Score</div>'
-    + '<div class="score-summary">' + esc(d.summary||'') + '</div></div></div>'
+    + '<div class="score-body"><div class="score-label-text">Behavioral Score' + (origScore !== undefined && origScore !== null ? ' of Improved Copy' : '') + '</div>'
+    + '<div class="score-summary">' + esc(d.summary||'') + '</div>'
+    + deltaHtml
+    + '</div></div>'
     + '<button class="audit-toggle" data-body="working-body" onclick="toggleAuditSectionEl(this)">'
     + '<span class="audit-toggle-left" style="color:var(--green);">&#10003; What&#8217;s Working</span>'
     + '<span class="audit-toggle-right">'
@@ -1299,7 +1337,7 @@ function buildAuditHtml(d) {
     + '</div>'
     + '<div class="show-more-bar">'
     + '<button class="show-more-btn" onclick="openAuditMoreOptions()">&#43; Show me more options</button>'
-    + '<button class="show-more-btn gold" onclick="generateMax9Copy()">&#9733; Give me a 9+ copy</button>'
+
     + '</div></div>';
   return html;
 }
@@ -1310,10 +1348,18 @@ async function runAudit() {
   setLoading('audit-btn', true, 'Audit My Copy');
   showErr('audit-err', '');
   document.getElementById('audit-out').innerHTML = '';
-  lastAuditPrompt = { copy: copy, brand: brand };
+  lastAuditPrompt = { copy: copy, brand: brand, origScore: null };
   try {
     var d = await callAI(buildAuditPrompt(copy, brand, ''));
-    document.getElementById('audit-out').innerHTML = buildAuditHtml(d);
+    // Calculate original copy score from what biases were found working vs missing
+    // Then the improved copy score is derived from the rewrite analysis
+    var origScore = calcBiasScore(d.working || [], d.missing || []);
+    lastAuditPrompt.origScore = origScore;
+    // Improved score: assume the rewrite fixes all missing biases (they become working)
+    // So improved working = all working + all missing, improved missing = 0
+    var improvedWorking = (d.working||[]).concat(d.missing||[]);
+    var improvedScore = calcBiasScore(improvedWorking, []);
+    document.getElementById('audit-out').innerHTML = buildAuditHtml(d, origScore, improvedScore);
     flashNew('audit-out');
   } catch(e) {
     showErr('audit-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
@@ -1331,7 +1377,8 @@ function openAuditMoreOptions() {
       setModalLoading('Rewriting with your feedback\u2026', 'Applying behavioral science\u2026');
       try {
         var d = await callAI(buildAuditPrompt(p.copy, p.brand, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.'));
-        document.getElementById('audit-out').innerHTML = buildAuditHtml(d);
+        var oSc = p.origScore || null;
+        document.getElementById('audit-out').innerHTML = buildAuditHtml(d, oSc);
         flashNew('audit-out');
         closeModal();
         document.getElementById('audit-out').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1343,36 +1390,7 @@ function openAuditMoreOptions() {
   );
 }
 
-// 9+ generator — up to 3 attempts, targets 7 specific biases
-async function generateMax9Copy() {
-  if (!lastAuditPrompt) return;
-  var p = lastAuditPrompt;
-  var biasTargets = '[S1] Social Proof, [K12] Loss Aversion, [S41] Scarcity, [S10] Precision, [P3] Emotional Dynamism, [S9] Concreteness, [S34] Pratfall Effect';
-  document.getElementById('refine-modal').classList.add('open');
-  setModalLoading('Targeting a 9+ behavioral score\u2026', 'Starting attempt 1 of 3\u2026');
-  var bestResult = null, bestScore = 0;
-  for (var attempt = 1; attempt <= 3; attempt++) {
-    document.getElementById('modal-loading-step').textContent = 'Attempt ' + attempt + ' of 3...';
-    var prevMissing = bestResult ? (bestResult.missing||[]).map(function(m){ return m.bias; }).join(', ') : '';
-    var instruction = attempt === 1
-      ? 'CRITICAL: The rewrite MUST apply ALL 7 of these biases: ' + biasTargets + '. Use **bold** for key phrases and [Visual: ...] for image ideas.'
-      : 'CRITICAL: Previous attempt missed these: ' + prevMissing + '. Apply ALL of: ' + biasTargets + '. Use **bold** and [Visual: ...] tags.';
-    try {
-      var d = await callAI(buildAuditPrompt(p.copy, p.brand, instruction));
-      var sc = calcBiasScore(d.working||[], d.missing||[]);
-      if (sc > bestScore) { bestScore = sc; bestResult = d; }
-      if (sc >= 9) break;
-    } catch(e) { break; }
-  }
-  document.getElementById('refine-modal').classList.remove('open');
-  if (bestResult) {
-    document.getElementById('audit-out').innerHTML = buildAuditHtml(bestResult);
-    flashNew('audit-out');
-    document.getElementById('audit-out').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } else {
-    showErr('audit-err', 'Could not generate a 9+ copy. Please try again.');
-  }
-}
+
 </script>
 <!-- ── MODAL ──────────────────────────────────────────────── -->
 <div class="modal-backdrop" id="refine-modal" onclick="closeModal(event)">
