@@ -1,26 +1,43 @@
 // ─────────────────────────────────────────────────────────────────
 // Right Copywriter — Serverless API
-// This is where the behavioral science brain lives (server-side only).
-// The GEMINI_API_KEY is set as a Vercel environment variable.
+// Multi-provider fallback: Gemini → Groq → OpenRouter
+// Keys set as Vercel environment variables:
+//   GEMINI_API_KEY, GROQ_API_KEY, OPENROUTER_API_KEY
 // ─────────────────────────────────────────────────────────────────
 
-// Model fallback chain — tries in order, skips on any error/quota/404
-const MODELS = [
-  "gemini-2.5-flash-preview-05-20",  // Tier 1 preview
-  "gemini-2.5-flash",                // Tier 1 stable
-  "gemini-2.5-pro",                  // Tier 1 pro
-  "gemini-2.0-flash",                // Tier 2
-  "gemini-2.0-flash-lite",           // Tier 2 lite
-  "gemini-1.5-flash",                // Tier 3 — very high quota
-  "gemini-1.5-flash-002",            // Tier 3 alt
-  "gemini-1.5-pro",                  // Tier 3 pro (deprecated on some regions but keep as fallback)
+// ─── MODEL REGISTRY ──────────────────────────────────────────────
+// Each entry: { provider, model, [notes] }
+// Tried in order — first success returned. Failures silently skipped.
+// Adding future/preview Gemini IDs — they 404-skip gracefully if not live yet.
+
+const MODEL_CHAIN = [
+  // ── GEMINI — Tier 1: Frontier (smartest, strictest quota) ──────
+  { provider: 'gemini', model: 'gemini-3.1-pro-preview'       },  // future
+  { provider: 'gemini', model: 'gemini-2.5-pro'               },  // best stable
+  { provider: 'gemini', model: 'gemini-3-flash-preview'        },  // future
+  // ── GEMINI — Tier 2: Workhorses (fast, moderate quota) ─────────
+  { provider: 'gemini', model: 'gemini-2.5-flash'              },  // primary workhorse
+  { provider: 'gemini', model: 'gemini-2.5-flash-preview-05-20'},  // preview alt
+  { provider: 'gemini', model: 'gemini-2.0-flash'              },  // stable reliable
+  // ── GEMINI — Tier 3: Safety nets (highest free quota) ──────────
+  { provider: 'gemini', model: 'gemini-3.1-flash-lite-preview' },  // future lite
+  { provider: 'gemini', model: 'gemini-2.5-flash-lite'         },  // lite stable
+  { provider: 'gemini', model: 'gemini-2.0-flash-lite'         },  // lite workhorse
+  { provider: 'gemini', model: 'gemini-1.5-flash'              },  // high quota net
+  { provider: 'gemini', model: 'gemini-1.5-flash-latest'       },  // alias
+  // ── GROQ — Ultra-fast inference, generous free tier ────────────
+  { provider: 'groq',   model: 'llama-3.3-70b-versatile'       },  // best Groq model
+  { provider: 'groq',   model: 'llama-3.1-70b-versatile'       },  // stable alt
+  { provider: 'groq',   model: 'mixtral-8x7b-32768'            },  // fast, long ctx
+  { provider: 'groq',   model: 'llama3-70b-8192'               },  // very reliable
+  { provider: 'groq',   model: 'gemma2-9b-it'                  },  // Google via Groq
+  // ── OPENROUTER — Final net, 50+ free models ────────────────────
+  { provider: 'openrouter', model: 'meta-llama/llama-3.3-70b-instruct:free'    },
+  { provider: 'openrouter', model: 'meta-llama/llama-3.1-70b-instruct:free'    },
+  { provider: 'openrouter', model: 'mistralai/mistral-7b-instruct:free'         },
+  { provider: 'openrouter', model: 'google/gemma-3-27b-it:free'                 },
+  { provider: 'openrouter', model: 'microsoft/phi-3-medium-128k-instruct:free'  },
 ];
-
-// ─── BEHAVIORAL SCIENCE ENGINE ───────────────────────────────────
-// 62 unique biases from: Richard Shotton (42), Daniel Kahneman (34),
-// Rory Sutherland - Alchemy (10), System 1 Group (6)
-// After deduplication across sources = 62 unique actionable principles.
-// ─────────────────────────────────────────────────────────────────
 
 const BIAS_ENGINE = `You are the behavioral science engine behind Right Copywriter — a tool that writes copy engineered on 62+ psychological principles from Richard Shotton, Daniel Kahneman, Rory Sutherland, and System 1 Group research.
 
@@ -217,84 +234,143 @@ CRITICAL INSTRUCTIONS
 5. Return ONLY valid JSON. No markdown backticks. No preamble. No explanation outside the JSON object. JSON must be parseable.
 6. Be commercially brutal — choose the bias that will most move the needle for this specific brief, not the academically interesting one.`;
 
+// ─── PROVIDER CALLERS ────────────────────────────────────────────
+
+// Gemini — uses system_instruction for 2.x+, embeds engine in prompt for 1.x
+async function callGemini(model, prompt, apiKey) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const fullPrompt = BIAS_ENGINE + '\n\n---\n\nUSER REQUEST:\n' + prompt;
+  const body = model.startsWith('gemini-2') || model.startsWith('gemini-3')
+    ? {
+        system_instruction: { parts: [{ text: BIAS_ENGINE }] },
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.82, maxOutputTokens: 8192, responseMimeType: 'application/json' }
+      }
+    : {
+        contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+        generationConfig: { temperature: 0.82, maxOutputTokens: 8192, responseMimeType: 'application/json' }
+      };
+
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`${res.status} — ${err?.error?.message || 'unknown'}`);
+  }
+  const data = await res.json();
+  const finishReason = data.candidates?.[0]?.finishReason;
+  if (finishReason === 'MAX_TOKENS') throw new Error('MAX_TOKENS — response truncated');
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error(`empty response (finishReason: ${finishReason})`);
+  return text;
+}
+
+// Groq — OpenAI-compatible, system message + user message
+async function callGroq(model, prompt, apiKey) {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: BIAS_ENGINE },
+        { role: 'user',   content: prompt + '\n\nReturn ONLY valid JSON. No markdown backticks. No preamble.' }
+      ],
+      temperature: 0.82,
+      max_tokens: 8192,
+      response_format: { type: 'json_object' }
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`${res.status} — ${err?.error?.message || 'unknown'}`);
+  }
+  const data = await res.json();
+  const text = data.choices?.[0]?.message?.content;
+  if (!text) throw new Error('empty response from Groq');
+  return text;
+}
+
+// OpenRouter — OpenAI-compatible, system + user messages
+async function callOpenRouter(model, prompt, apiKey) {
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://rightcopywriter.vercel.app',
+      'X-Title': 'Right Copywriter'
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: BIAS_ENGINE },
+        { role: 'user',   content: prompt + '\n\nReturn ONLY valid JSON. No markdown backticks. No preamble.' }
+      ],
+      temperature: 0.82,
+      max_tokens: 8192,
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`${res.status} — ${err?.error?.message || err?.error || 'unknown'}`);
+  }
+  const data = await res.json();
+  const text = data.choices?.[0]?.message?.content;
+  if (!text) throw new Error('empty response from OpenRouter');
+  return text;
+}
+
 // ─── HANDLER ─────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'API key not configured. Set GEMINI_API_KEY in Vercel environment variables.' });
+  const geminiKey     = process.env.GEMINI_API_KEY;
+  const groqKey       = process.env.GROQ_API_KEY;
+  const openrouterKey = process.env.OPENROUTER_API_KEY;
+
+  if (!geminiKey && !groqKey && !openrouterKey) {
+    return res.status(500).json({ error: 'No API keys configured. Set GEMINI_API_KEY, GROQ_API_KEY, or OPENROUTER_API_KEY in Vercel environment variables.' });
+  }
 
   const { prompt } = req.body || {};
   if (!prompt) return res.status(400).json({ error: 'No prompt provided' });
 
   let lastError = '';
 
-  for (const model of MODELS) {
+  for (const { provider, model } of MODEL_CHAIN) {
+    // Skip providers with no key configured
+    if (provider === 'gemini'      && !geminiKey)     continue;
+    if (provider === 'groq'        && !groqKey)        continue;
+    if (provider === 'openrouter'  && !openrouterKey)  continue;
+
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: BIAS_ENGINE }] },
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.82,
-            maxOutputTokens: 8192,
-            responseMimeType: 'application/json',
-          }
-        })
-      });
+      let rawText = '';
 
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        const status = response.status;
-        const msg = err?.error?.message || 'unknown error';
-        lastError = `${model}: ${status} — ${msg}`;
-        console.warn(`[RightCopywriter] Model failed: ${lastError}`);
-        // 429 = quota exceeded, 503 = overloaded — try next model
-        // 400 = bad request — no point retrying same model
-        // 404 = model not found / deprecated — skip
-        continue;
-      }
+      if (provider === 'gemini')     rawText = await callGemini(model, prompt, geminiKey);
+      if (provider === 'groq')       rawText = await callGroq(model, prompt, groqKey);
+      if (provider === 'openrouter') rawText = await callOpenRouter(model, prompt, openrouterKey);
 
-      const data = await response.json();
-
-      // Check finish reason — STOP means complete, MAX_TOKENS means truncated
-      const finishReason = data.candidates?.[0]?.finishReason;
-      if (finishReason === 'MAX_TOKENS') {
-        lastError = `${model}: response truncated (MAX_TOKENS) — try a shorter prompt`;
-        console.warn(`[RightCopywriter] ${lastError}`);
-        continue; // try next model
-      }
-
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!text) {
-        lastError = `${model}: empty response (finishReason: ${finishReason})`;
-        continue;
-      }
-
-      // Server-side JSON validation before returning to client
-      const cleaned = text.replace(/```json\n?|```\n?/g, '').trim();
+      // Strip any markdown fences and validate JSON
+      const cleaned = rawText.replace(/```json\n?|```\n?/g, '').trim();
       try {
-        JSON.parse(cleaned); // validate — throw if invalid
+        JSON.parse(cleaned);
       } catch (jsonErr) {
-        lastError = `${model}: invalid JSON — ${jsonErr.message}`;
-        console.warn(`[RightCopywriter] ${lastError}\nRaw: ${cleaned.slice(0, 200)}`);
-        continue; // try next model
+        lastError = `${provider}/${model}: invalid JSON — ${jsonErr.message}`;
+        console.warn(`[RC] ${lastError} | Raw: ${cleaned.slice(0, 150)}`);
+        continue;
       }
 
-      return res.status(200).json({ text: cleaned, model });
+      console.log(`[RC] Success: ${provider}/${model}`);
+      return res.status(200).json({ text: cleaned, model: `${provider}/${model}` });
 
     } catch (err) {
-      lastError = `${model}: ${err.message}`;
-      console.warn(`[RightCopywriter] Model threw: ${lastError}`);
+      lastError = `${provider}/${model}: ${err.message}`;
+      console.warn(`[RC] Failed: ${lastError}`);
       continue;
     }
   }
