@@ -655,6 +655,126 @@
       padding: 2px 9px; border-radius: 20px;
     }
 
+    /* ── CAMPAIGN MANAGER ───────────────────────────────── */
+    .cm-sub-tabs {
+      display: flex; gap: 0;
+      border: 1px solid var(--bd); border-radius: 10px;
+      overflow: hidden; margin-bottom: 24px;
+      background: var(--bg);
+    }
+    .cm-sub-btn {
+      flex: 1; padding: 10px 14px;
+      background: transparent; border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500; color: var(--mid);
+      cursor: pointer; transition: all .18s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cm-sub-btn.active {
+      background: var(--green); color: #fff; font-weight: 600;
+    }
+    .cm-sub-panel { display: none; }
+    .cm-sub-panel.active { display: block; }
+    .funnel-stage {
+      background: var(--surface);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-s);
+    }
+    .funnel-stage-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .funnel-stage-header:hover { background: var(--bg); }
+    .funnel-stage-title {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .funnel-badge {
+      font-size: 9px; font-weight: 800;
+      padding: 3px 9px; border-radius: 20px;
+      letter-spacing: .1em; text-transform: uppercase;
+    }
+    .badge-tof { background: #EEF0FF; color: #3D4AC8; }
+    .badge-mof { background: var(--amberbg); color: var(--amber); }
+    .badge-bof { background: var(--greenbg); color: var(--green); }
+    .funnel-stage-label {
+      font-size: 14px; font-weight: 600; color: var(--ink);
+    }
+    .funnel-stage-desc {
+      font-size: 12px; color: var(--mid);
+    }
+    .funnel-chevron {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--bd);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: var(--mid);
+      transition: transform .2s, background .18s;
+      flex-shrink: 0;
+    }
+    .funnel-stage.open .funnel-chevron {
+      transform: rotate(180deg);
+      background: var(--ink); border-color: var(--ink); color: #fff;
+    }
+    .funnel-stage-body {
+      display: none; padding: 0 20px 20px;
+    }
+    .funnel-stage.open .funnel-stage-body { display: block; }
+    .copy-format-card {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+    .copy-format-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--mid); letter-spacing: .1em;
+      text-transform: uppercase; margin-bottom: 10px;
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .copy-format-label .bias-tags { margin: 0; }
+    .copy-format-text {
+      font-size: 14px; color: var(--ink); line-height: 1.75;
+      white-space: pre-wrap; margin-bottom: 12px;
+    }
+    .copy-format-text.headline-style {
+      font-family: 'Fraunces', serif;
+      font-size: 18px; font-weight: 500;
+      letter-spacing: -.01em; line-height: 1.35;
+    }
+    .format-foot {
+      display: flex; justify-content: flex-end;
+    }
+    .cm-loading-steps {
+      text-align: center; padding: 32px 20px;
+    }
+    .cm-loading-spinner {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 3px solid var(--bd); border-top-color: var(--green);
+      animation: spin 1s linear infinite;
+      margin: 0 auto 14px;
+    }
+    .cm-loading-label {
+      font-size: 13px; color: var(--mid); margin-bottom: 6px;
+    }
+    .cm-loading-step {
+      font-size: 11px; color: var(--dim); font-style: italic;
+    }
+    .cm-website-status {
+      font-size: 11px; padding: 6px 11px;
+      border-radius: 6px; margin-top: 6px;
+      display: none;
+    }
+    .cm-website-status.ok { background: var(--greenbg); color: var(--green); }
+    .cm-website-status.skip { background: var(--amberbg); color: var(--amber); }
+
     /* ── HIDDEN ──────────────────────────────────────────── */
     .hidden { display: none !important; }
 
@@ -696,6 +816,15 @@
   <section id="tab-copy" role="tabpanel">
     <h1 class="page-title">Copywriter</h1>
     <p class="page-sub">Every word earned through behavioral logic.</p>
+
+    <!-- Sub-tab switcher -->
+    <div class="cm-sub-tabs">
+      <button class="cm-sub-btn active" onclick="switchCopyMode('single',this)">Single Copy</button>
+      <button class="cm-sub-btn" onclick="switchCopyMode('campaign',this)">Campaign Manager</button>
+    </div>
+
+    <!-- ── SINGLE COPY PANEL ── -->
+    <div class="cm-sub-panel active" id="cm-single">
 
     <div class="field">
       <div class="label">Copy Type</div>
@@ -752,6 +881,60 @@
     </button>
     <div class="err hidden" id="copy-err"></div>
     <div id="copy-out"></div>
+
+    </div><!-- /cm-single -->
+
+    <!-- ── CAMPAIGN MANAGER PANEL ── -->
+    <div class="cm-sub-panel" id="cm-campaign">
+      <div class="field">
+        <div class="label">Brand / Product Name</div>
+        <input id="cm-brand" placeholder="e.g. Mamaearth, Noise, UrbanClap" autocomplete="off">
+      </div>
+      <div class="field">
+        <div class="label">Campaign Goal</div>
+        <textarea id="cm-goal" rows="3" placeholder="What should this campaign achieve? e.g. Drive trial of our new SPF moisturiser among urban women 25-35 who currently use a competitor brand..."></textarea>
+      </div>
+      <div class="field">
+        <div class="label">Target Audience</div>
+        <input id="cm-audience" placeholder="e.g. Urban millennials, female, 25-35, D2C skincare buyers">
+      </div>
+
+      <!-- URLs on first fold — both optional but visible -->
+      <div class="g2">
+        <div class="field">
+          <div class="label">Your Website <span class="opt">optional</span></div>
+          <input id="cm-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+          <div class="cm-website-status" id="cm-url-status"></div>
+        </div>
+        <div class="field">
+          <div class="label">Competitor Website <span class="opt">optional</span></div>
+          <input id="cm-comp-url" placeholder="https://www.competitor.com" type="url" autocomplete="off">
+          <div class="cm-website-status" id="cm-comp-url-status"></div>
+        </div>
+      </div>
+
+      <button class="more-btn" id="cm-more-btn" onclick="toggleMore('cm-more','cm-more-btn')">
+        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
+        <span class="opt">optional</span>
+      </button>
+      <div class="more-panel hidden" id="cm-more">
+        <div class="field">
+          <div class="label">Competitor Name</div>
+          <input id="cm-comp-name" placeholder="e.g. Plum, Minimalist, Dot &amp; Key">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="label">Tone</div>
+          <input id="cm-tone" placeholder="e.g. Warm and scientific, bold and direct">
+        </div>
+      </div>
+
+      <button class="gen-btn" id="cm-gen-btn" onclick="generateCampaign()">
+        <span>Build Full Funnel Campaign</span><span style="opacity:.7">&#8594;</span>
+      </button>
+      <div class="err hidden" id="cm-err"></div>
+      <div id="cm-out"></div>
+    </div><!-- /cm-campaign -->
+
   </section>
   <!-- ══════════════ NAME GENERATOR ══════════════ -->
   <section id="tab-names" class="hidden" role="tabpanel">
@@ -873,6 +1056,8 @@
 
 
 <script>
+'use strict';
+'use strict';
 'use strict';
 'use strict';
 'use strict';
@@ -1521,6 +1706,316 @@ function openAuditMoreOptions() {
 }
 
 
+
+// ── CAMPAIGN MANAGER ─────────────────────────────────────────────
+
+function switchCopyMode(mode, btn) {
+  document.querySelectorAll('.cm-sub-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.cm-sub-panel').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('cm-' + mode).classList.add('active');
+}
+
+function toggleFunnelStage(el) {
+  el.closest('.funnel-stage').classList.toggle('open');
+}
+
+// Funnel stage definitions — TOF/MOF/BOF with objectives and bias stacks
+var FUNNEL_STAGES = {
+  tof: {
+    label: 'Top of Funnel',
+    badge: 'TOF',
+    badgeClass: 'badge-tof',
+    desc: 'Awareness — cold audience, first contact',
+    objective: 'Create awareness and stop the scroll. Audience does not know you yet.',
+    biasStack: 'Distinctiveness (Von Restorff), Emotional Dynamism, Cognitive Ease, Social Proof, Availability Heuristic',
+    formats: ['Facebook Ad', 'Google Ad Headline', 'Instagram Caption']
+  },
+  mof: {
+    label: 'Middle of Funnel',
+    badge: 'MOF',
+    badgeClass: 'badge-mof',
+    desc: 'Consideration — warm audience, building intent',
+    objective: 'Deepen interest and build preference. Audience has shown some intent.',
+    biasStack: 'Expectancy Theory, Concreteness, Social Proof (specific), Halo Effect, Generation Effect, Labelling',
+    formats: ['Email Subject + Body', 'WhatsApp Message', 'Instagram Caption']
+  },
+  bof: {
+    label: 'Bottom of Funnel',
+    badge: 'BOF',
+    badgeClass: 'badge-bof',
+    desc: 'Conversion — hot audience, ready to decide',
+    objective: 'Remove final objection and drive action. Audience is evaluating.',
+    biasStack: 'Loss Aversion, Scarcity, Pratfall Effect, Precision, Fear of Regret, Endowment Effect, Social Proof',
+    formats: ['Facebook Ad', 'Email Subject + Body', 'WhatsApp Message', 'SMS / Push Notification']
+  }
+};
+
+// Try to fetch brand website context for richer copy
+// 3-tier website context fetch:
+// Tier 1: Direct scrape via /api/fetch-url
+// Tier 2: AI knowledge fallback — ask the model what it knows about the site
+// Tier 3: Silent skip — return null, generation continues without context
+async function fetchWebsiteContext(url, labelElId, statusElId) {
+  if (!url || !url.startsWith('http')) return null;
+
+  var statusEl = statusElId ? document.getElementById(statusElId) : null;
+  var labelEl  = labelElId  ? document.getElementById(labelElId)  : null;
+
+  function setStatus(type, msg) {
+    if (!statusEl) return;
+    statusEl.style.display = 'block';
+    statusEl.className = 'cm-website-status ' + type;
+    statusEl.textContent = msg;
+  }
+
+  // Tier 1: Direct scrape
+  try {
+    var res = await fetch('/api/fetch-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: url })
+    });
+    if (res.ok) {
+      var d = await res.json();
+      if (d.text) {
+        setStatus('ok', '\u2713 Website scraped — copies will be brand-specific');
+        return d.text;
+      }
+    }
+  } catch(e) {}
+
+  // Tier 2: AI knowledge fallback
+  if (labelEl) labelEl.textContent = 'Using AI to research ' + url + '...';
+  try {
+    var domain = url.replace(/https?:\/\//, '').replace(/\/.*/, '');
+    var aiRes = await callAI(
+      'What do you know about the brand or company at ' + url + '? '
+      + 'Describe: what they sell, who their target audience is, their brand positioning, '
+      + 'and their key marketing messages. Be specific and factual. '
+      + 'If you have no knowledge of this specific website, say UNKNOWN. '
+      + 'Return JSON only: {"known":true,"description":"...","products":"...","positioning":"...","audience":"..."}  '
+      + 'or {"known":false} if unknown.'
+    );
+    if (aiRes && aiRes.known && aiRes.description) {
+      var ctx = 'AI research on ' + domain + ': '
+        + aiRes.description + ' '
+        + (aiRes.products ? 'Products: ' + aiRes.products + '. ' : '')
+        + (aiRes.positioning ? 'Positioning: ' + aiRes.positioning + '. ' : '')
+        + (aiRes.audience ? 'Audience: ' + aiRes.audience : '');
+      setStatus('ok', '\u2713 Brand researched via AI — context applied');
+      return ctx;
+    }
+  } catch(e) {}
+
+  // Tier 3: Skip silently
+  setStatus('skip', '\u25CB Could not fetch — generating from your inputs only');
+  return null;
+}
+
+function buildCampaignPrompt(stage, brand, goal, audience, tone, competitor, websiteContext, competitorContext) {
+  var s = FUNNEL_STAGES[stage];
+  var formats = s.formats;
+
+  var lines = [
+    'You are writing a ' + s.label + ' campaign for the following brand.',
+    'Write one version of each format listed below.',
+    '',
+    'BRAND: ' + brand,
+    'CAMPAIGN GOAL: ' + goal,
+    'TARGET AUDIENCE: ' + audience,
+    'FUNNEL STAGE: ' + s.label + ' — ' + s.objective,
+    tone ? 'TONE: ' + tone : '',
+    competitor ? 'COMPETITOR TO OUTPERFORM: ' + competitor + '. Write copy that is more compelling, more emotionally resonant, and more behaviorally engineered than what they produce.' : '',
+    competitorContext ? 'COMPETITOR INTELLIGENCE (scraped from their website — use this to understand what they say and how to outflank them):\n' + competitorContext.slice(0, 900) : '',
+    websiteContext ? 'YOUR BRAND CONTEXT (scraped from your website — use for accurate, brand-specific copy):\n' + websiteContext.slice(0, 1200) : '',
+    '',
+    'PRIORITY BIAS STACK for ' + s.label + ': ' + s.biasStack,
+    inferObjection(brand, goal, '', audience),
+    '',
+    'FORMATS TO WRITE:'
+  ];
+
+  formats.forEach(function(fmt) {
+    if (fmt === 'Facebook Ad') {
+      lines.push('- Facebook Ad: write a HEADLINE (max 8 words, pattern-interrupting) and a CAPTION (2-3 sentences, emotionally driven)');
+    } else if (fmt === 'Google Ad Headline') {
+      lines.push('- Google Ad Headline: max 30 characters, benefit-led, specific');
+    } else if (fmt === 'Email Subject + Body') {
+      lines.push('- Email Subject: max 9 words, curiosity or loss framing');
+      lines.push('- Email Body: 3-4 short paragraphs, opens with a hook, ends with a clear CTA');
+    } else if (fmt === 'WhatsApp Message') {
+      lines.push('- WhatsApp Message: conversational, max 3 sentences, personal tone, ends with one clear action');
+    } else if (fmt === 'Instagram Caption') {
+      lines.push('- Instagram Caption: hook in first line (before the fold), 2-3 lines, ends with a question or CTA');
+    } else if (fmt === 'SMS / Push Notification') {
+      lines.push('- SMS / Push Notification: max 120 characters, urgent, concrete, one action');
+    }
+  });
+
+  lines.push('');
+  lines.push('For each format, identify the PRIMARY behavioral bias applied and how.');
+  lines.push('Return JSON only (no markdown):');
+
+  // Build dynamic JSON schema based on formats
+  var schema = { stage: stage };
+  formats.forEach(function(fmt) {
+    if (fmt === 'Facebook Ad') {
+      schema.facebook_headline = 'text';
+      schema.facebook_caption = 'text';
+      schema.facebook_bias = { name: '...', application: '...' };
+    } else if (fmt === 'Google Ad Headline') {
+      schema.google_headline = 'text';
+      schema.google_bias = { name: '...', application: '...' };
+    } else if (fmt === 'Email Subject + Body') {
+      schema.email_subject = 'text';
+      schema.email_body = 'text';
+      schema.email_bias = { name: '...', application: '...' };
+    } else if (fmt === 'WhatsApp Message') {
+      schema.whatsapp = 'text';
+      schema.whatsapp_bias = { name: '...', application: '...' };
+    } else if (fmt === 'Instagram Caption') {
+      schema.instagram = 'text';
+      schema.instagram_bias = { name: '...', application: '...' };
+    } else if (fmt === 'SMS / Push Notification') {
+      schema.sms = 'text';
+      schema.sms_bias = { name: '...', application: '...' };
+    }
+  });
+
+  lines.push(JSON.stringify(schema));
+  return lines.filter(function(l){ return l !== ''; }).join('\n');
+}
+
+function renderCampaignStage(stageKey, data) {
+  var s = FUNNEL_STAGES[stageKey];
+  var formats = [];
+
+  function fCard(labelText, fieldKey, biasKey, isHeadline) {
+    var text = data[fieldKey] || '';
+    if (!text) return '';
+    var biasObj = data[biasKey];
+    var biasHtml = biasObj && biasObj.name ? makeBiasTag(biasObj) : '';
+    return '<div class="copy-format-card">'
+      + '<div class="copy-format-label">'
+      + '<span>' + labelText + '</span>'
+      + '<div class="bias-tags">' + biasHtml + '</div>'
+      + '</div>'
+      + '<div class="copy-format-text' + (isHeadline ? ' headline-style' : '') + '">' + renderCopyText(text) + '</div>'
+      + '<div class="format-foot">'
+      + '<button class="copy-btn" onclick="copyToClip(this,' + JSON.stringify(text) + ')">Copy</button>'
+      + '</div></div>';
+  }
+
+  if (data.facebook_headline) formats.push(
+    fCard('Facebook Ad — Headline', 'facebook_headline', 'facebook_bias', true)
+    + fCard('Facebook Ad — Caption', 'facebook_caption', 'facebook_bias', false)
+  );
+  if (data.google_headline) formats.push(fCard('Google Ad Headline', 'google_headline', 'google_bias', true));
+  if (data.email_subject)   formats.push(
+    fCard('Email — Subject Line', 'email_subject', 'email_bias', true)
+    + fCard('Email — Body', 'email_body', 'email_bias', false)
+  );
+  if (data.whatsapp)        formats.push(fCard('WhatsApp Message', 'whatsapp', 'whatsapp_bias', false));
+  if (data.instagram)       formats.push(fCard('Instagram Caption', 'instagram', 'instagram_bias', false));
+  if (data.sms)             formats.push(fCard('SMS / Push Notification', 'sms', 'sms_bias', true));
+
+  return '<div class="funnel-stage open" id="cm-stage-' + stageKey + '">'
+    + '<div class="funnel-stage-header" onclick="toggleFunnelStage(this)">'
+    + '<div class="funnel-stage-title">'
+    + '<span class="funnel-badge ' + s.badgeClass + '">' + s.badge + '</span>'
+    + '<div>'
+    + '<div class="funnel-stage-label">' + s.label + '</div>'
+    + '<div class="funnel-stage-desc">' + s.desc + '</div>'
+    + '</div></div>'
+    + '<div class="funnel-chevron">&#9660;</div>'
+    + '</div>'
+    + '<div class="funnel-stage-body">' + formats.join('') + '</div>'
+    + '</div>';
+}
+
+async function generateCampaign() {
+  var brand    = document.getElementById('cm-brand').value.trim();
+  var goal     = document.getElementById('cm-goal').value.trim();
+  var audience = document.getElementById('cm-audience').value.trim();
+  if (!brand || !goal || !audience) {
+    showErr('cm-err', 'Brand name, campaign goal, and target audience are required.');
+    return;
+  }
+
+  var url          = document.getElementById('cm-url').value.trim();
+  var compName     = document.getElementById('cm-comp-name').value.trim();
+  var tone         = document.getElementById('cm-tone').value.trim();
+
+  setLoading('cm-gen-btn', true, 'Build Full Funnel Campaign');
+  showErr('cm-err', '');
+
+  // Loading UI
+  document.getElementById('cm-out').innerHTML =
+    '<div class="cm-loading-steps">'
+    + '<div class="cm-loading-spinner"></div>'
+    + '<div class="cm-loading-label" id="cm-load-label">Fetching brand context...</div>'
+    + '<div class="cm-loading-step" id="cm-load-step">Visiting your website</div>'
+    + '</div>';
+
+  // Step 1a: Fetch brand website context
+  var websiteContext = null;
+  if (url) {
+    document.getElementById('cm-load-label').textContent = 'Researching your brand...';
+    document.getElementById('cm-load-step').textContent = url;
+    websiteContext = await fetchWebsiteContext(url, 'cm-load-step', 'cm-url-status');
+  }
+
+  // Step 1b: Fetch competitor website context
+  var compUrl  = document.getElementById('cm-comp-url').value.trim();
+  var compContext = null;
+  if (compUrl) {
+    document.getElementById('cm-load-label').textContent = 'Researching your competitor...';
+    document.getElementById('cm-load-step').textContent = compUrl;
+    compContext = await fetchWebsiteContext(compUrl, 'cm-load-step', 'cm-comp-url-status');
+  }
+
+  // Step 2: Generate all 3 funnel stages in parallel
+  document.getElementById('cm-load-label').textContent = 'Writing your full funnel campaign...';
+  document.getElementById('cm-load-step').textContent = 'TOF + MOF + BOF simultaneously';
+
+  var stages = ['tof', 'mof', 'bof'];
+  var results = {};
+  var errors = [];
+
+  await Promise.all(stages.map(async function(stage) {
+    try {
+      var prompt = buildCampaignPrompt(stage, brand, goal, audience, tone, compName, websiteContext, compContext);
+      var d = await callAI(prompt);
+      results[stage] = d;
+    } catch(e) {
+      errors.push(stage + ': ' + e.message);
+      results[stage] = null;
+    }
+  }));
+
+  // Render results
+  var html = '<div class="results-label">Full Funnel Campaign</div>';
+  stages.forEach(function(stage) {
+    if (results[stage]) {
+      html += renderCampaignStage(stage, results[stage]);
+    }
+  });
+
+  if (errors.length === stages.length) {
+    showErr('cm-err', 'Campaign generation failed. Please try again.');
+    document.getElementById('cm-out').innerHTML = '';
+  } else {
+    document.getElementById('cm-out').innerHTML = html;
+    flashNew('cm-out');
+    document.getElementById('cm-out').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (errors.length > 0) {
+      showErr('cm-err', 'Some stages failed: ' + errors.join(', ') + '. Others generated successfully.');
+    }
+  }
+
+  setLoading('cm-gen-btn', false, 'Build Full Funnel Campaign');
+}
 </script>
 <!-- ── MODAL ──────────────────────────────────────────────── -->
 <div class="modal-backdrop" id="refine-modal" onclick="closeModal(event)">
