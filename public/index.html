@@ -870,6 +870,11 @@
         <div class="label">Tone</div>
         <input id="c-tone" placeholder="e.g. Witty, warm, authoritative, provocative">
       </div>
+      <div class="field">
+        <div class="label">Brand Website <span class="opt">optional</span></div>
+        <input id="c-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+        <div class="cm-website-status" id="c-url-status"></div>
+      </div>
       <div class="more-sep">Reference copies — so we match your brand voice</div>
       <div class="field"><textarea id="c-r1" rows="2" placeholder="Paste existing copy 1..."></textarea></div>
       <div class="field"><textarea id="c-r2" rows="2" placeholder="Paste existing copy 2..."></textarea></div>
@@ -972,6 +977,11 @@
         <div class="label">Avoid</div>
         <input id="n-avoid" placeholder="e.g. harsh K/X sounds, tech jargon, Z endings">
       </div>
+      <div class="field">
+        <div class="label">Brand Website <span class="opt">optional</span></div>
+        <input id="n-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+        <div class="cm-website-status" id="n-url-status"></div>
+      </div>
       <div class="more-sep">Existing portfolio names</div>
       <div class="g3" style="margin-bottom:14px;">
         <div><div class="label" style="font-size:10px">Name 1</div><input id="n-r1" placeholder="e.g. Aqua"></div>
@@ -1012,9 +1022,14 @@
       <span class="opt">optional</span>
     </button>
     <div class="more-panel hidden" id="audit-more">
-      <div class="field" style="margin-bottom:0">
+      <div class="field">
         <div class="label">Brand / Product</div>
         <input id="a-brand" placeholder="e.g. Swiggy Instamart, a skincare brand...">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <div class="label">Brand Website <span class="opt">optional</span></div>
+        <input id="a-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+        <div class="cm-website-status" id="a-url-status"></div>
       </div>
     </div>
 
@@ -1056,6 +1071,9 @@
 
 
 <script>
+'use strict';
+'use strict';
+'use strict';
 'use strict';
 'use strict';
 'use strict';
@@ -1167,12 +1185,27 @@ function renderCopyText(raw) {
   });
   return s.replace(/\n/g, '<br>');
 }
-function copyToClip(btn, text) {
+function copyToClip(btn) {
+  // Text is stored in data-copy on the button itself — no inline string quoting issues
+  var text = btn.getAttribute('data-copy') || '';
+  if (!text) return;
   navigator.clipboard.writeText(text).then(function(){
     btn.textContent = '\u2713 Copied';
     btn.classList.add('done');
     setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('done'); }, 2000);
-  }).catch(function(){});
+  }).catch(function(){
+    // Fallback for non-HTTPS or blocked clipboard
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = '\u2713 Copied';
+      btn.classList.add('done');
+      setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('done'); }, 2000);
+    } catch(e) {}
+  });
 }
 // Fade+slide in, then pulse the label to show content is new
 function flashNew(elId) {
@@ -1319,9 +1352,9 @@ function calcBiasScore(working, missing, copyType) {
   var maxApp  = matrix ? matrix.maxApplicable : 10;
 
   // Filter missing to only applicable biases for this copy type
-  var filteredMissing = missing;
+  var filteredMissing = missing || [];
   if (matrix && matrix.applicable) {
-    filteredMissing = missing.filter(function(m) {
+    filteredMissing = filteredMissing.filter(function(m) {
       var biasName = (m.bias || m.name || '').toLowerCase();
       return matrix.applicable.some(function(a) {
         return biasName.indexOf(a.toLowerCase()) >= 0;
@@ -1329,12 +1362,14 @@ function calcBiasScore(working, missing, copyType) {
     });
   }
 
-  // Score: 5 base + 0.7 per working (cap at maxApplicable)
-  //        - 0.5 per applicable-missing (cap at 5)
-  var raw = 5
-    + (Math.min((working||[]).length, Math.min(maxApp, 6)) * 0.7)
-    - (Math.min(filteredMissing.length, 5) * 0.5);
-  return Math.round(Math.max(2.0, Math.min(9.5, raw)) * 2) / 2;
+  // Formula (calibrated):
+  // Base 5 + 0.8 per working bias (cap 6) — rewards what IS there
+  // - 0.3 per missing bias (cap 3)         — soft penalty, realistic ceiling
+  // Range: 2.0 – 9.8. Well-engineered copy with 5 working, 2 missing = 5+4-0.6 = 8.4
+  var w = Math.min((working||[]).length, Math.min(maxApp, 6));
+  var m = Math.min(filteredMissing.length, 3);
+  var raw = 5 + (w * 0.8) - (m * 0.3);
+  return Math.round(Math.max(2.0, Math.min(9.8, raw)) * 2) / 2;
 }
 
 // ── UPGRADE 2: Copy-type bias stacks + objection inference ───────
@@ -1380,7 +1415,7 @@ function inferObjection(brand, ctx, product, audience) {
 }
 
 // ── COPYWRITER ───────────────────────────────────────────────────
-function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo, feedback) {
+function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo, feedback, websiteCtx) {
   var biasNote = turbo
     ? 'CRITICAL: Each variant MUST apply at least 6 distinct named biases. List ALL in the biases array. Copy must be extraordinary — not safe or generic.'
     : 'Each variant must apply at least 4 distinct named biases. List ALL in the biases array.';
@@ -1399,6 +1434,7 @@ function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo,
   // Upgrade 1: inject copy-type priority stack
   lines.push('');
   lines.push(getCopyTypeStack(type));
+  if (websiteCtx) lines.push('BRAND WEBSITE CONTEXT (use to make copy accurate):\n' + websiteCtx.slice(0, 800));
 
   // Upgrade 2: inject inferred objection + counter-biases
   lines.push(inferObjection(brand, ctx, product, audience));
@@ -1426,7 +1462,7 @@ function buildCopyHtml(variants, isLong) {
       + '<div class="' + (isLong ? 'copy-long' : 'copy-short') + '">' + renderCopyText(v.copy) + '</div>'
       + '<div class="card-foot">'
       + '<div class="bias-tags">' + biases.slice(0,3).map(makeBiasTag).join('') + '</div>'
-      + '<button class="copy-btn" onclick="copyToClip(this,' + JSON.stringify(v.copy) + ')">Copy</button>'
+      + '<button class="copy-btn" data-copy="' + esc(v.copy) + '" onclick="copyToClip(this)">Copy</button>'
       + '</div></div>';
   });
   html += '<div class="show-more-bar">'
@@ -1448,9 +1484,14 @@ async function generateCopy() {
   setLoading('copy-btn', true, 'Generate Copy');
   showErr('copy-err', '');
   document.getElementById('copy-out').innerHTML = '';
-  lastCopyPrompt = { type:type, brand:brand, ctx:ctx, product:product, audience:audience, tone:tone, refs:refs, isLong:isLong };
+
+  // Fetch brand website context if provided
+  var brandUrl = document.getElementById('c-url') ? document.getElementById('c-url').value.trim() : '';
+  var brandWebCtx = brandUrl ? await fetchWebsiteContext(brandUrl, null, 'c-url-status') : null;
+
+  lastCopyPrompt = { type:type, brand:brand, ctx:ctx, product:product, audience:audience, tone:tone, refs:refs, isLong:isLong, websiteCtx:brandWebCtx };
   try {
-    var data = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, false, ''));
+    var data = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, false, '', brandWebCtx));
     var variants = data.variants || [];
 
     document.getElementById('copy-out').innerHTML = buildCopyHtml(variants, isLong);
@@ -1470,7 +1511,7 @@ function openCopyMoreOptions() {
       var p = lastCopyPrompt;
       setModalLoading('Regenerating with your feedback\u2026', 'Applying behavioral biases\u2026');
       try {
-        var data = await callAI(buildCopyPrompt(p.type, p.brand, p.ctx, p.product, p.audience, p.tone, p.refs, false, feedback));
+        var data = await callAI(buildCopyPrompt(p.type, p.brand, p.ctx, p.product, p.audience, p.tone, p.refs, false, feedback, p.websiteCtx||null));
         document.getElementById('copy-out').innerHTML = buildCopyHtml(data.variants || [], p.isLong);
         flashNew('copy-out');
         closeModal();
@@ -1484,7 +1525,7 @@ function openCopyMoreOptions() {
 }
 
 // ── NAME GENERATOR ───────────────────────────────────────────
-function buildNamePrompt(what, audience, cat, inc, avoid, existing, guard, feedback) {
+function buildNamePrompt(what, audience, cat, inc, avoid, existing, guard, feedback, websiteCtx) {
   var lines = ['Generate exactly 8 product names. Each uses a DIFFERENT naming principle. Make each genuinely distinct.',
     'Product: ' + what];
   if (audience)      lines.push('Audience: ' + audience);
@@ -1494,6 +1535,7 @@ function buildNamePrompt(what, audience, cat, inc, avoid, existing, guard, feedb
   if (existing.length) lines.push('Portfolio names: ' + existing.join(', '));
   if (guard)         lines.push('Guardrails: ' + guard);
   if (feedback)      lines.push('User feedback: ' + feedback);
+  if (websiteCtx)    lines.push('BRAND WEBSITE CONTEXT (use to make names relevant to their actual offering):\n' + websiteCtx.slice(0, 600));
   lines.push('Rules: description max 50 chars. Tagline exactly 3-4 words.');
   lines.push('Return JSON only:');
   lines.push('{"names":[{"name":"ProductName","description":"max 50 chars","tagline":"3-4 word tagline","technique":{"name":"Principle","explanation":"1 sentence","application":"1 sentence"}}]}');
@@ -1510,7 +1552,7 @@ function buildNameHtml(names) {
       + '<div class="name-tagline">' + esc(n.tagline||'') + '</div>'
       + '<div class="name-foot">'
       + (n.technique && n.technique.name ? makeBiasTag(n.technique) : '')
-      + '<button class="copy-btn" onclick="copyToClip(this,' + JSON.stringify(n.name) + ')">Copy</button>'
+      + '<button class="copy-btn" data-copy="' + esc(n.name) + '" onclick="copyToClip(this)">Copy</button>'
       + '</div></div></div>';
   });
   html += '<div class="show-more-bar">'
@@ -1531,9 +1573,13 @@ async function generateNames() {
   setLoading('name-btn', true, 'Generate Names');
   showErr('name-err', '');
   document.getElementById('name-out').innerHTML = '';
-  lastNamePrompt = { what:what, audience:audience, cat:cat, inc:inc, avoid:avoid, existing:existing, guard:guard };
+
+  var nameUrl = document.getElementById('n-url') ? document.getElementById('n-url').value.trim() : '';
+  var nameWebCtx = nameUrl ? await fetchWebsiteContext(nameUrl, null, 'n-url-status') : null;
+
+  lastNamePrompt = { what:what, audience:audience, cat:cat, inc:inc, avoid:avoid, existing:existing, guard:guard, websiteCtx:nameWebCtx };
   try {
-    var data = await callAI(buildNamePrompt(what, audience, cat, inc, avoid, existing, guard, ''));
+    var data = await callAI(buildNamePrompt(what, audience, cat, inc, avoid, existing, guard, '', nameWebCtx));
     document.getElementById('name-out').innerHTML = buildNameHtml(data.names || []);
     flashNew('name-out');
   } catch(e) {
@@ -1565,19 +1611,25 @@ function openNameMoreOptions() {
 }
 
 // ── BIAS AUDIT ───────────────────────────────────────────────
-function buildAuditPrompt(copy, brand, extra) {
+function buildAuditPrompt(copy, brand, extra, websiteCtx) {
   var lines = [
     'Perform a comprehensive behavioral science audit of this copy.',
     'Copy: "' + copy.replace(/\\/g,'\\\\').replace(/"/g,'\\"') + '"'
   ];
   if (brand) lines.push('Brand/Product: ' + brand);
+  if (websiteCtx) lines.push('BRAND WEBSITE CONTEXT:\n' + websiteCtx.slice(0, 800));
   // Upgrade 2: infer objection for audit rewrites too
   if (brand || copy) {
     lines.push(inferObjection(brand, copy.slice(0, 200), '', ''));
   }
   if (extra) lines.push(extra);
   lines.push(
-    'Identify biases actively present (working) and missing but impactful (missing). Write an improved rewrite.',
+    'Identify biases actively present (working) and missing but impactful (missing).',
+    'STRICT RULES FOR MISSING BIASES:',
+    '- Only list a bias as MISSING if it is (a) clearly absent AND (b) would materially improve conversion for this specific copy',
+    '- Do NOT list every bias that is not loudly present — most copy cannot and should not use all 62 principles',
+    '- Maximum 3 missing biases. Quality over quantity. Only the most commercially impactful gaps.',
+    '- If the copy is already well-engineered, it is acceptable to list 0-1 missing biases',
     'DO NOT include a score.',
     'In the rewrite: use **bold** for key phrases. Include [Visual: suggestion] tags for image ideas.',
     'Return JSON only:',
@@ -1660,12 +1712,16 @@ async function runAudit() {
   var copy = document.getElementById('a-copy').value.trim();
   if (!copy) { showErr('audit-err', 'Please paste your copy first.'); return; }
   var brand = document.getElementById('a-brand').value.trim();
+  var auditUrl = document.getElementById('a-url') ? document.getElementById('a-url').value.trim() : '';
+
   setLoading('audit-btn', true, 'Audit My Copy');
   showErr('audit-err', '');
   document.getElementById('audit-out').innerHTML = '';
-  lastAuditPrompt = { copy: copy, brand: brand, origScore: null };
+
+  var auditWebCtx = auditUrl ? await fetchWebsiteContext(auditUrl, null, 'a-url-status') : null;
+  lastAuditPrompt = { copy: copy, brand: brand, origScore: null, websiteCtx: auditWebCtx };
   try {
-    var d = await callAI(buildAuditPrompt(copy, brand, ''));
+    var d = await callAI(buildAuditPrompt(copy, brand, '', auditWebCtx));
     // Calculate original copy score from what biases were found working vs missing
     // Then the improved copy score is derived from the rewrite analysis
     var origScore = calcBiasScore(d.working || [], d.missing || []);
@@ -1903,7 +1959,7 @@ function renderCampaignStage(stageKey, data) {
       + '</div>'
       + '<div class="copy-format-text' + (isHeadline ? ' headline-style' : '') + '">' + renderCopyText(text) + '</div>'
       + '<div class="format-foot">'
-      + '<button class="copy-btn" onclick="copyToClip(this,' + JSON.stringify(text) + ')">Copy</button>'
+      + '<button class="copy-btn" data-copy="' + esc(text) + '" onclick="copyToClip(this)">Copy</button>'
       + '</div></div>';
   }
 
