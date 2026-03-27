@@ -1,1305 +1,1287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Right Copywriter — Copy That Sells</title>
-  <meta name="description" content="Behavioral science-backed copywriting tool. Built on 62 psychological principles from Shotton, Kahneman, Sutherland.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    /* ── TOKENS ─────────────────────────────────────────── */
-    :root {
-      --bg:       #F7F5F0;
-      --surface:  #FFFFFF;
-      --ink:      #191B26;
-      --mid:      #636978;
-      --dim:      #A0A8B8;
-      --bd:       #E4DDD2;
-      --bdhi:     #CCC4B8;
-      --green:    #1B4332;
-      --greenbg:  #EEF5F1;
-      --greenbd:  #BFD8CA;
-      --amber:    #BF6E00;
-      --amberbg:  #FDF6E8;
-      --amberbd:  #F0C86A;
-      --red:      #C0392B;
-      --shadow-s: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
-      --shadow-m: 0 2px 6px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.06);
-      --r:        12px;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: 'DM Sans', system-ui, sans-serif;
-      min-height: 100dvh;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--bdhi); border-radius: 2px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Right Copywriter — Copy That Sells</title>
+  <meta name="description" content="Behavioral science-backed copywriting tool. Built on 62 psychological principles from Shotton, Kahneman, Sutherland.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── TOKENS ─────────────────────────────────────────── */
+    :root {
+      --bg:       #F7F5F0;
+      --surface:  #FFFFFF;
+      --ink:      #191B26;
+      --mid:      #636978;
+      --dim:      #A0A8B8;
+      --bd:       #E4DDD2;
+      --bdhi:     #CCC4B8;
+      --green:    #1B4332;
+      --greenbg:  #EEF5F1;
+      --greenbd:  #BFD8CA;
+      --amber:    #BF6E00;
+      --amberbg:  #FDF6E8;
+      --amberbd:  #F0C86A;
+      --red:      #C0392B;
+      --shadow-s: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
+      --shadow-m: 0 2px 6px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.06);
+      --r:        12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bdhi); border-radius: 2px; }
 
-    /* ── HEADER ─────────────────────────────────────────── */
-    .header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--bd);
-      position: sticky;
-      top: 0;
-      z-index: 90;
-    }
-    .header-inner { max-width: 680px; margin: 0 auto; padding: 0 20px; }
-    .brand-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 0 12px;
-      border-bottom: 1px solid var(--bd);
-    }
-    .logo {
-      width: 34px; height: 34px;
-      background: var(--green);
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .logo-letter {
-      font-family: 'Fraunces', serif;
-      font-size: 17px; font-weight: 600;
-      color: #fff; line-height: 1;
-    }
-    .brand-text { flex: 1; min-width: 0; }
-    .brand-name {
-      font-family: 'Fraunces', serif;
-      font-size: 17px; font-weight: 600;
-      color: var(--ink);
-      letter-spacing: -.02em; line-height: 1;
-    }
-    .brand-sub { font-size: 11px; color: var(--mid); margin-top: 2px; }
-    .science-badge {
-      background: var(--greenbg);
-      color: var(--green);
-      border: 1px solid var(--greenbd);
-      font-size: 9px; font-weight: 700;
-      padding: 3px 9px; border-radius: 20px;
-      letter-spacing: .09em; text-transform: uppercase;
-      white-space: nowrap;
-    }
+    /* ── HEADER ─────────────────────────────────────────── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--bd);
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+    .header-inner { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 0 12px;
+      border-bottom: 1px solid var(--bd);
+    }
+    .logo {
+      width: 34px; height: 34px;
+      background: var(--green);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-letter {
+      font-family: 'Fraunces', serif;
+      font-size: 17px; font-weight: 600;
+      color: #fff; line-height: 1;
+    }
+    .brand-text { flex: 1; min-width: 0; }
+    .brand-name {
+      font-family: 'Fraunces', serif;
+      font-size: 17px; font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -.02em; line-height: 1;
+    }
+    .brand-sub { font-size: 11px; color: var(--mid); margin-top: 2px; }
+    .science-badge {
+      background: var(--greenbg);
+      color: var(--green);
+      border: 1px solid var(--greenbd);
+      font-size: 9px; font-weight: 700;
+      padding: 3px 9px; border-radius: 20px;
+      letter-spacing: .09em; text-transform: uppercase;
+      white-space: nowrap;
+    }
 
-    .tab-bar {
-      display: flex;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-    .tab-bar::-webkit-scrollbar { display: none; }
-    .tab-btn {
-      background: transparent; border: none;
-      border-bottom: 2px solid transparent;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13.5px; font-weight: 500;
-      color: var(--mid);
-      padding: 11px 18px 12px;
-      white-space: nowrap;
-      transition: color .18s, border-color .18s;
-      flex-shrink: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .tab-btn.active { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
+    .tab-bar {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: transparent; border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px; font-weight: 500;
+      color: var(--mid);
+      padding: 11px 18px 12px;
+      white-space: nowrap;
+      transition: color .18s, border-color .18s;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-btn.active { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
 
-    /* ── CONTENT ─────────────────────────────────────────── */
-    .content { max-width: 680px; margin: 0 auto; padding: 26px 20px 90px; }
-    .page-title {
-      font-family: 'Fraunces', serif;
-      font-size: 24px; font-weight: 600;
-      color: var(--ink); letter-spacing: -.025em;
-      margin-bottom: 4px;
-    }
-    .page-sub { font-size: 13.5px; color: var(--mid); line-height: 1.55; margin-bottom: 26px; }
+    /* ── CONTENT ─────────────────────────────────────────── */
+    .content { max-width: 680px; margin: 0 auto; padding: 26px 20px 90px; }
+    .page-title {
+      font-family: 'Fraunces', serif;
+      font-size: 24px; font-weight: 600;
+      color: var(--ink); letter-spacing: -.025em;
+      margin-bottom: 4px;
+    }
+    .page-sub { font-size: 13.5px; color: var(--mid); line-height: 1.55; margin-bottom: 26px; }
 
-    /* ── FORM ────────────────────────────────────────────── */
-    .field { margin-bottom: 16px; }
-    .label {
-      display: flex; align-items: center; gap: 7px;
-      font-size: 11px; font-weight: 700;
-      color: var(--ink); letter-spacing: .07em;
-      text-transform: uppercase; margin-bottom: 8px;
-    }
-    .opt {
-      font-size: 10px; font-weight: 400;
-      color: var(--dim); text-transform: none;
-      letter-spacing: 0; background: var(--bg);
-      border: 1px solid var(--bd);
-      padding: 1px 7px; border-radius: 5px;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 11px 14px;
-      background: var(--surface);
-      border: 1.5px solid var(--bd);
-      border-radius: var(--r);
-      color: var(--ink);
-      font-size: 14px;
-      font-family: 'DM Sans', sans-serif;
-      line-height: 1.55;
-      outline: none;
-      transition: border-color .2s, box-shadow .2s;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-    input:focus, textarea:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(27,67,50,.1);
-    }
-    input::placeholder, textarea::placeholder { color: var(--dim); }
-    textarea { resize: vertical; min-height: 80px; }
+    /* ── FORM ────────────────────────────────────────────── */
+    .field { margin-bottom: 16px; }
+    .label {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 700;
+      color: var(--ink); letter-spacing: .07em;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .opt {
+      font-size: 10px; font-weight: 400;
+      color: var(--dim); text-transform: none;
+      letter-spacing: 0; background: var(--bg);
+      border: 1px solid var(--bd);
+      padding: 1px 7px; border-radius: 5px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--surface);
+      border: 1.5px solid var(--bd);
+      border-radius: var(--r);
+      color: var(--ink);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.55;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(27,67,50,.1);
+    }
+    input::placeholder, textarea::placeholder { color: var(--dim); }
+    textarea { resize: vertical; min-height: 80px; }
 
-    /* ── PILLS ───────────────────────────────────────────── */
-    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
-    .pill {
-      padding: 7px 15px; border-radius: 30px;
-      font-size: 13px; font-weight: 500;
-      background: var(--surface); color: var(--mid);
-      border: 1.5px solid var(--bd);
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      transition: all .15s;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-    .pill.on { background: var(--green); color: #fff; border-color: var(--green); font-weight: 600; }
+    /* ── PILLS ───────────────────────────────────────────── */
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      padding: 7px 15px; border-radius: 30px;
+      font-size: 13px; font-weight: 500;
+      background: var(--surface); color: var(--mid);
+      border: 1.5px solid var(--bd);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .pill.on { background: var(--green); color: #fff; border-color: var(--green); font-weight: 600; }
 
-    /* ── GRID ────────────────────────────────────────────── */
-    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 440px) { .g2 { grid-template-columns: 1fr; } }
-    .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    @media (max-width: 440px) { .g3 { grid-template-columns: 1fr 1fr; } }
+    /* ── GRID ────────────────────────────────────────────── */
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 440px) { .g2 { grid-template-columns: 1fr; } }
+    .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 440px) { .g3 { grid-template-columns: 1fr 1fr; } }
 
-    /* ── COLLAPSIBLE ─────────────────────────────────────── */
-    .ref-toggle {
-      width: 100%;
-      background: transparent;
-      border: 1.5px dashed var(--bdhi);
-      border-radius: var(--r);
-      padding: 10px 14px;
-      color: var(--mid); font-size: 13px;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      text-align: left;
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 12px;
-      transition: border-color .2s, color .2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .ref-toggle:hover { border-color: var(--green); color: var(--green); }
-    .ref-toggle svg { flex-shrink: 0; }
-    .ref-area {
-      background: var(--bg);
-      border: 1px solid var(--bd);
-      border-radius: var(--r);
-      padding: 16px;
-      margin-bottom: 14px;
-    }
+    /* ── COLLAPSIBLE ─────────────────────────────────────── */
+    .ref-toggle {
+      width: 100%;
+      background: transparent;
+      border: 1.5px dashed var(--bdhi);
+      border-radius: var(--r);
+      padding: 10px 14px;
+      color: var(--mid); font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      text-align: left;
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 12px;
+      transition: border-color .2s, color .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ref-toggle:hover { border-color: var(--green); color: var(--green); }
+    .ref-toggle svg { flex-shrink: 0; }
+    .ref-area {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: var(--r);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
 
-    /* ── GENERATE BUTTON ─────────────────────────────────── */
-    .gen-btn {
-      width: 100%;
-      padding: 14px 20px;
-      background: var(--green); color: #fff;
-      border: none; border-radius: var(--r);
-      font-size: 14.5px; font-weight: 600;
-      font-family: 'DM Sans', sans-serif;
-      letter-spacing: .02em;
-      cursor: pointer;
-      transition: background .2s, transform .1s;
-      -webkit-tap-highlight-color: transparent;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .gen-btn:disabled { background: var(--bdhi); color: var(--mid); cursor: not-allowed; }
-    .gen-btn:active:not(:disabled) { transform: scale(.985); }
+    /* ── GENERATE BUTTON ─────────────────────────────────── */
+    .gen-btn {
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--green); color: #fff;
+      border: none; border-radius: var(--r);
+      font-size: 14.5px; font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: .02em;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .gen-btn:disabled { background: var(--bdhi); color: var(--mid); cursor: not-allowed; }
+    .gen-btn:active:not(:disabled) { transform: scale(.985); }
 
-    /* ── ERROR ───────────────────────────────────────────── */
-    .err {
-      font-size: 13px; color: var(--red);
-      background: rgba(192,57,43,.06);
-      border: 1px solid rgba(192,57,43,.18);
-      border-radius: 9px;
-      padding: 10px 14px; margin-top: 10px;
-    }
+    /* ── ERROR ───────────────────────────────────────────── */
+    .err {
+      font-size: 13px; color: var(--red);
+      background: rgba(192,57,43,.06);
+      border: 1px solid rgba(192,57,43,.18);
+      border-radius: 9px;
+      padding: 10px 14px; margin-top: 10px;
+    }
 
-    /* ── RESULTS LABEL ───────────────────────────────────── */
-    .results-label {
-      font-size: 10px; font-weight: 700;
-      color: var(--mid); letter-spacing: .12em;
-      text-transform: uppercase;
-      display: flex; align-items: center; gap: 10px;
-      margin: 28px 0 16px;
-    }
-    .results-label::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+    /* ── RESULTS LABEL ───────────────────────────────────── */
+    .results-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--mid); letter-spacing: .12em;
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 10px;
+      margin: 28px 0 16px;
+    }
+    .results-label::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
 
-    /* ── COPY CARD ───────────────────────────────────────── */
-    .copy-card {
-      background: var(--surface);
-      border: 1px solid var(--bd);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 12px;
-      box-shadow: var(--shadow-s);
-    }
-    .card-num {
-      font-size: 10px; font-weight: 700;
-      color: var(--dim); letter-spacing: .1em;
-      text-transform: uppercase; margin-bottom: 12px;
-    }
-    .copy-short {
-      font-family: 'Fraunces', serif;
-      font-size: 20px; font-weight: 500;
-      color: var(--ink); line-height: 1.4;
-      letter-spacing: -.01em; margin-bottom: 16px;
-    }
-    .copy-long {
-      font-size: 14px; color: var(--ink);
-      line-height: 1.8; margin-bottom: 16px;
-      white-space: pre-wrap;
-    }
-    .card-foot {
-      display: flex; justify-content: space-between;
-      align-items: flex-end; gap: 12px; flex-wrap: wrap;
-    }
+    /* ── COPY CARD ───────────────────────────────────────── */
+    .copy-card {
+      background: var(--surface);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-s);
+    }
+    .card-num {
+      font-size: 10px; font-weight: 700;
+      color: var(--dim); letter-spacing: .1em;
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    .copy-short {
+      font-family: 'Fraunces', serif;
+      font-size: 20px; font-weight: 500;
+      color: var(--ink); line-height: 1.4;
+      letter-spacing: -.01em; margin-bottom: 16px;
+    }
+    .copy-long {
+      font-size: 14px; color: var(--ink);
+      line-height: 1.8; margin-bottom: 16px;
+      white-space: pre-wrap;
+    }
+    .card-foot {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; gap: 12px; flex-wrap: wrap;
+    }
 
-    /* ── BIAS TAG ────────────────────────────────────────── */
-    .bias-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-    .bias-wrap { position: relative; }
-    .bias-tag {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: var(--amberbg);
-      border: 1px solid var(--amberbd);
-      border-radius: 30px;
-      padding: 4px 10px 4px 9px;
-      font-size: 10px; font-weight: 700;
-      color: var(--amber); letter-spacing: .07em;
-      text-transform: uppercase; cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      transition: background .15s;
-    }
-    .bias-tag:hover { background: #F8EDD0; }
-    .info-i {
-      width: 15px; height: 15px; border-radius: 50%;
-      background: rgba(191,110,0,.18);
-      color: var(--amber);
-      font-size: 9px; font-weight: 800;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-style: normal; flex-shrink: 0;
-    }
-    /* bias popup */
-    .bias-popup {
-      position: absolute;
-      bottom: calc(100% + 10px); left: 0;
-      background: var(--surface);
-      border: 1.5px solid var(--bd);
-      border-radius: 13px;
-      padding: 15px 17px;
-      width: min(290px, calc(100vw - 36px));
-      z-index: 200;
-      box-shadow: var(--shadow-m);
-      pointer-events: none;
-      opacity: 0; transform: translateY(4px);
-      transition: opacity .18s, transform .18s;
-    }
-    .bias-popup.open {
-      pointer-events: auto;
-      opacity: 1; transform: translateY(0);
-    }
-    .bp-name { font-size: 10px; font-weight: 700; color: var(--amber); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
-    .bp-what { font-size: 12.5px; color: var(--mid); line-height: 1.65; margin-bottom: 10px; }
-    .bp-how-label { font-size: 9.5px; font-weight: 700; color: var(--green); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
-    .bp-how { font-size: 12px; color: var(--ink); line-height: 1.6; }
+    /* ── BIAS TAG ────────────────────────────────────────── */
+    .bias-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .bias-wrap { position: relative; }
+    .bias-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--amberbg);
+      border: 1px solid var(--amberbd);
+      border-radius: 30px;
+      padding: 4px 10px 4px 9px;
+      font-size: 10px; font-weight: 700;
+      color: var(--amber); letter-spacing: .07em;
+      text-transform: uppercase; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition: background .15s;
+    }
+    .bias-tag:hover { background: #F8EDD0; }
+    .info-i {
+      width: 15px; height: 15px; border-radius: 50%;
+      background: rgba(191,110,0,.18);
+      color: var(--amber);
+      font-size: 9px; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-style: normal; flex-shrink: 0;
+    }
+    /* bias popup */
+    .bias-popup {
+      position: absolute;
+      bottom: calc(100% + 10px); left: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--bd);
+      border-radius: 13px;
+      padding: 15px 17px;
+      width: min(290px, calc(100vw - 36px));
+      z-index: 200;
+      box-shadow: var(--shadow-m);
+      pointer-events: none;
+      opacity: 0; transform: translateY(4px);
+      transition: opacity .18s, transform .18s;
+    }
+    .bias-popup.open {
+      pointer-events: auto;
+      opacity: 1; transform: translateY(0);
+    }
+    .bp-name { font-size: 10px; font-weight: 700; color: var(--amber); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+    .bp-what { font-size: 12.5px; color: var(--mid); line-height: 1.65; margin-bottom: 10px; }
+    .bp-how-label { font-size: 9.5px; font-weight: 700; color: var(--green); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+    .bp-how { font-size: 12px; color: var(--ink); line-height: 1.6; }
 
-    /* ── COPY BTN ────────────────────────────────────────── */
-    .copy-btn {
-      background: transparent;
-      border: 1.5px solid var(--bd);
-      border-radius: 8px;
-      padding: 5px 13px;
-      font-size: 12px; font-weight: 500;
-      color: var(--mid);
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      transition: all .18s;
-      flex-shrink: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .copy-btn.done { background: var(--greenbg); border-color: var(--greenbd); color: var(--green); font-weight: 600; }
+    /* ── COPY BTN ────────────────────────────────────────── */
+    .copy-btn {
+      background: transparent;
+      border: 1.5px solid var(--bd);
+      border-radius: 8px;
+      padding: 5px 13px;
+      font-size: 12px; font-weight: 500;
+      color: var(--mid);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all .18s;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .copy-btn.done { background: var(--greenbg); border-color: var(--greenbd); color: var(--green); font-weight: 600; }
 
-    /* ── NAME CARD ───────────────────────────────────────── */
-    .name-card {
-      background: var(--surface);
-      border: 1px solid var(--bd);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 10px;
-      display: flex; gap: 16px;
-      box-shadow: var(--shadow-s);
-    }
-    .name-num {
-      font-family: 'Fraunces', serif;
-      font-size: 13px; font-weight: 300;
-      color: var(--bdhi); min-width: 22px; padding-top: 8px;
-    }
-    .name-body { flex: 1; min-width: 0; }
-    .name-text {
-      font-family: 'Fraunces', serif;
-      font-size: 30px; font-weight: 600;
-      color: var(--ink); letter-spacing: -.025em; line-height: 1.1;
-      margin-bottom: 5px; word-break: break-word;
-    }
-    .name-desc { font-size: 12.5px; color: var(--mid); font-style: italic; margin-bottom: 4px; }
-    .name-tagline { font-size: 13px; color: var(--amber); font-weight: 600; margin-bottom: 14px; }
-    .name-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    /* ── NAME CARD ───────────────────────────────────────── */
+    .name-card {
+      background: var(--surface);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 10px;
+      display: flex; gap: 16px;
+      box-shadow: var(--shadow-s);
+    }
+    .name-num {
+      font-family: 'Fraunces', serif;
+      font-size: 13px; font-weight: 300;
+      color: var(--bdhi); min-width: 22px; padding-top: 8px;
+    }
+    .name-body { flex: 1; min-width: 0; }
+    .name-text {
+      font-family: 'Fraunces', serif;
+      font-size: 30px; font-weight: 600;
+      color: var(--ink); letter-spacing: -.025em; line-height: 1.1;
+      margin-bottom: 5px; word-break: break-word;
+    }
+    .name-desc { font-size: 12.5px; color: var(--mid); font-style: italic; margin-bottom: 4px; }
+    .name-tagline { font-size: 13px; color: var(--amber); font-weight: 600; margin-bottom: 14px; }
+    .name-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 
-    /* ── AUDIT ───────────────────────────────────────────── */
-    .audit-notice {
-      background: var(--greenbg);
-      border: 1px solid var(--greenbd);
-      border-radius: 11px;
-      padding: 13px 16px;
-      font-size: 13px; color: var(--green); line-height: 1.6;
-      margin-bottom: 22px;
-    }
-    .score-card {
-      background: var(--surface);
-      border: 1px solid var(--bd);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 22px;
-      display: flex; gap: 18px; align-items: center;
-      box-shadow: var(--shadow-s);
-    }
-    .score-num {
-      font-family: 'Fraunces', serif;
-      font-size: 52px; font-weight: 600;
-      line-height: 1; min-width: 70px; text-align: center;
-    }
-    .score-den { font-size: 11px; color: var(--dim); text-align: center; margin-top: 3px; }
-    .score-sep { width: 1px; background: var(--bd); align-self: stretch; flex-shrink: 0; }
-    .score-body { flex: 1; }
-    .score-label-text { font-size: 10px; font-weight: 700; color: var(--mid); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
-    .score-summary { font-size: 13.5px; color: var(--ink); line-height: 1.6; }
-    .audit-group {
-      font-size: 10px; font-weight: 700;
-      letter-spacing: .12em; text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    .audit-item {
-      background: var(--surface);
-      border: 1px solid var(--bd);
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 8px;
-      display: flex; gap: 10px;
-    }
-    .a-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
-    .a-bias-name { font-size: 12px; font-weight: 700; }
-    .a-bias-desc { font-size: 12.5px; color: var(--mid); }
-    .rewrite-card {
-      background: var(--surface);
-      border: 2px solid var(--amberbd);
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: var(--shadow-s);
-    }
-    .rw-header {
-      font-size: 10px; font-weight: 700;
-      color: var(--amber); letter-spacing: .12em;
-      text-transform: uppercase; margin-bottom: 14px;
-    }
-    .rw-text {
-      font-family: 'Fraunces', serif;
-      font-size: 17px; font-weight: 300; font-style: italic;
-      color: var(--ink); line-height: 1.8;
-      margin-bottom: 16px; white-space: pre-wrap;
-    }
+    /* ── AUDIT ───────────────────────────────────────────── */
+    .audit-notice {
+      background: var(--greenbg);
+      border: 1px solid var(--greenbd);
+      border-radius: 11px;
+      padding: 13px 16px;
+      font-size: 13px; color: var(--green); line-height: 1.6;
+      margin-bottom: 22px;
+    }
+    .score-card {
+      background: var(--surface);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 22px;
+      display: flex; gap: 18px; align-items: center;
+      box-shadow: var(--shadow-s);
+    }
+    .score-num {
+      font-family: 'Fraunces', serif;
+      font-size: 52px; font-weight: 600;
+      line-height: 1; min-width: 70px; text-align: center;
+    }
+    .score-den { font-size: 11px; color: var(--dim); text-align: center; margin-top: 3px; }
+    .score-sep { width: 1px; background: var(--bd); align-self: stretch; flex-shrink: 0; }
+    .score-body { flex: 1; }
+    .score-label-text { font-size: 10px; font-weight: 700; color: var(--mid); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+    .score-summary { font-size: 13.5px; color: var(--ink); line-height: 1.6; }
+    .audit-group {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .audit-item {
+      background: var(--surface);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex; gap: 10px;
+    }
+    .a-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+    .a-bias-name { font-size: 12px; font-weight: 700; }
+    .a-bias-desc { font-size: 12.5px; color: var(--mid); }
+    .rewrite-card {
+      background: var(--surface);
+      border: 2px solid var(--amberbd);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: var(--shadow-s);
+    }
+    .rw-header {
+      font-size: 10px; font-weight: 700;
+      color: var(--amber); letter-spacing: .12em;
+      text-transform: uppercase; margin-bottom: 14px;
+    }
+    .rw-text {
+      font-family: 'Fraunces', serif;
+      font-size: 17px; font-weight: 300; font-style: italic;
+      color: var(--ink); line-height: 1.8;
+      margin-bottom: 16px; white-space: pre-wrap;
+    }
 
-    /* ── SPINNER ─────────────────────────────────────────── */
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,.35);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
+    /* ── SPINNER ─────────────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
 
-    /* ── MORE DETAILS BLOCK ─────────────────────────────── */
-    .more-btn {
-      width: 100%; background: var(--surface);
-      border: 1px solid var(--bd); border-radius: var(--r);
-      padding: 11px 16px; margin-bottom: 2px;
-      display: flex; align-items: center; justify-content: space-between;
-      cursor: pointer; font-family: 'DM Sans', sans-serif;
-      font-size: 13px; font-weight: 500; color: var(--mid);
-      transition: border-color .18s, color .18s, border-radius .18s;
-      -webkit-tap-highlight-color: transparent; text-align: left; gap: 10px;
-      box-shadow: var(--shadow-s);
-    }
-    .more-btn:hover { border-color: var(--bdhi); color: var(--ink); }
-    .more-btn.open {
-      border-color: var(--bdhi); color: var(--ink);
-      border-bottom-left-radius: 0; border-bottom-right-radius: 0;
-      border-bottom-color: transparent; margin-bottom: 0; box-shadow: none;
-    }
-    .more-btn-left { display: flex; align-items: center; gap: 8px; }
-    .more-icon {
-      width: 20px; height: 20px; border-radius: 50%;
-      background: var(--bg); border: 1px solid var(--bd);
-      display: inline-flex; align-items: center; justify-content: center;
-      flex-shrink: 0; font-size: 14px; line-height: 1; color: var(--mid);
-      transition: background .18s, border-color .18s, color .18s; font-weight: 400;
-    }
-    .more-btn.open .more-icon { background: var(--ink); border-color: var(--ink); color: #fff; }
-    .more-panel {
-      background: var(--surface);
-      border: 1px solid var(--bdhi); border-top: none;
-      border-bottom-left-radius: var(--r); border-bottom-right-radius: var(--r);
-      padding: 18px 16px 14px; margin-bottom: 14px;
-      box-shadow: var(--shadow-s);
-    }
-    .more-sep {
-      font-size: 10px; font-weight: 700; color: var(--dim);
-      letter-spacing: .1em; text-transform: uppercase;
-      border-top: 1px solid var(--bd); padding-top: 12px; margin: 4px 0 10px;
-    }
-    /* ── AUDIT COLLAPSIBLE SECTIONS ──────────────────────── */
-    .audit-toggle {
-      width: 100%; background: var(--surface);
-      border: 1px solid var(--bd); border-radius: 10px;
-      padding: 11px 14px; margin-bottom: 8px;
-      display: flex; align-items: center; justify-content: space-between;
-      cursor: pointer; font-family: 'DM Sans', sans-serif;
-      font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
-      transition: background .15s, border-color .15s;
-      -webkit-tap-highlight-color: transparent; box-shadow: var(--shadow-s);
-    }
-    .audit-toggle:hover { background: var(--bg); }
-    .audit-toggle.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; margin-bottom: 0; }
-    .audit-toggle-right { display: flex; align-items: center; gap: 6px; }
-    .audit-count {
-      font-size: 10px; font-weight: 700; border-radius: 20px;
-      padding: 1px 8px; letter-spacing: 0; text-transform: none;
-    }
-    .audit-chevron {
-      width: 20px; height: 20px; border-radius: 50%;
-      background: var(--bg); border: 1px solid var(--bd);
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 10px; color: var(--mid);
-      transition: transform .2s, background .18s, border-color .18s, color .18s;
-    }
-    .audit-toggle.open .audit-chevron { transform: rotate(180deg); background: var(--ink); border-color: var(--ink); color: #fff; }
-    .audit-body {
-      background: var(--surface); border: 1px solid var(--bdhi);
-      border-top: none;
-      border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
-      padding: 12px 12px 6px; margin-bottom: 12px;
-    }
-    .audit-body .audit-item:last-child { margin-bottom: 0; }
-    /* ── REFINE BLOCK ────────────────────────────────────── */
-    .refine-wrap { margin-top: 12px; }
-    .refine-btn {
-      background: transparent; border: 1px solid var(--bd);
-      border-radius: 8px; padding: 5px 13px;
-      font-size: 12px; font-weight: 500; color: var(--mid);
-      cursor: pointer; font-family: 'DM Sans', sans-serif;
-      transition: all .15s; display: inline-flex; align-items: center; gap: 5px;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .refine-btn:hover { border-color: var(--green); color: var(--green); }
-    .refine-panel {
-      margin-top: 10px; padding: 14px;
-      background: var(--bg); border: 1px solid var(--bd); border-radius: 10px;
-    }
-    .refine-panel textarea { margin-bottom: 10px; min-height: 62px; }
-    .refine-row { display: flex; gap: 8px; align-items: center; }
-    .refine-submit {
-      padding: 8px 18px; background: var(--green); color: #fff;
-      border: none; border-radius: 8px;
-      font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-      cursor: pointer; transition: background .18s; white-space: nowrap;
-      -webkit-tap-highlight-color: transparent; flex-shrink: 0;
-    }
-    .refine-submit:disabled { background: var(--bdhi); color: var(--mid); cursor: not-allowed; }
-    .refine-spinner {
-      width: 13px; height: 13px;
-      border: 2px solid rgba(27,67,50,.2); border-top-color: var(--green);
-      border-radius: 50%; animation: spin .7s linear infinite; display: none;
-    }
+    /* ── MORE DETAILS BLOCK ─────────────────────────────── */
+    .more-btn {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--bd); border-radius: var(--r);
+      padding: 11px 16px; margin-bottom: 2px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500; color: var(--mid);
+      transition: border-color .18s, color .18s, border-radius .18s;
+      -webkit-tap-highlight-color: transparent; text-align: left; gap: 10px;
+      box-shadow: var(--shadow-s);
+    }
+    .more-btn:hover { border-color: var(--bdhi); color: var(--ink); }
+    .more-btn.open {
+      border-color: var(--bdhi); color: var(--ink);
+      border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+      border-bottom-color: transparent; margin-bottom: 0; box-shadow: none;
+    }
+    .more-btn-left { display: flex; align-items: center; gap: 8px; }
+    .more-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--bd);
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 14px; line-height: 1; color: var(--mid);
+      transition: background .18s, border-color .18s, color .18s; font-weight: 400;
+    }
+    .more-btn.open .more-icon { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .more-panel {
+      background: var(--surface);
+      border: 1px solid var(--bdhi); border-top: none;
+      border-bottom-left-radius: var(--r); border-bottom-right-radius: var(--r);
+      padding: 18px 16px 14px; margin-bottom: 14px;
+      box-shadow: var(--shadow-s);
+    }
+    .more-sep {
+      font-size: 10px; font-weight: 700; color: var(--dim);
+      letter-spacing: .1em; text-transform: uppercase;
+      border-top: 1px solid var(--bd); padding-top: 12px; margin: 4px 0 10px;
+    }
+    /* ── AUDIT COLLAPSIBLE SECTIONS ──────────────────────── */
+    .audit-toggle {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--bd); border-radius: 10px;
+      padding: 11px 14px; margin-bottom: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+      transition: background .15s, border-color .15s;
+      -webkit-tap-highlight-color: transparent; box-shadow: var(--shadow-s);
+    }
+    .audit-toggle:hover { background: var(--bg); }
+    .audit-toggle.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; margin-bottom: 0; }
+    .audit-toggle-right { display: flex; align-items: center; gap: 6px; }
+    .audit-count {
+      font-size: 10px; font-weight: 700; border-radius: 20px;
+      padding: 1px 8px; letter-spacing: 0; text-transform: none;
+    }
+    .audit-chevron {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--bd);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 10px; color: var(--mid);
+      transition: transform .2s, background .18s, border-color .18s, color .18s;
+    }
+    .audit-toggle.open .audit-chevron { transform: rotate(180deg); background: var(--ink); border-color: var(--ink); color: #fff; }
+    .audit-body {
+      background: var(--surface); border: 1px solid var(--bdhi);
+      border-top: none;
+      border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
+      padding: 12px 12px 6px; margin-bottom: 12px;
+    }
+    .audit-body .audit-item:last-child { margin-bottom: 0; }
+    /* ── REFINE BLOCK ────────────────────────────────────── */
+    .refine-wrap { margin-top: 12px; }
+    .refine-btn {
+      background: transparent; border: 1px solid var(--bd);
+      border-radius: 8px; padding: 5px 13px;
+      font-size: 12px; font-weight: 500; color: var(--mid);
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all .15s; display: inline-flex; align-items: center; gap: 5px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .refine-btn:hover { border-color: var(--green); color: var(--green); }
+    .refine-panel {
+      margin-top: 10px; padding: 14px;
+      background: var(--bg); border: 1px solid var(--bd); border-radius: 10px;
+    }
+    .refine-panel textarea { margin-bottom: 10px; min-height: 62px; }
+    .refine-row { display: flex; gap: 8px; align-items: center; }
+    .refine-submit {
+      padding: 8px 18px; background: var(--green); color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: background .18s; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+    }
+    .refine-submit:disabled { background: var(--bdhi); color: var(--mid); cursor: not-allowed; }
+    .refine-spinner {
+      width: 13px; height: 13px;
+      border: 2px solid rgba(27,67,50,.2); border-top-color: var(--green);
+      border-radius: 50%; animation: spin .7s linear infinite; display: none;
+    }
 
-    /* ── MODAL ──────────────────────────────────────────── */
-    .modal-backdrop {
-      position: fixed; inset: 0; z-index: 300;
-      background: rgba(25,27,38,.55);
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
-      opacity: 0; transition: opacity .2s;
-      pointer-events: none;
-    }
-    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
-    .modal {
-      background: var(--surface); border-radius: 18px;
-      padding: 26px 24px 22px; width: 100%; max-width: 480px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.22);
-      transform: translateY(12px); transition: transform .22s;
-    }
-    .modal-backdrop.open .modal { transform: translateY(0); }
-    .modal-title {
-      font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600;
-      color: var(--ink); letter-spacing: -.02em; margin-bottom: 6px;
-    }
-    .modal-sub { font-size: 13px; color: var(--mid); margin-bottom: 18px; line-height: 1.55; }
-    .modal-ta {
-      width: 100%; padding: 12px 14px;
-      background: var(--bg); border: 1.5px solid var(--bd);
-      border-radius: 10px; color: var(--ink);
-      font-size: 14px; font-family: 'DM Sans', sans-serif;
-      line-height: 1.55; outline: none; resize: none;
-      min-height: 80px; margin-bottom: 14px;
-      transition: border-color .2s;
-    }
-    .modal-ta:focus { border-color: var(--green); }
-    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; align-items: center; }
-    .modal-cancel {
-      background: transparent; border: 1px solid var(--bd);
-      border-radius: 9px; padding: 9px 18px;
-      font-size: 13px; font-weight: 500; color: var(--mid);
-      cursor: pointer; font-family: 'DM Sans', sans-serif;
-      transition: all .15s;
-    }
-    .modal-cancel:hover { border-color: var(--bdhi); color: var(--ink); }
-    .modal-go {
-      background: var(--green); color: #fff;
-      border: none; border-radius: 9px; padding: 9px 20px;
-      font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-      cursor: pointer; transition: background .15s;
-      display: flex; align-items: center; gap: 7px;
-    }
-    .modal-go:disabled { background: var(--bdhi); color: var(--mid); cursor: not-allowed; }
-    .modal-spinner {
-      width: 13px; height: 13px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
-      animation: spin .7s linear infinite; display: none;
-    }
-    .modal-loading {
-      text-align: center; padding: 20px 0 10px;
-    }
-    .modal-loading-icon {
-      width: 44px; height: 44px; border-radius: 50%;
-      border: 3px solid var(--bd); border-top-color: var(--green);
-      animation: spin 1s linear infinite; margin: 0 auto 14px;
-    }
-    .modal-loading-text {
-      font-size: 13px; color: var(--mid); line-height: 1.55;
-    }
-    .modal-loading-step {
-      font-size: 11px; color: var(--dim); margin-top: 6px;
-      font-style: italic;
-    }
-    /* ── SHOW MORE BUTTON ────────────────────────────────── */
-    .show-more-bar {
-      display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;
-    }
-    .show-more-btn {
-      flex: 1; min-width: 140px;
-      padding: 11px 16px; border-radius: 10px;
-      border: 1.5px solid var(--bd); background: var(--surface);
-      font-size: 13px; font-weight: 600; color: var(--ink);
-      cursor: pointer; font-family: 'DM Sans', sans-serif;
-      display: flex; align-items: center; justify-content: center; gap: 7px;
-      transition: all .18s; box-shadow: var(--shadow-s);
-    }
-    .show-more-btn:hover { border-color: var(--green); color: var(--green); background: var(--greenbg); }
-    .show-more-btn.gold {
-      border-color: var(--amberbd); background: var(--amberbg); color: var(--amber);
-    }
-    .show-more-btn.gold:hover { border-color: var(--amber); background: #FBE8C3; }
-    /* ── VISUAL HINT ─────────────────────────────────────── */
-    .visual-hint {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: var(--greenbg); border: 1px solid var(--greenbd);
-      border-radius: 6px; padding: 3px 9px;
-      font-size: 11px; font-weight: 600; color: var(--green);
-      margin: 2px 1px; vertical-align: middle;
-    }
-    .visual-hint::before { content: '📷'; font-size: 11px; }
+    /* ── MODAL ──────────────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(25,27,38,.55);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; transition: opacity .2s;
+      pointer-events: none;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--surface); border-radius: 18px;
+      padding: 26px 24px 22px; width: 100%; max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.22);
+      transform: translateY(12px); transition: transform .22s;
+    }
+    .modal-backdrop.open .modal { transform: translateY(0); }
+    .modal-title {
+      font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600;
+      color: var(--ink); letter-spacing: -.02em; margin-bottom: 6px;
+    }
+    .modal-sub { font-size: 13px; color: var(--mid); margin-bottom: 18px; line-height: 1.55; }
+    .modal-ta {
+      width: 100%; padding: 12px 14px;
+      background: var(--bg); border: 1.5px solid var(--bd);
+      border-radius: 10px; color: var(--ink);
+      font-size: 14px; font-family: 'DM Sans', sans-serif;
+      line-height: 1.55; outline: none; resize: none;
+      min-height: 80px; margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .modal-ta:focus { border-color: var(--green); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; align-items: center; }
+    .modal-cancel {
+      background: transparent; border: 1px solid var(--bd);
+      border-radius: 9px; padding: 9px 18px;
+      font-size: 13px; font-weight: 500; color: var(--mid);
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all .15s;
+    }
+    .modal-cancel:hover { border-color: var(--bdhi); color: var(--ink); }
+    .modal-go {
+      background: var(--green); color: #fff;
+      border: none; border-radius: 9px; padding: 9px 20px;
+      font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: background .15s;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .modal-go:disabled { background: var(--bdhi); color: var(--mid); cursor: not-allowed; }
+    .modal-spinner {
+      width: 13px; height: 13px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+      animation: spin .7s linear infinite; display: none;
+    }
+    .modal-loading {
+      text-align: center; padding: 20px 0 10px;
+    }
+    .modal-loading-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 3px solid var(--bd); border-top-color: var(--green);
+      animation: spin 1s linear infinite; margin: 0 auto 14px;
+    }
+    .modal-loading-text {
+      font-size: 13px; color: var(--mid); line-height: 1.55;
+    }
+    .modal-loading-step {
+      font-size: 11px; color: var(--dim); margin-top: 6px;
+      font-style: italic;
+    }
+    /* ── SHOW MORE BUTTON ────────────────────────────────── */
+    .show-more-bar {
+      display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;
+    }
+    .show-more-btn {
+      flex: 1; min-width: 140px;
+      padding: 11px 16px; border-radius: 10px;
+      border: 1.5px solid var(--bd); background: var(--surface);
+      font-size: 13px; font-weight: 600; color: var(--ink);
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: all .18s; box-shadow: var(--shadow-s);
+    }
+    .show-more-btn:hover { border-color: var(--green); color: var(--green); background: var(--greenbg); }
+    .show-more-btn.gold {
+      border-color: var(--amberbd); background: var(--amberbg); color: var(--amber);
+    }
+    .show-more-btn.gold:hover { border-color: var(--amber); background: #FBE8C3; }
+    /* ── VISUAL HINT ─────────────────────────────────────── */
+    .visual-hint {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--greenbg); border: 1px solid var(--greenbd);
+      border-radius: 6px; padding: 3px 9px;
+      font-size: 11px; font-weight: 600; color: var(--green);
+      margin: 2px 1px; vertical-align: middle;
+    }
+    .visual-hint::before { content: '📷'; font-size: 11px; }
 
-    /* ── SCORE DELTA ────────────────────────────────────── */
-    .score-delta {
-      display: flex; align-items: center; gap: 8px;
-      flex-wrap: wrap; margin-top: 10px; padding-top: 10px;
-      border-top: 1px solid var(--bd);
-    }
-    .score-delta-label {
-      font-size: 10px; font-weight: 700; color: var(--dim);
-      letter-spacing: .08em; text-transform: uppercase;
-    }
-    .score-delta-num {
-      font-size: 22px; font-weight: 700; line-height: 1;
-      color: var(--ink);
-    }
-    .score-delta-num.dim { color: var(--dim); }
-    .score-delta-arrow { font-size: 16px; color: var(--bdhi); }
-    .score-delta-badge {
-      font-size: 11px; font-weight: 700;
-      padding: 2px 9px; border-radius: 20px;
-    }
+    /* ── SCORE DELTA ────────────────────────────────────── */
+    .score-delta {
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap; margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid var(--bd);
+    }
+    .score-delta-label {
+      font-size: 10px; font-weight: 700; color: var(--dim);
+      letter-spacing: .08em; text-transform: uppercase;
+    }
+    .score-delta-num {
+      font-size: 22px; font-weight: 700; line-height: 1;
+      color: var(--ink);
+    }
+    .score-delta-num.dim { color: var(--dim); }
+    .score-delta-arrow { font-size: 16px; color: var(--bdhi); }
+    .score-delta-badge {
+      font-size: 11px; font-weight: 700;
+      padding: 2px 9px; border-radius: 20px;
+    }
 
-    /* ── CAMPAIGN MANAGER ───────────────────────────────── */
-    .cm-sub-tabs {
-      display: flex; gap: 0;
-      border: 1px solid var(--bd); border-radius: 10px;
-      overflow: hidden; margin-bottom: 24px;
-      background: var(--bg);
-    }
-    .cm-sub-btn {
-      flex: 1; padding: 10px 14px;
-      background: transparent; border: none;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px; font-weight: 500; color: var(--mid);
-      cursor: pointer; transition: all .18s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .cm-sub-btn.active {
-      background: var(--green); color: #fff; font-weight: 600;
-    }
-    .cm-sub-panel { display: none; }
-    .cm-sub-panel.active { display: block; }
-    .funnel-stage {
-      background: var(--surface);
-      border: 1px solid var(--bd);
-      border-radius: 14px;
-      margin-bottom: 16px;
-      overflow: hidden;
-      box-shadow: var(--shadow-s);
-    }
-    .funnel-stage-header {
-      display: flex; align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-    .funnel-stage-header:hover { background: var(--bg); }
-    .funnel-stage-title {
-      display: flex; align-items: center; gap: 10px;
-    }
-    .funnel-badge {
-      font-size: 9px; font-weight: 800;
-      padding: 3px 9px; border-radius: 20px;
-      letter-spacing: .1em; text-transform: uppercase;
-    }
-    .badge-tof { background: #EEF0FF; color: #3D4AC8; }
-    .badge-mof { background: var(--amberbg); color: var(--amber); }
-    .badge-bof { background: var(--greenbg); color: var(--green); }
-    .funnel-stage-label {
-      font-size: 14px; font-weight: 600; color: var(--ink);
-    }
-    .funnel-stage-desc {
-      font-size: 12px; color: var(--mid);
-    }
-    .funnel-chevron {
-      width: 22px; height: 22px; border-radius: 50%;
-      background: var(--bg); border: 1px solid var(--bd);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px; color: var(--mid);
-      transition: transform .2s, background .18s;
-      flex-shrink: 0;
-    }
-    .funnel-stage.open .funnel-chevron {
-      transform: rotate(180deg);
-      background: var(--ink); border-color: var(--ink); color: #fff;
-    }
-    .funnel-stage-body {
-      display: none; padding: 0 20px 20px;
-    }
-    .funnel-stage.open .funnel-stage-body { display: block; }
-    .copy-format-card {
-      background: var(--bg);
-      border: 1px solid var(--bd);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 10px;
-    }
-    .copy-format-label {
-      font-size: 10px; font-weight: 700;
-      color: var(--mid); letter-spacing: .1em;
-      text-transform: uppercase; margin-bottom: 10px;
-      display: flex; align-items: center;
-      justify-content: space-between;
-    }
-    .copy-format-label .bias-tags { margin: 0; }
-    .copy-format-text {
-      font-size: 14px; color: var(--ink); line-height: 1.75;
-      white-space: pre-wrap; margin-bottom: 12px;
-    }
-    .copy-format-text.headline-style {
-      font-family: 'Fraunces', serif;
-      font-size: 18px; font-weight: 500;
-      letter-spacing: -.01em; line-height: 1.35;
-    }
-    .format-foot {
-      display: flex; justify-content: flex-end;
-    }
-    .cm-loading-steps {
-      text-align: center; padding: 32px 20px;
-    }
-    .cm-loading-spinner {
-      width: 36px; height: 36px; border-radius: 50%;
-      border: 3px solid var(--bd); border-top-color: var(--green);
-      animation: spin 1s linear infinite;
-      margin: 0 auto 14px;
-    }
-    .cm-loading-label {
-      font-size: 13px; color: var(--mid); margin-bottom: 6px;
-    }
-    .cm-loading-step {
-      font-size: 11px; color: var(--dim); font-style: italic;
-    }
-    .cm-website-status {
-      font-size: 11px; padding: 6px 11px;
-      border-radius: 6px; margin-top: 6px;
-      display: none;
-    }
-    .cm-website-status.ok { background: var(--greenbg); color: var(--green); }
-    .cm-website-status.skip { background: var(--amberbg); color: var(--amber); }
+    /* ── CAMPAIGN MANAGER ───────────────────────────────── */
+    .cm-sub-tabs {
+      display: flex; gap: 0;
+      border: 1px solid var(--bd); border-radius: 10px;
+      overflow: hidden; margin-bottom: 24px;
+      background: var(--bg);
+    }
+    .cm-sub-btn {
+      flex: 1; padding: 10px 14px;
+      background: transparent; border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500; color: var(--mid);
+      cursor: pointer; transition: all .18s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cm-sub-btn.active {
+      background: var(--green); color: #fff; font-weight: 600;
+    }
+    .cm-sub-panel { display: none; }
+    .cm-sub-panel.active { display: block; }
+    .funnel-stage {
+      background: var(--surface);
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-s);
+    }
+    .funnel-stage-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .funnel-stage-header:hover { background: var(--bg); }
+    .funnel-stage-title {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .funnel-badge {
+      font-size: 9px; font-weight: 800;
+      padding: 3px 9px; border-radius: 20px;
+      letter-spacing: .1em; text-transform: uppercase;
+    }
+    .badge-tof { background: #EEF0FF; color: #3D4AC8; }
+    .badge-mof { background: var(--amberbg); color: var(--amber); }
+    .badge-bof { background: var(--greenbg); color: var(--green); }
+    .funnel-stage-label {
+      font-size: 14px; font-weight: 600; color: var(--ink);
+    }
+    .funnel-stage-desc {
+      font-size: 12px; color: var(--mid);
+    }
+    .funnel-chevron {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--bd);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: var(--mid);
+      transition: transform .2s, background .18s;
+      flex-shrink: 0;
+    }
+    .funnel-stage.open .funnel-chevron {
+      transform: rotate(180deg);
+      background: var(--ink); border-color: var(--ink); color: #fff;
+    }
+    .funnel-stage-body {
+      display: none; padding: 0 20px 20px;
+    }
+    .funnel-stage.open .funnel-stage-body { display: block; }
+    .copy-format-card {
+      background: var(--bg);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+    .copy-format-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--mid); letter-spacing: .1em;
+      text-transform: uppercase; margin-bottom: 10px;
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .copy-format-label .bias-tags { margin: 0; }
+    .copy-format-text {
+      font-size: 14px; color: var(--ink); line-height: 1.75;
+      white-space: pre-wrap; margin-bottom: 12px;
+    }
+    .copy-format-text.headline-style {
+      font-family: 'Fraunces', serif;
+      font-size: 18px; font-weight: 500;
+      letter-spacing: -.01em; line-height: 1.35;
+    }
+    .format-foot {
+      display: flex; justify-content: flex-end;
+    }
+    .cm-loading-steps {
+      text-align: center; padding: 32px 20px;
+    }
+    .cm-loading-spinner {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 3px solid var(--bd); border-top-color: var(--green);
+      animation: spin 1s linear infinite;
+      margin: 0 auto 14px;
+    }
+    .cm-loading-label {
+      font-size: 13px; color: var(--mid); margin-bottom: 6px;
+    }
+    .cm-loading-step {
+      font-size: 11px; color: var(--dim); font-style: italic;
+    }
+    .cm-website-status {
+      font-size: 11px; padding: 6px 11px;
+      border-radius: 6px; margin-top: 6px;
+      display: none;
+    }
+    .cm-website-status.ok { background: var(--greenbg); color: var(--green); }
+    .cm-website-status.skip { background: var(--amberbg); color: var(--amber); }
 
-    /* ── NAME GENERATOR ─────────────────────────────────── */
-    .ng-mode-wrap { margin-bottom: 22px; }
-    .ng-mode-label {
-      font-size: 11px; font-weight: 700; color: var(--ink);
-      letter-spacing: .07em; text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    .ng-mode-pills { display: flex; gap: 10px; flex-wrap: wrap; }
-    .ng-mode-pill {
-      flex: 1; min-width: 130px;
-      background: var(--surface); border: 1.5px solid var(--bd);
-      border-radius: 12px; padding: 13px 14px;
-      cursor: pointer; font-family: 'DM Sans', sans-serif;
-      text-align: left; transition: all .18s;
-      -webkit-tap-highlight-color: transparent;
-      display: flex; flex-direction: column; gap: 3px;
-    }
-    .ng-mode-pill:hover { border-color: var(--bdhi); }
-    .ng-mode-pill.active {
-      border-color: var(--green); background: var(--greenbg);
-    }
-    .ng-mode-icon {
-      font-size: 14px; color: var(--dim); margin-bottom: 4px;
-      transition: color .18s;
-    }
-    .ng-mode-pill.active .ng-mode-icon { color: var(--green); }
-    .ng-mode-title {
-      font-size: 13.5px; font-weight: 600; color: var(--ink);
-    }
-    .ng-mode-sub {
-      font-size: 11px; color: var(--mid); line-height: 1.4;
-    }
-    .ng-panel { display: none; }
-    .ng-panel.active { display: block; }
-    /* Sound slider */
-    .ng-slider-wrap {
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 8px;
-    }
-    .ng-slider-end {
-      font-size: 10px; font-weight: 600; color: var(--mid);
-      line-height: 1.4; min-width: 50px; flex-shrink: 0;
-    }
-    .ng-slider-end span { font-weight: 400; color: var(--dim); }
-    .ng-slider {
-      flex: 1; -webkit-appearance: none; appearance: none;
-      height: 4px; border-radius: 2px;
-      background: linear-gradient(to right, var(--greenbd), var(--bdhi), var(--amberbd));
-      outline: none; cursor: pointer;
-    }
-    .ng-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; appearance: none;
-      width: 20px; height: 20px; border-radius: 50%;
-      background: var(--surface); border: 2px solid var(--green);
-      box-shadow: var(--shadow-s); cursor: pointer;
-    }
-    .ng-slider::-moz-range-thumb {
-      width: 18px; height: 18px; border-radius: 50%;
-      background: var(--surface); border: 2px solid var(--green);
-      cursor: pointer;
-    }
-    .ng-slider-label {
-      font-size: 11px; font-weight: 700; color: var(--green);
-      text-align: center; letter-spacing: .04em;
-    }
-    /* Name card upgraded */
-    .name-card-v2 {
-      background: var(--surface); border: 1px solid var(--bd);
-      border-radius: 14px; padding: 20px; margin-bottom: 12px;
-      box-shadow: var(--shadow-s);
-    }
-    .name-card-mode {
-      font-size: 9px; font-weight: 800; letter-spacing: .12em;
-      text-transform: uppercase; color: var(--dim); margin-bottom: 10px;
-    }
-    .name-v2-text {
-      font-family: 'Fraunces', serif; font-size: 32px;
-      font-weight: 600; color: var(--ink);
-      letter-spacing: -.03em; line-height: 1.1; margin-bottom: 6px;
-    }
-    .name-v2-desc { font-size: 12.5px; color: var(--mid); margin-bottom: 4px; font-style: italic; }
-    .name-v2-tagline { font-size: 13px; color: var(--amber); font-weight: 600; margin-bottom: 14px; }
-    .name-v2-meta {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      margin-bottom: 12px; padding-bottom: 12px;
-      border-bottom: 1px solid var(--bd);
-    }
-    .name-meta-chip {
-      font-size: 10px; font-weight: 600; color: var(--mid);
-      background: var(--bg); border: 1px solid var(--bd);
-      border-radius: 20px; padding: 3px 10px;
-    }
-    .name-v2-rationale {
-      font-size: 12.5px; color: var(--mid); line-height: 1.7;
-    }
-    .name-v2-rationale strong { color: var(--ink); font-weight: 600; }
+    /* ── NAME GENERATOR ─────────────────────────────────── */
+    .ng-mode-wrap { margin-bottom: 22px; }
+    .ng-mode-label {
+      font-size: 11px; font-weight: 700; color: var(--ink);
+      letter-spacing: .07em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .ng-mode-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ng-mode-pill {
+      flex: 1; min-width: 130px;
+      background: var(--surface); border: 1.5px solid var(--bd);
+      border-radius: 12px; padding: 13px 14px;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      text-align: left; transition: all .18s;
+      -webkit-tap-highlight-color: transparent;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .ng-mode-pill:hover { border-color: var(--bdhi); }
+    .ng-mode-pill.active {
+      border-color: var(--green); background: var(--greenbg);
+    }
+    .ng-mode-icon {
+      font-size: 14px; color: var(--dim); margin-bottom: 4px;
+      transition: color .18s;
+    }
+    .ng-mode-pill.active .ng-mode-icon { color: var(--green); }
+    .ng-mode-title {
+      font-size: 13.5px; font-weight: 600; color: var(--ink);
+    }
+    .ng-mode-sub {
+      font-size: 11px; color: var(--mid); line-height: 1.4;
+    }
+    .ng-panel { display: none; }
+    .ng-panel.active { display: block; }
+    /* Sound slider */
+    .ng-slider-wrap {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 8px;
+    }
+    .ng-slider-end {
+      font-size: 10px; font-weight: 600; color: var(--mid);
+      line-height: 1.4; min-width: 50px; flex-shrink: 0;
+    }
+    .ng-slider-end span { font-weight: 400; color: var(--dim); }
+    .ng-slider {
+      flex: 1; -webkit-appearance: none; appearance: none;
+      height: 4px; border-radius: 2px;
+      background: linear-gradient(to right, var(--greenbd), var(--bdhi), var(--amberbd));
+      outline: none; cursor: pointer;
+    }
+    .ng-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--surface); border: 2px solid var(--green);
+      box-shadow: var(--shadow-s); cursor: pointer;
+    }
+    .ng-slider::-moz-range-thumb {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--surface); border: 2px solid var(--green);
+      cursor: pointer;
+    }
+    .ng-slider-label {
+      font-size: 11px; font-weight: 700; color: var(--green);
+      text-align: center; letter-spacing: .04em;
+    }
+    /* Name card upgraded */
+    .name-card-v2 {
+      background: var(--surface); border: 1px solid var(--bd);
+      border-radius: 14px; padding: 20px; margin-bottom: 12px;
+      box-shadow: var(--shadow-s);
+    }
+    .name-card-mode {
+      font-size: 9px; font-weight: 800; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--dim); margin-bottom: 10px;
+    }
+    .name-v2-text {
+      font-family: 'Fraunces', serif; font-size: 32px;
+      font-weight: 600; color: var(--ink);
+      letter-spacing: -.03em; line-height: 1.1; margin-bottom: 6px;
+    }
+    .name-v2-desc { font-size: 12.5px; color: var(--mid); margin-bottom: 4px; font-style: italic; }
+    .name-v2-tagline { font-size: 13px; color: var(--amber); font-weight: 600; margin-bottom: 14px; }
+    .name-v2-meta {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 12px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--bd);
+    }
+    .name-meta-chip {
+      font-size: 10px; font-weight: 600; color: var(--mid);
+      background: var(--bg); border: 1px solid var(--bd);
+      border-radius: 20px; padding: 3px 10px;
+    }
+    .name-v2-rationale {
+      font-size: 12.5px; color: var(--mid); line-height: 1.7;
+    }
+    .name-v2-rationale strong { color: var(--ink); font-weight: 600; }
 
-    /* ── HIDDEN ──────────────────────────────────────────── */
-    .hidden { display: none !important; }
+    /* ── HIDDEN ──────────────────────────────────────────── */
+    .hidden { display: none !important; }
 
-    /* ── RESPONSIVE ──────────────────────────────────────── */
-    @media (max-width: 400px) {
-      .content { padding: 20px 16px 90px; }
-      .copy-short { font-size: 18px; }
-      .name-text { font-size: 26px; }
-      .score-num { font-size: 42px; min-width: 58px; }
-      .science-badge { display: none; }
-    }
-  </style>
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 400px) {
+      .content { padding: 20px 16px 90px; }
+      .copy-short { font-size: 18px; }
+      .name-text { font-size: 26px; }
+      .score-num { font-size: 42px; min-width: 58px; }
+      .science-badge { display: none; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- ── HEADER ─────────────────────────────────────────────── -->
 <div class="header">
-  <div class="header-inner">
-    <div class="brand-row">
-      <div class="logo"><span class="logo-letter">R</span></div>
-      <div class="brand-text">
-        <div class="brand-name">Right Copywriter</div>
-        <div class="brand-sub">Copy that sells.</div>
-      </div>
-      <div class="science-badge">Behavioral Science</div>
-    </div>
-    <nav class="tab-bar" role="tablist">
-      <button class="tab-btn active" role="tab" onclick="switchTab('copy',this)">Copywriter</button>
-      <button class="tab-btn" role="tab" onclick="switchTab('names',this)">Name Generator</button>
-      <button class="tab-btn" role="tab" onclick="switchTab('audit',this)">Bias Audit</button>
-      <button class="tab-btn" role="tab" onclick="switchTab('about',this)">About</button>
-    </nav>
-  </div>
+  <div class="header-inner">
+    <div class="brand-row">
+      <div class="logo"><span class="logo-letter">R</span></div>
+      <div class="brand-text">
+        <div class="brand-name">Right Copywriter</div>
+        <div class="brand-sub">Copy that sells.</div>
+      </div>
+      <div class="science-badge">Behavioral Science</div>
+    </div>
+    <nav class="tab-bar" role="tablist">
+      <button class="tab-btn active" role="tab" onclick="switchTab('copy',this)">Copywriter</button>
+      <button class="tab-btn" role="tab" onclick="switchTab('names',this)">Name Generator</button>
+      <button class="tab-btn" role="tab" onclick="switchTab('audit',this)">Bias Audit</button>
+      <button class="tab-btn" role="tab" onclick="switchTab('about',this)">About</button>
+    </nav>
+  </div>
 </div>
 
 <main class="content">
 
-  <!-- ══════════════ COPYWRITER ══════════════ -->
-  <section id="tab-copy" role="tabpanel">
-    <h1 class="page-title">Copywriter</h1>
-    <p class="page-sub">Every word earned through behavioral logic.</p>
+    <section id="tab-copy" role="tabpanel">
+    <h1 class="page-title">Copywriter</h1>
+    <p class="page-sub">Every word earned through behavioral logic.</p>
 
-    <!-- Sub-tab switcher -->
-    <div class="cm-sub-tabs">
-      <button class="cm-sub-btn active" onclick="switchCopyMode('single',this)">Single Copy</button>
-      <button class="cm-sub-btn" onclick="switchCopyMode('campaign',this)">Campaign Manager</button>
-    </div>
+        <div class="cm-sub-tabs">
+      <button class="cm-sub-btn active" onclick="switchCopyMode('single',this)">Single Copy</button>
+      <button class="cm-sub-btn" onclick="switchCopyMode('campaign',this)">Campaign Manager</button>
+    </div>
 
-    <!-- ── SINGLE COPY PANEL ── -->
-    <div class="cm-sub-panel active" id="cm-single">
+        <div class="cm-sub-panel active" id="cm-single">
 
-    <div class="field">
-      <div class="label">Copy Type</div>
-      <div class="pills" id="ct-pills">
-        <button class="pill on" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Headline</button>
-        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Tagline</button>
-        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Product Description</button>
-        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">General Description</button>
-        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Social Caption</button>
-        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Email Subject</button>
-        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Email Copy</button>
-      </div>
-    </div>
+    <div class="field">
+      <div class="label">Copy Type</div>
+      <div class="pills" id="ct-pills">
+        <button class="pill on" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Headline</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Tagline</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Product Description</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">General Description</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Social Caption</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Email Subject</button>
+        <button class="pill" onclick="selectPill(this,'ct-pills'); updateCopyForm()">Email Copy</button>
+      </div>
+    </div>
 
-    <div class="field">
-      <div class="label">Brand / Product Name</div>
-      <input id="c-brand" placeholder="e.g. Zomato, Noise, Mamaearth" autocomplete="off">
-    </div>
+    <div class="field">
+      <div class="label">Brand / Product Name</div>
+      <input id="c-brand" placeholder="e.g. Zomato, Noise, Mamaearth" autocomplete="off">
+    </div>
 
-    <div class="field">
-      <div class="label" id="c-ctx-label">Core Message</div>
-      <textarea id="c-ctx" rows="3" placeholder="The single most important thing this headline must communicate..."></textarea>
-    </div>
+    <div class="field">
+      <div class="label" id="c-ctx-label">Core Message</div>
+      <textarea id="c-ctx" rows="3" placeholder="The single most important thing this headline must communicate..."></textarea>
+    </div>
 
-    <div class="field hidden" id="c-product-wrap">
-      <div class="label">Product / Service Detail</div>
-      <textarea id="c-product" rows="3" placeholder="What does it do and why does it matter? Be specific..."></textarea>
-    </div>
+    <div class="field hidden" id="c-product-wrap">
+      <div class="label">Product / Service Detail</div>
+      <textarea id="c-product" rows="3" placeholder="What does it do and why does it matter? Be specific..."></textarea>
+    </div>
 
-    <button class="more-btn" id="copy-more-btn" onclick="toggleMore('copy-more','copy-more-btn')">
-      <span class="more-btn-left">
-        <span class="more-icon">+</span>
-        Add more details for sharper copy
-      </span>
-      <span class="opt">optional</span>
-    </button>
-    <div class="more-panel hidden" id="copy-more">
-      <div class="field">
-        <div class="label">Target Audience</div>
-        <input id="c-audience" placeholder="e.g. Urban millennials, first-time parents, 28-38">
-      </div>
-      <div class="field">
-        <div class="label">Tone</div>
-        <input id="c-tone" placeholder="e.g. Witty, warm, authoritative, provocative">
-      </div>
-      <div class="field">
-        <div class="label">Brand Website <span class="opt">optional</span></div>
-        <input id="c-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
-        <div class="cm-website-status" id="c-url-status"></div>
-      </div>
-      <div class="more-sep">Reference copies — so we match your brand voice</div>
-      <div class="field"><textarea id="c-r1" rows="2" placeholder="Paste existing copy 1..."></textarea></div>
-      <div class="field"><textarea id="c-r2" rows="2" placeholder="Paste existing copy 2..."></textarea></div>
-      <div class="field" style="margin-bottom:0"><textarea id="c-r3" rows="2" placeholder="Paste existing copy 3..."></textarea></div>
-    </div>
+    <button class="more-btn" id="copy-more-btn" onclick="toggleMore('copy-more','copy-more-btn')">
+      <span class="more-btn-left">
+        <span class="more-icon">+</span>
+        Add more details for sharper copy
+      </span>
+      <span class="opt">optional</span>
+    </button>
+    <div class="more-panel hidden" id="copy-more">
+      <div class="field">
+        <div class="label">Target Audience</div>
+        <input id="c-audience" placeholder="e.g. Urban millennials, first-time parents, 28-38">
+      </div>
+      <div class="field">
+        <div class="label">Tone</div>
+        <input id="c-tone" placeholder="e.g. Witty, warm, authoritative, provocative">
+      </div>
+      <div class="field">
+        <div class="label">Brand Website <span class="opt">optional</span></div>
+        <input id="c-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+        <div class="cm-website-status" id="c-url-status"></div>
+      </div>
+      <div class="more-sep">Reference copies — so we match your brand voice</div>
+      <div class="field"><textarea id="c-r1" rows="2" placeholder="Paste existing copy 1..."></textarea></div>
+      <div class="field"><textarea id="c-r2" rows="2" placeholder="Paste existing copy 2..."></textarea></div>
+      <div class="field" style="margin-bottom:0"><textarea id="c-r3" rows="2" placeholder="Paste existing copy 3..."></textarea></div>
+    </div>
 
-    <button class="gen-btn" id="copy-btn" onclick="generateCopy()">
-      <span>Generate Copy</span><span style="opacity:.7">&#8594;</span>
-    </button>
-    <div class="err hidden" id="copy-err"></div>
-    <div id="copy-out"></div>
+    <button class="gen-btn" id="copy-btn" onclick="generateCopy()">
+      <span>Generate Copy</span><span style="opacity:.7">&#8594;</span>
+    </button>
+    <div class="err hidden" id="copy-err"></div>
+    <div id="copy-out"></div>
 
-    </div><!-- /cm-single -->
+    </div>        <div class="cm-sub-panel" id="cm-campaign">
+      <div class="field">
+        <div class="label">Brand / Product Name</div>
+        <input id="cm-brand" placeholder="e.g. Mamaearth, Noise, UrbanClap" autocomplete="off">
+      </div>
+      <div class="field">
+        <div class="label">Campaign Goal</div>
+        <textarea id="cm-goal" rows="3" placeholder="What should this campaign achieve? e.g. Drive trial of our new SPF moisturiser among urban women 25-35 who currently use a competitor brand..."></textarea>
+      </div>
+      <div class="field">
+        <div class="label">Target Audience</div>
+        <input id="cm-audience" placeholder="e.g. Urban millennials, female, 25-35, D2C skincare buyers">
+      </div>
 
-    <!-- ── CAMPAIGN MANAGER PANEL ── -->
-    <div class="cm-sub-panel" id="cm-campaign">
-      <div class="field">
-        <div class="label">Brand / Product Name</div>
-        <input id="cm-brand" placeholder="e.g. Mamaearth, Noise, UrbanClap" autocomplete="off">
-      </div>
-      <div class="field">
-        <div class="label">Campaign Goal</div>
-        <textarea id="cm-goal" rows="3" placeholder="What should this campaign achieve? e.g. Drive trial of our new SPF moisturiser among urban women 25-35 who currently use a competitor brand..."></textarea>
-      </div>
-      <div class="field">
-        <div class="label">Target Audience</div>
-        <input id="cm-audience" placeholder="e.g. Urban millennials, female, 25-35, D2C skincare buyers">
-      </div>
+            <div class="g2">
+        <div class="field">
+          <div class="label">Your Website <span class="opt">optional</span></div>
+          <input id="cm-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+          <div class="cm-website-status" id="cm-url-status"></div>
+        </div>
+        <div class="field">
+          <div class="label">Competitor Website <span class="opt">optional</span></div>
+          <input id="cm-comp-url" placeholder="https://www.competitor.com" type="url" autocomplete="off">
+          <div class="cm-website-status" id="cm-comp-url-status"></div>
+        </div>
+      </div>
 
-      <!-- URLs on first fold — both optional but visible -->
-      <div class="g2">
-        <div class="field">
-          <div class="label">Your Website <span class="opt">optional</span></div>
-          <input id="cm-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
-          <div class="cm-website-status" id="cm-url-status"></div>
-        </div>
-        <div class="field">
-          <div class="label">Competitor Website <span class="opt">optional</span></div>
-          <input id="cm-comp-url" placeholder="https://www.competitor.com" type="url" autocomplete="off">
-          <div class="cm-website-status" id="cm-comp-url-status"></div>
-        </div>
-      </div>
+      <button class="more-btn" id="cm-more-btn" onclick="toggleMore('cm-more','cm-more-btn')">
+        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
+        <span class="opt">optional</span>
+      </button>
+      <div class="more-panel hidden" id="cm-more">
+        <div class="field">
+          <div class="label">Competitor Name</div>
+          <input id="cm-comp-name" placeholder="e.g. Plum, Minimalist, Dot &amp; Key">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="label">Tone</div>
+          <input id="cm-tone" placeholder="e.g. Warm and scientific, bold and direct">
+        </div>
+      </div>
 
-      <button class="more-btn" id="cm-more-btn" onclick="toggleMore('cm-more','cm-more-btn')">
-        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
-        <span class="opt">optional</span>
-      </button>
-      <div class="more-panel hidden" id="cm-more">
-        <div class="field">
-          <div class="label">Competitor Name</div>
-          <input id="cm-comp-name" placeholder="e.g. Plum, Minimalist, Dot &amp; Key">
-        </div>
-        <div class="field" style="margin-bottom:0">
-          <div class="label">Tone</div>
-          <input id="cm-tone" placeholder="e.g. Warm and scientific, bold and direct">
-        </div>
-      </div>
+      <button class="gen-btn" id="cm-gen-btn" onclick="generateCampaign()">
+        <span>Build Full Funnel Campaign</span><span style="opacity:.7">&#8594;</span>
+      </button>
+      <div class="err hidden" id="cm-err"></div>
+      <div id="cm-out"></div>
+    </div>  </section>
+    <section id="tab-names" class="hidden" role="tabpanel">
+    <h1 class="page-title">Name Generator</h1>
+    <p class="page-sub">Naming science applied. Not creative guesswork.</p>
 
-      <button class="gen-btn" id="cm-gen-btn" onclick="generateCampaign()">
-        <span>Build Full Funnel Campaign</span><span style="opacity:.7">&#8594;</span>
-      </button>
-      <div class="err hidden" id="cm-err"></div>
-      <div id="cm-out"></div>
-    </div><!-- /cm-campaign -->
+        <div class="ng-mode-wrap">
+      <div class="ng-mode-label">What are you naming?</div>
+      <div class="ng-mode-pills">
+        <button class="ng-mode-pill active" data-mode="brand" onclick="switchNameMode('brand',this)">
+          <span class="ng-mode-icon">&#9670;</span>
+          <span class="ng-mode-title">Brand</span>
+          <span class="ng-mode-sub">A new company or top-level identity</span>
+        </button>
+        <button class="ng-mode-pill" data-mode="subbrand" onclick="switchNameMode('subbrand',this)">
+          <span class="ng-mode-icon">&#9672;</span>
+          <span class="ng-mode-title">Sub-brand</span>
+          <span class="ng-mode-sub">A range or line under a parent brand</span>
+        </button>
+        <button class="ng-mode-pill" data-mode="product" onclick="switchNameMode('product',this)">
+          <span class="ng-mode-icon">&#9671;</span>
+          <span class="ng-mode-title">Product</span>
+          <span class="ng-mode-sub">A single product within a portfolio</span>
+        </button>
+      </div>
+    </div>
 
-  </section>
-  <!-- ══════════════ NAME GENERATOR ══════════════ -->
-  <section id="tab-names" class="hidden" role="tabpanel">
-    <h1 class="page-title">Name Generator</h1>
-    <p class="page-sub">Naming science applied. Not creative guesswork.</p>
+        <div class="ng-panel active" id="ng-brand">
+      <div class="field">
+        <div class="label">What does this brand stand for?</div>
+        <textarea id="nb-what" rows="3" placeholder="What does it do, who is it for, and what is the one feeling you want it to own?"></textarea>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <div class="label">Category / Industry</div>
+          <input id="nb-cat" placeholder="e.g. Fintech, Skincare, Logistics">
+        </div>
+        <div class="field">
+          <div class="label">Target Market</div>
+          <input id="nb-market" placeholder="e.g. India-first, Global, South Asia">
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <div class="label">Syllables</div>
+          <div class="pills" id="nb-syl-pills">
+            <button class="pill" onclick="selectPill(this,'nb-syl-pills')">1</button>
+            <button class="pill on" onclick="selectPill(this,'nb-syl-pills')">2</button>
+            <button class="pill" onclick="selectPill(this,'nb-syl-pills')">3</button>
+            <button class="pill" onclick="selectPill(this,'nb-syl-pills')">Any</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Avoid</div>
+          <input id="nb-avoid" placeholder="e.g. no Z endings, no tech clichés">
+        </div>
+      </div>
 
-    <!-- Mode selector -->
-    <div class="ng-mode-wrap">
-      <div class="ng-mode-label">What are you naming?</div>
-      <div class="ng-mode-pills">
-        <button class="ng-mode-pill active" data-mode="brand" onclick="switchNameMode('brand',this)">
-          <span class="ng-mode-icon">&#9670;</span>
-          <span class="ng-mode-title">Brand</span>
-          <span class="ng-mode-sub">A new company or top-level identity</span>
-        </button>
-        <button class="ng-mode-pill" data-mode="subbrand" onclick="switchNameMode('subbrand',this)">
-          <span class="ng-mode-icon">&#9672;</span>
-          <span class="ng-mode-title">Sub-brand</span>
-          <span class="ng-mode-sub">A range or line under a parent brand</span>
-        </button>
-        <button class="ng-mode-pill" data-mode="product" onclick="switchNameMode('product',this)">
-          <span class="ng-mode-icon">&#9671;</span>
-          <span class="ng-mode-title">Product</span>
-          <span class="ng-mode-sub">A single product within a portfolio</span>
-        </button>
-      </div>
-    </div>
+            <div class="field">
+        <div class="label">Sound Profile
+          <span style="font-size:10px;font-weight:400;color:var(--dim);margin-left:6px;text-transform:none;letter-spacing:0;">Bouba/Kiki spectrum — soft sounds feel gentle &amp; premium; hard sounds feel bold &amp; fast</span>
+        </div>
+        <div class="ng-slider-wrap">
+          <span class="ng-slider-end">Soft<br><span>Luma, Melo, Vivi</span></span>
+          <input type="range" id="nb-sound" min="0" max="100" value="50" class="ng-slider" oninput="updateSliderLabel(this,'nb-sound-label')">
+          <span class="ng-slider-end" style="text-align:right">Bold<br><span>Krex, Zolt, Axon</span></span>
+        </div>
+        <div class="ng-slider-label" id="nb-sound-label">Balanced</div>
+      </div>
 
-    <!-- ── BRAND MODE ── -->
-    <div class="ng-panel active" id="ng-brand">
-      <div class="field">
-        <div class="label">What does this brand stand for?</div>
-        <textarea id="nb-what" rows="3" placeholder="What does it do, who is it for, and what is the one feeling you want it to own?"></textarea>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <div class="label">Category / Industry</div>
-          <input id="nb-cat" placeholder="e.g. Fintech, Skincare, Logistics">
-        </div>
-        <div class="field">
-          <div class="label">Target Market</div>
-          <input id="nb-market" placeholder="e.g. India-first, Global, South Asia">
-        </div>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <div class="label">Syllables</div>
-          <div class="pills" id="nb-syl-pills">
-            <button class="pill" onclick="selectPill(this,'nb-syl-pills')">1</button>
-            <button class="pill on" onclick="selectPill(this,'nb-syl-pills')">2</button>
-            <button class="pill" onclick="selectPill(this,'nb-syl-pills')">3</button>
-            <button class="pill" onclick="selectPill(this,'nb-syl-pills')">Any</button>
-          </div>
-        </div>
-        <div class="field">
-          <div class="label">Avoid</div>
-          <input id="nb-avoid" placeholder="e.g. no Z endings, no tech clichés">
-        </div>
-      </div>
+      <button class="more-btn" id="nb-more-btn" onclick="toggleMore('nb-more','nb-more-btn')">
+        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
+        <span class="opt">optional</span>
+      </button>
+      <div class="more-panel hidden" id="nb-more">
+        <div class="field">
+          <div class="label">Brand Website <span class="opt">optional</span></div>
+          <input id="nb-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+          <div class="cm-website-status" id="nb-url-status"></div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="label">Guardrails</div>
+          <textarea id="nb-guard" rows="2" placeholder="e.g. Must be trademarkable, no existing tech brand names, max 6 letters..."></textarea>
+        </div>
+      </div>
+      <button class="gen-btn" id="nb-btn" onclick="generateBrandNames()">
+        <span>Generate Brand Names</span><span style="opacity:.7">&#8594;</span>
+      </button>
+    </div>
 
-      <!-- Sound profile slider -->
-      <div class="field">
-        <div class="label">Sound Profile
-          <span style="font-size:10px;font-weight:400;color:var(--dim);margin-left:6px;text-transform:none;letter-spacing:0;">Bouba/Kiki spectrum — soft sounds feel gentle &amp; premium; hard sounds feel bold &amp; fast</span>
-        </div>
-        <div class="ng-slider-wrap">
-          <span class="ng-slider-end">Soft<br><span>Luma, Melo, Vivi</span></span>
-          <input type="range" id="nb-sound" min="0" max="100" value="50" class="ng-slider" oninput="updateSliderLabel(this,'nb-sound-label')">
-          <span class="ng-slider-end" style="text-align:right">Bold<br><span>Krex, Zolt, Axon</span></span>
-        </div>
-        <div class="ng-slider-label" id="nb-sound-label">Balanced</div>
-      </div>
+        <div class="ng-panel" id="ng-subbrand">
+      <div class="field">
+        <div class="label">Parent Brand Name</div>
+        <input id="ns-parent" placeholder="e.g. Tata, Apple, Mamaearth" autocomplete="off">
+      </div>
+      <div class="field">
+        <div class="label">What is this sub-brand for?</div>
+        <textarea id="ns-what" rows="3" placeholder="What does this range do? How is it different from the parent brand's core offering?"></textarea>
+      </div>
+      <div class="field">
+        <div class="label">How distinct should it feel from the parent?</div>
+        <div class="pills" id="ns-dist-pills">
+          <button class="pill on" onclick="selectPill(this,'ns-dist-pills')">Close — endorsed by parent</button>
+          <button class="pill" onclick="selectPill(this,'ns-dist-pills')">Balanced — hybrid</button>
+          <button class="pill" onclick="selectPill(this,'ns-dist-pills')">Distinct — stands alone</button>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <div class="label">Target Audience vs Parent</div>
+          <div class="pills" id="ns-aud-pills">
+            <button class="pill on" onclick="selectPill(this,'ns-aud-pills')">Same audience</button>
+            <button class="pill" onclick="selectPill(this,'ns-aud-pills')">Adjacent</button>
+            <button class="pill" onclick="selectPill(this,'ns-aud-pills')">New audience</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Existing sub-brands <span class="opt">optional</span></div>
+          <input id="ns-existing" placeholder="e.g. Tata Nexon, Tata Harrier">
+        </div>
+      </div>
+      <button class="more-btn" id="ns-more-btn" onclick="toggleMore('ns-more','ns-more-btn')">
+        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
+        <span class="opt">optional</span>
+      </button>
+      <div class="more-panel hidden" id="ns-more">
+        <div class="field">
+          <div class="label">Parent Brand Website <span class="opt">optional</span></div>
+          <input id="ns-url" placeholder="https://www.parentbrand.com" type="url" autocomplete="off">
+          <div class="cm-website-status" id="ns-url-status"></div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="label">Guardrails</div>
+          <textarea id="ns-guard" rows="2" placeholder="e.g. Must start with parent name, max 2 words total..."></textarea>
+        </div>
+      </div>
+      <button class="gen-btn" id="ns-btn" onclick="generateSubBrandNames()">
+        <span>Generate Sub-brand Names</span><span style="opacity:.7">&#8594;</span>
+      </button>
+    </div>
 
-      <button class="more-btn" id="nb-more-btn" onclick="toggleMore('nb-more','nb-more-btn')">
-        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
-        <span class="opt">optional</span>
-      </button>
-      <div class="more-panel hidden" id="nb-more">
-        <div class="field">
-          <div class="label">Brand Website <span class="opt">optional</span></div>
-          <input id="nb-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
-          <div class="cm-website-status" id="nb-url-status"></div>
-        </div>
-        <div class="field" style="margin-bottom:0">
-          <div class="label">Guardrails</div>
-          <textarea id="nb-guard" rows="2" placeholder="e.g. Must be trademarkable, no existing tech brand names, max 6 letters..."></textarea>
-        </div>
-      </div>
-      <button class="gen-btn" id="nb-btn" onclick="generateBrandNames()">
-        <span>Generate Brand Names</span><span style="opacity:.7">&#8594;</span>
-      </button>
-    </div>
+        <div class="ng-panel" id="ng-product">
+      <div class="field">
+        <div class="label">Parent Brand Name</div>
+        <input id="np-parent" placeholder="e.g. Mamaearth, Noise, Nykaa" autocomplete="off">
+      </div>
+      <div class="field">
+        <div class="label">What does this product do?</div>
+        <textarea id="np-what" rows="3" placeholder="Core benefit in one clear sentence. e.g. A Vitamin C face serum that reduces dark spots in 4 weeks."></textarea>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <div class="label">Category</div>
+          <input id="np-cat" placeholder="e.g. Skincare, Audio, Nutrition">
+        </div>
+        <div class="field">
+          <div class="label">Target Audience <span class="opt">optional</span></div>
+          <input id="np-audience" placeholder="e.g. Women 25-35, urban">
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">Existing product names in portfolio <span class="opt">— so names follow the same convention</span></div>
+        <div class="g3">
+          <div><div class="label" style="font-size:10px">Name 1</div><input id="np-r1" placeholder="e.g. Onion Oil"></div>
+          <div><div class="label" style="font-size:10px">Name 2</div><input id="np-r2" placeholder="e.g. Ubtan Face Wash"></div>
+          <div><div class="label" style="font-size:10px">Name 3</div><input id="np-r3" placeholder="e.g. Tea Tree Toner"></div>
+        </div>
+      </div>
+      <button class="more-btn" id="np-more-btn" onclick="toggleMore('np-more','np-more-btn')">
+        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
+        <span class="opt">optional</span>
+      </button>
+      <div class="more-panel hidden" id="np-more">
+        <div class="field">
+          <div class="label">Brand Website <span class="opt">optional</span></div>
+          <input id="np-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+          <div class="cm-website-status" id="np-url-status"></div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="label">Guardrails</div>
+          <textarea id="np-guard" rows="2" placeholder="e.g. Max 3 words, must be descriptive, avoid ingredient names..."></textarea>
+        </div>
+      </div>
+      <button class="gen-btn" id="np-btn" onclick="generateProductNames()">
+        <span>Generate Product Names</span><span style="opacity:.7">&#8594;</span>
+      </button>
+    </div>
 
-    <!-- ── SUB-BRAND MODE ── -->
-    <div class="ng-panel" id="ng-subbrand">
-      <div class="field">
-        <div class="label">Parent Brand Name</div>
-        <input id="ns-parent" placeholder="e.g. Tata, Apple, Mamaearth" autocomplete="off">
-      </div>
-      <div class="field">
-        <div class="label">What is this sub-brand for?</div>
-        <textarea id="ns-what" rows="3" placeholder="What does this range do? How is it different from the parent brand's core offering?"></textarea>
-      </div>
-      <div class="field">
-        <div class="label">How distinct should it feel from the parent?</div>
-        <div class="pills" id="ns-dist-pills">
-          <button class="pill on" onclick="selectPill(this,'ns-dist-pills')">Close — endorsed by parent</button>
-          <button class="pill" onclick="selectPill(this,'ns-dist-pills')">Balanced — hybrid</button>
-          <button class="pill" onclick="selectPill(this,'ns-dist-pills')">Distinct — stands alone</button>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <div class="label">Target Audience vs Parent</div>
-          <div class="pills" id="ns-aud-pills">
-            <button class="pill on" onclick="selectPill(this,'ns-aud-pills')">Same audience</button>
-            <button class="pill" onclick="selectPill(this,'ns-aud-pills')">Adjacent</button>
-            <button class="pill" onclick="selectPill(this,'ns-aud-pills')">New audience</button>
-          </div>
-        </div>
-        <div class="field">
-          <div class="label">Existing sub-brands <span class="opt">optional</span></div>
-          <input id="ns-existing" placeholder="e.g. Tata Nexon, Tata Harrier">
-        </div>
-      </div>
-      <button class="more-btn" id="ns-more-btn" onclick="toggleMore('ns-more','ns-more-btn')">
-        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
-        <span class="opt">optional</span>
-      </button>
-      <div class="more-panel hidden" id="ns-more">
-        <div class="field">
-          <div class="label">Parent Brand Website <span class="opt">optional</span></div>
-          <input id="ns-url" placeholder="https://www.parentbrand.com" type="url" autocomplete="off">
-          <div class="cm-website-status" id="ns-url-status"></div>
-        </div>
-        <div class="field" style="margin-bottom:0">
-          <div class="label">Guardrails</div>
-          <textarea id="ns-guard" rows="2" placeholder="e.g. Must start with parent name, max 2 words total..."></textarea>
-        </div>
-      </div>
-      <button class="gen-btn" id="ns-btn" onclick="generateSubBrandNames()">
-        <span>Generate Sub-brand Names</span><span style="opacity:.7">&#8594;</span>
-      </button>
-    </div>
+    <div class="err hidden" id="name-err"></div>
+    <div id="name-out"></div>
+  </section>
+  
+  <section id="tab-audit" class="hidden" role="tabpanel">
+    <h1 class="page-title">Bias Audit</h1>
+    <p class="page-sub">Paste any copy and get a full behavioral science dissection.</p>
 
-    <!-- ── PRODUCT MODE ── -->
-    <div class="ng-panel" id="ng-product">
-      <div class="field">
-        <div class="label">Parent Brand Name</div>
-        <input id="np-parent" placeholder="e.g. Mamaearth, Noise, Nykaa" autocomplete="off">
-      </div>
-      <div class="field">
-        <div class="label">What does this product do?</div>
-        <textarea id="np-what" rows="3" placeholder="Core benefit in one clear sentence. e.g. A Vitamin C face serum that reduces dark spots in 4 weeks."></textarea>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <div class="label">Category</div>
-          <input id="np-cat" placeholder="e.g. Skincare, Audio, Nutrition">
-        </div>
-        <div class="field">
-          <div class="label">Target Audience <span class="opt">optional</span></div>
-          <input id="np-audience" placeholder="e.g. Women 25-35, urban">
-        </div>
-      </div>
-      <div class="field">
-        <div class="label">Existing product names in portfolio <span class="opt">— so names follow the same convention</span></div>
-        <div class="g3">
-          <div><div class="label" style="font-size:10px">Name 1</div><input id="np-r1" placeholder="e.g. Onion Oil"></div>
-          <div><div class="label" style="font-size:10px">Name 2</div><input id="np-r2" placeholder="e.g. Ubtan Face Wash"></div>
-          <div><div class="label" style="font-size:10px">Name 3</div><input id="np-r3" placeholder="e.g. Tea Tree Toner"></div>
-        </div>
-      </div>
-      <button class="more-btn" id="np-more-btn" onclick="toggleMore('np-more','np-more-btn')">
-        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
-        <span class="opt">optional</span>
-      </button>
-      <div class="more-panel hidden" id="np-more">
-        <div class="field">
-          <div class="label">Brand Website <span class="opt">optional</span></div>
-          <input id="np-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
-          <div class="cm-website-status" id="np-url-status"></div>
-        </div>
-        <div class="field" style="margin-bottom:0">
-          <div class="label">Guardrails</div>
-          <textarea id="np-guard" rows="2" placeholder="e.g. Max 3 words, must be descriptive, avoid ingredient names..."></textarea>
-        </div>
-      </div>
-      <button class="gen-btn" id="np-btn" onclick="generateProductNames()">
-        <span>Generate Product Names</span><span style="opacity:.7">&#8594;</span>
-      </button>
-    </div>
+    <div class="audit-notice">
+      We identify which of the 62 behavioral biases are working, which are missing, score the copy on behavioral effectiveness, and rewrite it with the gaps filled.
+    </div>
 
-    <div class="err hidden" id="name-err"></div>
-    <div id="name-out"></div>
-  </section>
-  
-<!-- ══════════════ BIAS AUDIT ══════════════ -->
-  <section id="tab-audit" class="hidden" role="tabpanel">
-    <h1 class="page-title">Bias Audit</h1>
-    <p class="page-sub">Paste any copy and get a full behavioral science dissection.</p>
+    <div class="field">
+      <div class="label">Your Copy</div>
+      <textarea id="a-copy" rows="6" placeholder="Paste the headline, ad, tagline, email body, social post -- anything..."></textarea>
+    </div>
 
-    <div class="audit-notice">
-      We identify which of the 62 behavioral biases are working, which are missing, score the copy on behavioral effectiveness, and rewrite it with the gaps filled.
-    </div>
+    <button class="more-btn" id="audit-more-btn" onclick="toggleMore('audit-more','audit-more-btn')">
+      <span class="more-btn-left">
+        <span class="more-icon">+</span>
+        Add context for a sharper audit
+      </span>
+      <span class="opt">optional</span>
+    </button>
+    <div class="more-panel hidden" id="audit-more">
+      <div class="field">
+        <div class="label">Brand / Product</div>
+        <input id="a-brand" placeholder="e.g. Swiggy Instamart, a skincare brand...">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <div class="label">Brand Website <span class="opt">optional</span></div>
+        <input id="a-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+        <div class="cm-website-status" id="a-url-status"></div>
+      </div>
+    </div>
 
-    <div class="field">
-      <div class="label">Your Copy</div>
-      <textarea id="a-copy" rows="6" placeholder="Paste the headline, ad, tagline, email body, social post -- anything..."></textarea>
-    </div>
+    <button class="gen-btn" id="audit-btn" onclick="runAudit()">
+      <span>Audit My Copy</span><span style="opacity:.7">&#8594;</span>
+    </button>
+    <div class="err hidden" id="audit-err"></div>
+    <div id="audit-out"></div>
+  </section>
 
-    <button class="more-btn" id="audit-more-btn" onclick="toggleMore('audit-more','audit-more-btn')">
-      <span class="more-btn-left">
-        <span class="more-icon">+</span>
-        Add context for a sharper audit
-      </span>
-      <span class="opt">optional</span>
-    </button>
-    <div class="more-panel hidden" id="audit-more">
-      <div class="field">
-        <div class="label">Brand / Product</div>
-        <input id="a-brand" placeholder="e.g. Swiggy Instamart, a skincare brand...">
-      </div>
-      <div class="field" style="margin-bottom:0">
-        <div class="label">Brand Website <span class="opt">optional</span></div>
-        <input id="a-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
-        <div class="cm-website-status" id="a-url-status"></div>
-      </div>
-    </div>
+    <section id="tab-about" class="hidden" role="tabpanel">
+    <h1 class="page-title">About</h1>
+    <p class="page-sub">Why this tool exists.</p>
+    <div style="background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;box-shadow:var(--shadow-s);max-width:620px;">
+      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">Today's performance marketing demands massive content volume at breakneck speed, creating a severe bandwidth crunch. Brands naturally turn to AI, but standard models just rephrase text to sound &quot;poetic&quot;. Because teams can't manually A/B test thousands of daily variations, copy is often approved on a subjective &quot;hunch&quot; &mdash; prioritizing what sounds nice over what actually influences a purchase.</p>
+      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">I realized the industry desperately needs objective certainty before going live. That's why I built <strong>Right Copywriter</strong>.</p>
+      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">You can simply input your requirements, and the tool automatically generates persuasive copy designed to influence purchase. Already have a draft? Run it through <strong>Bias Audit</strong> to evaluate and rephrase it for maximum conversions. By quantifying success pre-launch, we shift your marketing from a hopeful &quot;might work&quot; to a scientific &quot;will work.&quot;</p>
+      <div style="border-top:1px solid var(--bd);margin:22px 0;"></div>
+      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">This isn't a generic AI hallucinating internet pointers. I trained this custom engine using my 6 years in Consumer Insights &mdash; feeding it my handwritten ethnographic notes on exactly why real people buy and why they walk away. It also captures more than 60 human biases that influence purchase along with the gist of some of the best marketing research ever done.</p>
+      <p style="font-size:15px;font-family:'Fraunces',serif;font-weight:500;color:var(--green);line-height:1.7;font-style:italic;">Because at the end of the day, marketing isn't about sounding cool. If it doesn't sell, it isn't the right copy.</p>
+    </div>
 
-    <button class="gen-btn" id="audit-btn" onclick="runAudit()">
-      <span>Audit My Copy</span><span style="opacity:.7">&#8594;</span>
-    </button>
-    <div class="err hidden" id="audit-err"></div>
-    <div id="audit-out"></div>
-  </section>
+    <div style="margin-top:20px;background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;box-shadow:var(--shadow-s);max-width:620px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:14px;">How Does This Work</div>
+      <p style="font-size:14px;color:var(--ink);line-height:1.85;margin-bottom:14px;">You describe your brand, your message, and what you want the copy to do. The engine takes it from there &mdash; selecting the most relevant psychological principles for your specific brief, your format, and your audience, then writing copy that is engineered to those principles rather than written by feel.</p>
+      <p style="font-size:14px;color:var(--ink);line-height:1.85;">Every output tells you exactly which principle was used and why &mdash; so you are not just getting copy, you are getting a rationale you can defend.</p>
+    </div>
 
-  <!-- ══════════════ ABOUT ══════════════ -->
-  <section id="tab-about" class="hidden" role="tabpanel">
-    <h1 class="page-title">About</h1>
-    <p class="page-sub">Why this tool exists.</p>
-    <div style="background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;box-shadow:var(--shadow-s);max-width:620px;">
-      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">Today's performance marketing demands massive content volume at breakneck speed, creating a severe bandwidth crunch. Brands naturally turn to AI, but standard models just rephrase text to sound &quot;poetic&quot;. Because teams can't manually A/B test thousands of daily variations, copy is often approved on a subjective &quot;hunch&quot; &mdash; prioritizing what sounds nice over what actually influences a purchase.</p>
-      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">I realized the industry desperately needs objective certainty before going live. That's why I built <strong>Right Copywriter</strong>.</p>
-      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">You can simply input your requirements, and the tool automatically generates persuasive copy designed to influence purchase. Already have a draft? Run it through <strong>Bias Audit</strong> to evaluate and rephrase it for maximum conversions. By quantifying success pre-launch, we shift your marketing from a hopeful &quot;might work&quot; to a scientific &quot;will work.&quot;</p>
-      <div style="border-top:1px solid var(--bd);margin:22px 0;"></div>
-      <p style="font-size:14.5px;color:var(--ink);line-height:1.9;margin-bottom:18px;">This isn't a generic AI hallucinating internet pointers. I trained this custom engine using my 6 years in Consumer Insights &mdash; feeding it my handwritten ethnographic notes on exactly why real people buy and why they walk away. It also captures more than 60 human biases that influence purchase along with the gist of some of the best marketing research ever done.</p>
-      <p style="font-size:15px;font-family:'Fraunces',serif;font-weight:500;color:var(--green);line-height:1.7;font-style:italic;">Because at the end of the day, marketing isn't about sounding cool. If it doesn't sell, it isn't the right copy.</p>
-    </div>
-
-    <div style="margin-top:20px;background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;box-shadow:var(--shadow-s);max-width:620px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:14px;">How Does This Work</div>
-      <p style="font-size:14px;color:var(--ink);line-height:1.85;margin-bottom:14px;">You describe your brand, your message, and what you want the copy to do. The engine takes it from there &mdash; selecting the most relevant psychological principles for your specific brief, your format, and your audience, then writing copy that is engineered to those principles rather than written by feel.</p>
-      <p style="font-size:14px;color:var(--ink);line-height:1.85;">Every output tells you exactly which principle was used and why &mdash; so you are not just getting copy, you are getting a rationale you can defend.</p>
-    </div>
-
-    <div style="margin-top:16px;background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;box-shadow:var(--shadow-s);max-width:620px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:14px;">The Behavioral Score</div>
-      <p style="font-size:14px;color:var(--ink);line-height:1.85;margin-bottom:14px;">Every piece of copy is evaluated against a proprietary framework built from decades of consumer psychology research. The score reflects how many of the relevant psychological levers are being activated &mdash; and how many are being left on the table.</p>
-      <p style="font-size:14px;color:var(--ink);line-height:1.85;margin-bottom:14px;">It is not a readability score. It is not a sentiment score. It is a measure of how hard your copy is working at a subconscious level &mdash; the level where purchase decisions are actually made.</p>
-      <p style="font-size:14px;color:var(--ink);line-height:1.85;">The Bias Audit shows you the gap between your current copy and its potential &mdash; and then closes it.</p>
-    </div>
-  </section>
+    <div style="margin-top:16px;background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:28px 26px;box-shadow:var(--shadow-s);max-width:620px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:14px;">The Behavioral Score</div>
+      <p style="font-size:14px;color:var(--ink);line-height:1.85;margin-bottom:14px;">Every piece of copy is evaluated against a proprietary framework built from decades of consumer psychology research. The score reflects how many of the relevant psychological levers are being activated &mdash; and how many are being left on the table.</p>
+      <p style="font-size:14px;color:var(--ink);line-height:1.85;margin-bottom:14px;">It is not a readability score. It is not a sentiment score. It is a measure of how hard your copy is working at a subconscious level &mdash; the level where purchase decisions are actually made.</p>
+      <p style="font-size:14px;color:var(--ink);line-height:1.85;">The Bias Audit shows you the gap between your current copy and its potential &mdash; and then closes it.</p>
+    </div>
+  </section>
 
 </main>
 
@@ -1451,11 +1433,11 @@ function flashNew(elId) {
 
 // ── COPY TYPE CONFIG ─────────────────────────────────────────
 var CT = {
-  'Headline':            { label: 'Core Message',              ph: 'The single most important thing this headline must communicate...', product: false },
+  'Headline':            { label: 'Core Message',             ph: 'The single most important thing this headline must communicate...', product: false },
   'Tagline':             { label: 'What the brand stands for', ph: 'What feeling or truth should this tagline capture?', product: false },
   'Product Description': { label: 'Key Benefits to Highlight', ph: 'Top 2-3 features or benefits to focus on...', product: true },
   'General Description': { label: 'What to Communicate',      ph: 'What should readers understand and feel after reading?', product: true },
-  'Social Caption':      { label: 'Hook and Purpose',          ph: 'What is the one thing this post needs to do?', product: false },
+  'Social Caption':      { label: 'Hook and Purpose',         ph: 'What is the one thing this post needs to do?', product: false },
   'Email Subject':       { label: 'Email Context and Goal',    ph: 'What is this email about and what action should it drive?', product: false },
   'Email Copy':          { label: 'Core Message and CTA',      ph: 'What is the main point and what do you want them to do?', product: true },
 };
@@ -2049,12 +2031,9 @@ function buildAuditHtml(d, origScore, improvedScore) {
   var missItems = missing.map(function(m){
     return '<div class="audit-item">'
       + '<div class="a-dot" style="background:var(--amber);"></div>'
-  // Score: always use deterministic values
-  // displayScore = improvedScore (if rewrite available) else sc
-  // origScore = score of copy as-is, shown as 'current' baseline
-  var sc = calcBiasScore(working, missing, null);
-  var displayScore = (improvedScore !== undefined && improvedScore !== null) ? improvedScore : sc;
-  var scoreCol = displayScore >= 7.5 ? 'var(--green)' : displayScore >= 5 ? 'var(--amber)' : 'var(--red)';
+      + '<div><span class="a-bias-name" style="color:var(--amber);">' + esc(m.bias) + ': </span>'
+      + '<span class="a-bias-desc">' + esc(m.opportunity) + '</span></div></div>';
+  }).join('') || '<div class="audit-item"><div class="a-dot" style="background:var(--dim);"></div><div class="a-bias-desc">No missing opportunities identified.</div></div>';
 
   // Delta — only show if there is a real positive gap to highlight
   var deltaHtml = '';
@@ -2467,7 +2446,6 @@ async function generateCampaign() {
   setLoading('cm-gen-btn', false, 'Build Full Funnel Campaign');
 }
 </script>
-<!-- ── MODAL ──────────────────────────────────────────────── -->
 <div class="modal-backdrop" id="refine-modal" onclick="closeModal(event)">
   <div class="modal" role="dialog" aria-modal="true">
     <div id="modal-form-state">
