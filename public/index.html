@@ -775,6 +775,103 @@
     .cm-website-status.ok { background: var(--greenbg); color: var(--green); }
     .cm-website-status.skip { background: var(--amberbg); color: var(--amber); }
 
+    /* ── NAME GENERATOR ─────────────────────────────────── */
+    .ng-mode-wrap { margin-bottom: 22px; }
+    .ng-mode-label {
+      font-size: 11px; font-weight: 700; color: var(--ink);
+      letter-spacing: .07em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .ng-mode-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ng-mode-pill {
+      flex: 1; min-width: 130px;
+      background: var(--surface); border: 1.5px solid var(--bd);
+      border-radius: 12px; padding: 13px 14px;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      text-align: left; transition: all .18s;
+      -webkit-tap-highlight-color: transparent;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .ng-mode-pill:hover { border-color: var(--bdhi); }
+    .ng-mode-pill.active {
+      border-color: var(--green); background: var(--greenbg);
+    }
+    .ng-mode-icon {
+      font-size: 14px; color: var(--dim); margin-bottom: 4px;
+      transition: color .18s;
+    }
+    .ng-mode-pill.active .ng-mode-icon { color: var(--green); }
+    .ng-mode-title {
+      font-size: 13.5px; font-weight: 600; color: var(--ink);
+    }
+    .ng-mode-sub {
+      font-size: 11px; color: var(--mid); line-height: 1.4;
+    }
+    .ng-panel { display: none; }
+    .ng-panel.active { display: block; }
+    /* Sound slider */
+    .ng-slider-wrap {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 8px;
+    }
+    .ng-slider-end {
+      font-size: 10px; font-weight: 600; color: var(--mid);
+      line-height: 1.4; min-width: 50px; flex-shrink: 0;
+    }
+    .ng-slider-end span { font-weight: 400; color: var(--dim); }
+    .ng-slider {
+      flex: 1; -webkit-appearance: none; appearance: none;
+      height: 4px; border-radius: 2px;
+      background: linear-gradient(to right, var(--greenbd), var(--bdhi), var(--amberbd));
+      outline: none; cursor: pointer;
+    }
+    .ng-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--surface); border: 2px solid var(--green);
+      box-shadow: var(--shadow-s); cursor: pointer;
+    }
+    .ng-slider::-moz-range-thumb {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--surface); border: 2px solid var(--green);
+      cursor: pointer;
+    }
+    .ng-slider-label {
+      font-size: 11px; font-weight: 700; color: var(--green);
+      text-align: center; letter-spacing: .04em;
+    }
+    /* Name card upgraded */
+    .name-card-v2 {
+      background: var(--surface); border: 1px solid var(--bd);
+      border-radius: 14px; padding: 20px; margin-bottom: 12px;
+      box-shadow: var(--shadow-s);
+    }
+    .name-card-mode {
+      font-size: 9px; font-weight: 800; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--dim); margin-bottom: 10px;
+    }
+    .name-v2-text {
+      font-family: 'Fraunces', serif; font-size: 32px;
+      font-weight: 600; color: var(--ink);
+      letter-spacing: -.03em; line-height: 1.1; margin-bottom: 6px;
+    }
+    .name-v2-desc { font-size: 12.5px; color: var(--mid); margin-bottom: 4px; font-style: italic; }
+    .name-v2-tagline { font-size: 13px; color: var(--amber); font-weight: 600; margin-bottom: 14px; }
+    .name-v2-meta {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 12px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--bd);
+    }
+    .name-meta-chip {
+      font-size: 10px; font-weight: 600; color: var(--mid);
+      background: var(--bg); border: 1px solid var(--bd);
+      border-radius: 20px; padding: 3px 10px;
+    }
+    .name-v2-rationale {
+      font-size: 12.5px; color: var(--mid); line-height: 1.7;
+    }
+    .name-v2-rationale strong { color: var(--ink); font-weight: 600; }
+
     /* ── HIDDEN ──────────────────────────────────────────── */
     .hidden { display: none !important; }
 
@@ -944,63 +1041,200 @@
   <!-- ══════════════ NAME GENERATOR ══════════════ -->
   <section id="tab-names" class="hidden" role="tabpanel">
     <h1 class="page-title">Name Generator</h1>
-    <p class="page-sub">Names built on fluency science, psycholinguistics, and memory research.</p>
+    <p class="page-sub">Naming science applied. Not creative guesswork.</p>
 
-    <div class="field">
-      <div class="label">What does the product do?</div>
-      <textarea id="n-what" rows="3" placeholder="Describe clearly. What is the core benefit? The more specific, the better the names..."></textarea>
+    <!-- Mode selector -->
+    <div class="ng-mode-wrap">
+      <div class="ng-mode-label">What are you naming?</div>
+      <div class="ng-mode-pills">
+        <button class="ng-mode-pill active" data-mode="brand" onclick="switchNameMode('brand',this)">
+          <span class="ng-mode-icon">&#9670;</span>
+          <span class="ng-mode-title">Brand</span>
+          <span class="ng-mode-sub">A new company or top-level identity</span>
+        </button>
+        <button class="ng-mode-pill" data-mode="subbrand" onclick="switchNameMode('subbrand',this)">
+          <span class="ng-mode-icon">&#9672;</span>
+          <span class="ng-mode-title">Sub-brand</span>
+          <span class="ng-mode-sub">A range or line under a parent brand</span>
+        </button>
+        <button class="ng-mode-pill" data-mode="product" onclick="switchNameMode('product',this)">
+          <span class="ng-mode-icon">&#9671;</span>
+          <span class="ng-mode-title">Product</span>
+          <span class="ng-mode-sub">A single product within a portfolio</span>
+        </button>
+      </div>
     </div>
 
-    <button class="more-btn" id="name-more-btn" onclick="toggleMore('name-more','name-more-btn')">
-      <span class="more-btn-left">
-        <span class="more-icon">+</span>
-        Add more details for sharper names
-      </span>
-      <span class="opt">optional</span>
-    </button>
-    <div class="more-panel hidden" id="name-more">
+    <!-- ── BRAND MODE ── -->
+    <div class="ng-panel active" id="ng-brand">
       <div class="field">
-        <div class="label">Who is it for?</div>
-        <input id="n-audience" placeholder="e.g. First-time homebuyers, D2C skincare enthusiasts, Gen Z">
+        <div class="label">What does this brand stand for?</div>
+        <textarea id="nb-what" rows="3" placeholder="What does it do, who is it for, and what is the one feeling you want it to own?"></textarea>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <div class="label">Category / Industry</div>
+          <input id="nb-cat" placeholder="e.g. Fintech, Skincare, Logistics">
+        </div>
+        <div class="field">
+          <div class="label">Target Market</div>
+          <input id="nb-market" placeholder="e.g. India-first, Global, South Asia">
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <div class="label">Syllables</div>
+          <div class="pills" id="nb-syl-pills">
+            <button class="pill" onclick="selectPill(this,'nb-syl-pills')">1</button>
+            <button class="pill on" onclick="selectPill(this,'nb-syl-pills')">2</button>
+            <button class="pill" onclick="selectPill(this,'nb-syl-pills')">3</button>
+            <button class="pill" onclick="selectPill(this,'nb-syl-pills')">Any</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Avoid</div>
+          <input id="nb-avoid" placeholder="e.g. no Z endings, no tech clichés">
+        </div>
+      </div>
+
+      <!-- Sound profile slider -->
+      <div class="field">
+        <div class="label">Sound Profile
+          <span style="font-size:10px;font-weight:400;color:var(--dim);margin-left:6px;text-transform:none;letter-spacing:0;">Bouba/Kiki spectrum — soft sounds feel gentle &amp; premium; hard sounds feel bold &amp; fast</span>
+        </div>
+        <div class="ng-slider-wrap">
+          <span class="ng-slider-end">Soft<br><span>Luma, Melo, Vivi</span></span>
+          <input type="range" id="nb-sound" min="0" max="100" value="50" class="ng-slider" oninput="updateSliderLabel(this,'nb-sound-label')">
+          <span class="ng-slider-end" style="text-align:right">Bold<br><span>Krex, Zolt, Axon</span></span>
+        </div>
+        <div class="ng-slider-label" id="nb-sound-label">Balanced</div>
+      </div>
+
+      <button class="more-btn" id="nb-more-btn" onclick="toggleMore('nb-more','nb-more-btn')">
+        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
+        <span class="opt">optional</span>
+      </button>
+      <div class="more-panel hidden" id="nb-more">
+        <div class="field">
+          <div class="label">Brand Website <span class="opt">optional</span></div>
+          <input id="nb-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+          <div class="cm-website-status" id="nb-url-status"></div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="label">Guardrails</div>
+          <textarea id="nb-guard" rows="2" placeholder="e.g. Must be trademarkable, no existing tech brand names, max 6 letters..."></textarea>
+        </div>
+      </div>
+      <button class="gen-btn" id="nb-btn" onclick="generateBrandNames()">
+        <span>Generate Brand Names</span><span style="opacity:.7">&#8594;</span>
+      </button>
+    </div>
+
+    <!-- ── SUB-BRAND MODE ── -->
+    <div class="ng-panel" id="ng-subbrand">
+      <div class="field">
+        <div class="label">Parent Brand Name</div>
+        <input id="ns-parent" placeholder="e.g. Tata, Apple, Mamaearth" autocomplete="off">
+      </div>
+      <div class="field">
+        <div class="label">What is this sub-brand for?</div>
+        <textarea id="ns-what" rows="3" placeholder="What does this range do? How is it different from the parent brand's core offering?"></textarea>
+      </div>
+      <div class="field">
+        <div class="label">How distinct should it feel from the parent?</div>
+        <div class="pills" id="ns-dist-pills">
+          <button class="pill on" onclick="selectPill(this,'ns-dist-pills')">Close — endorsed by parent</button>
+          <button class="pill" onclick="selectPill(this,'ns-dist-pills')">Balanced — hybrid</button>
+          <button class="pill" onclick="selectPill(this,'ns-dist-pills')">Distinct — stands alone</button>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <div class="label">Target Audience vs Parent</div>
+          <div class="pills" id="ns-aud-pills">
+            <button class="pill on" onclick="selectPill(this,'ns-aud-pills')">Same audience</button>
+            <button class="pill" onclick="selectPill(this,'ns-aud-pills')">Adjacent</button>
+            <button class="pill" onclick="selectPill(this,'ns-aud-pills')">New audience</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Existing sub-brands <span class="opt">optional</span></div>
+          <input id="ns-existing" placeholder="e.g. Tata Nexon, Tata Harrier">
+        </div>
+      </div>
+      <button class="more-btn" id="ns-more-btn" onclick="toggleMore('ns-more','ns-more-btn')">
+        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
+        <span class="opt">optional</span>
+      </button>
+      <div class="more-panel hidden" id="ns-more">
+        <div class="field">
+          <div class="label">Parent Brand Website <span class="opt">optional</span></div>
+          <input id="ns-url" placeholder="https://www.parentbrand.com" type="url" autocomplete="off">
+          <div class="cm-website-status" id="ns-url-status"></div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="label">Guardrails</div>
+          <textarea id="ns-guard" rows="2" placeholder="e.g. Must start with parent name, max 2 words total..."></textarea>
+        </div>
+      </div>
+      <button class="gen-btn" id="ns-btn" onclick="generateSubBrandNames()">
+        <span>Generate Sub-brand Names</span><span style="opacity:.7">&#8594;</span>
+      </button>
+    </div>
+
+    <!-- ── PRODUCT MODE ── -->
+    <div class="ng-panel" id="ng-product">
+      <div class="field">
+        <div class="label">Parent Brand Name</div>
+        <input id="np-parent" placeholder="e.g. Mamaearth, Noise, Nykaa" autocomplete="off">
+      </div>
+      <div class="field">
+        <div class="label">What does this product do?</div>
+        <textarea id="np-what" rows="3" placeholder="Core benefit in one clear sentence. e.g. A Vitamin C face serum that reduces dark spots in 4 weeks."></textarea>
       </div>
       <div class="g2">
         <div class="field">
           <div class="label">Category</div>
-          <input id="n-cat" placeholder="e.g. Fintech, Skincare">
+          <input id="np-cat" placeholder="e.g. Skincare, Audio, Nutrition">
         </div>
         <div class="field">
-          <div class="label">Include sounds</div>
-          <input id="n-inc" placeholder="e.g. soft vowels, nature words">
+          <div class="label">Target Audience <span class="opt">optional</span></div>
+          <input id="np-audience" placeholder="e.g. Women 25-35, urban">
         </div>
       </div>
       <div class="field">
-        <div class="label">Avoid</div>
-        <input id="n-avoid" placeholder="e.g. harsh K/X sounds, tech jargon, Z endings">
+        <div class="label">Existing product names in portfolio <span class="opt">— so names follow the same convention</span></div>
+        <div class="g3">
+          <div><div class="label" style="font-size:10px">Name 1</div><input id="np-r1" placeholder="e.g. Onion Oil"></div>
+          <div><div class="label" style="font-size:10px">Name 2</div><input id="np-r2" placeholder="e.g. Ubtan Face Wash"></div>
+          <div><div class="label" style="font-size:10px">Name 3</div><input id="np-r3" placeholder="e.g. Tea Tree Toner"></div>
+        </div>
       </div>
-      <div class="field">
-        <div class="label">Brand Website <span class="opt">optional</span></div>
-        <input id="n-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
-        <div class="cm-website-status" id="n-url-status"></div>
+      <button class="more-btn" id="np-more-btn" onclick="toggleMore('np-more','np-more-btn')">
+        <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
+        <span class="opt">optional</span>
+      </button>
+      <div class="more-panel hidden" id="np-more">
+        <div class="field">
+          <div class="label">Brand Website <span class="opt">optional</span></div>
+          <input id="np-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+          <div class="cm-website-status" id="np-url-status"></div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="label">Guardrails</div>
+          <textarea id="np-guard" rows="2" placeholder="e.g. Max 3 words, must be descriptive, avoid ingredient names..."></textarea>
+        </div>
       </div>
-      <div class="more-sep">Existing portfolio names</div>
-      <div class="g3" style="margin-bottom:14px;">
-        <div><div class="label" style="font-size:10px">Name 1</div><input id="n-r1" placeholder="e.g. Aqua"></div>
-        <div><div class="label" style="font-size:10px">Name 2</div><input id="n-r2" placeholder="e.g. Viva"></div>
-        <div><div class="label" style="font-size:10px">Name 3</div><input id="n-r3" placeholder="e.g. Nexo"></div>
-      </div>
-      <div class="field" style="margin-bottom:0">
-        <div class="label">Guardrails &amp; Must-Haves</div>
-        <textarea id="n-guard" rows="2" placeholder="e.g. One word only, max 8 letters, must work in Tamil..."></textarea>
-      </div>
+      <button class="gen-btn" id="np-btn" onclick="generateProductNames()">
+        <span>Generate Product Names</span><span style="opacity:.7">&#8594;</span>
+      </button>
     </div>
 
-    <button class="gen-btn" id="name-btn" onclick="generateNames()">
-      <span>Generate Names</span><span style="opacity:.7">&#8594;</span>
-    </button>
     <div class="err hidden" id="name-err"></div>
     <div id="name-out"></div>
   </section>
-  <!-- ══════════════ BIAS AUDIT ══════════════ -->
+  
+<!-- ══════════════ BIAS AUDIT ══════════════ -->
   <section id="tab-audit" class="hidden" role="tabpanel">
     <h1 class="page-title">Bias Audit</h1>
     <p class="page-sub">Paste any copy and get a full behavioral science dissection.</p>
@@ -1071,6 +1305,9 @@
 
 
 <script>
+'use strict';
+'use strict';
+'use strict';
 'use strict';
 'use strict';
 'use strict';
@@ -1185,28 +1422,7 @@ function renderCopyText(raw) {
   });
   return s.replace(/\n/g, '<br>');
 }
-function copyToClip(btn) {
-  // Text is stored in data-copy on the button itself — no inline string quoting issues
-  var text = btn.getAttribute('data-copy') || '';
-  if (!text) return;
-  navigator.clipboard.writeText(text).then(function(){
-    btn.textContent = '\u2713 Copied';
-    btn.classList.add('done');
-    setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('done'); }, 2000);
-  }).catch(function(){
-    // Fallback for non-HTTPS or blocked clipboard
-    try {
-      var ta = document.createElement('textarea');
-      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      btn.textContent = '\u2713 Copied';
-      btn.classList.add('done');
-      setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('done'); }, 2000);
-    } catch(e) {}
-  });
-}
+
 // Fade+slide in, then pulse the label to show content is new
 function flashNew(elId) {
   var el = document.getElementById(elId);
@@ -1462,7 +1678,7 @@ function buildCopyHtml(variants, isLong) {
       + '<div class="' + (isLong ? 'copy-long' : 'copy-short') + '">' + renderCopyText(v.copy) + '</div>'
       + '<div class="card-foot">'
       + '<div class="bias-tags">' + biases.slice(0,3).map(makeBiasTag).join('') + '</div>'
-      + '<button class="copy-btn" data-copy="' + esc(v.copy) + '" onclick="copyToClip(this)">Copy</button>'
+
       + '</div></div>';
   });
   html += '<div class="show-more-bar">'
@@ -1525,80 +1741,297 @@ function openCopyMoreOptions() {
 }
 
 // ── NAME GENERATOR ───────────────────────────────────────────
-function buildNamePrompt(what, audience, cat, inc, avoid, existing, guard, feedback, websiteCtx) {
-  var lines = ['Generate exactly 8 product names. Each uses a DIFFERENT naming principle. Make each genuinely distinct.',
-    'Product: ' + what];
-  if (audience)      lines.push('Audience: ' + audience);
-  if (cat)           lines.push('Category: ' + cat);
-  if (inc)           lines.push('Must include/evoke: ' + inc);
-  if (avoid)         lines.push('Avoid: ' + avoid);
-  if (existing.length) lines.push('Portfolio names: ' + existing.join(', '));
-  if (guard)         lines.push('Guardrails: ' + guard);
-  if (feedback)      lines.push('User feedback: ' + feedback);
-  if (websiteCtx)    lines.push('BRAND WEBSITE CONTEXT (use to make names relevant to their actual offering):\n' + websiteCtx.slice(0, 600));
-  lines.push('Rules: description max 50 chars. Tagline exactly 3-4 words.');
-  lines.push('Return JSON only:');
-  lines.push('{"names":[{"name":"ProductName","description":"max 50 chars","tagline":"3-4 word tagline","technique":{"name":"Principle","explanation":"1 sentence","application":"1 sentence"}}]}');
-  return lines.join('\n');
+// ── NAME GENERATOR ───────────────────────────────────────────────
+
+function switchNameMode(mode, btn) {
+  document.querySelectorAll('.ng-mode-pill').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.ng-panel').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('ng-' + mode).classList.add('active');
+  showErr('name-err', '');
+  document.getElementById('name-out').innerHTML = '';
 }
-function buildNameHtml(names) {
-  var html = '<div class="results-label">8 Behaviorally-Engineered Names</div>';
-  names.forEach(function(n, i) {
-    html += '<div class="name-card">'
-      + '<div class="name-num">' + String(i+1).padStart(2,'0') + '</div>'
-      + '<div class="name-body">'
-      + '<div class="name-text">' + esc(n.name) + '</div>'
-      + '<div class="name-desc">' + esc(n.description||'') + '</div>'
-      + '<div class="name-tagline">' + esc(n.tagline||'') + '</div>'
-      + '<div class="name-foot">'
-      + (n.technique && n.technique.name ? makeBiasTag(n.technique) : '')
-      + '<button class="copy-btn" data-copy="' + esc(n.name) + '" onclick="copyToClip(this)">Copy</button>'
-      + '</div></div></div>';
-  });
-  html += '<div class="show-more-bar">'
-    + '<button class="show-more-btn" onclick="openNameMoreOptions()">'
-    + '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
-    + ' Show me more options</button></div>';
-  return html;
+
+// Slider label updater
+function updateSliderLabel(slider, labelId) {
+  var v = parseInt(slider.value);
+  var label = document.getElementById(labelId);
+  if (!label) return;
+  if (v < 25)      label.textContent = 'Very Soft — gentle, rounded sounds';
+  else if (v < 45) label.textContent = 'Soft — warm and approachable';
+  else if (v < 55) label.textContent = 'Balanced';
+  else if (v < 75) label.textContent = 'Bold — confident and energetic';
+  else             label.textContent = 'Very Bold — sharp, hard-hitting sounds';
 }
-async function generateNames() {
-  var what = document.getElementById('n-what').value.trim();
-  if (!what) { showErr('name-err', 'Please describe what the product does.'); return; }
-  var audience = document.getElementById('n-audience').value.trim();
-  var cat      = document.getElementById('n-cat').value.trim();
-  var inc      = document.getElementById('n-inc').value.trim();
-  var avoid    = document.getElementById('n-avoid').value.trim();
-  var existing = ['n-r1','n-r2','n-r3'].map(function(id){ return document.getElementById(id).value.trim(); }).filter(Boolean);
-  var guard    = document.getElementById('n-guard').value.trim();
-  setLoading('name-btn', true, 'Generate Names');
+
+function getSoundProfile(val) {
+  var v = parseInt(val || 50);
+  if (v < 25)      return 'Very soft and rounded — use sounds like L, M, O, A, V, N. Avoid K, X, T, R hard sounds.';
+  if (v < 45)      return 'Soft and warm — favour gentle vowels and nasal consonants (M, N, L). Minimal hard stops.';
+  if (v < 55)      return 'Balanced — mix of soft and hard sounds, neither extreme.';
+  if (v < 75)      return 'Bold and confident — use crisp consonants (T, C, R, D). Some hard stops acceptable.';
+  return 'Very bold and sharp — use hard stops and crisp consonants (K, X, T, CR, Z). Short, punchy structure.';
+}
+
+// ── BRAND NAME GENERATION ────────────────────────────────────────
+async function generateBrandNames() {
+  var what   = document.getElementById('nb-what').value.trim();
+  var cat    = document.getElementById('nb-cat').value.trim();
+  if (!what) { showErr('name-err', 'Please describe what this brand stands for.'); return; }
+
+  var market = document.getElementById('nb-market').value.trim();
+  var syl    = getPill('nb-syl-pills');
+  var avoid  = document.getElementById('nb-avoid').value.trim();
+  var sound  = document.getElementById('nb-sound') ? document.getElementById('nb-sound').value : '50';
+  var guard  = document.getElementById('nb-guard') ? document.getElementById('nb-guard').value.trim() : '';
+  var url    = document.getElementById('nb-url') ? document.getElementById('nb-url').value.trim() : '';
+
+  setLoading('nb-btn', true, 'Generate Brand Names');
   showErr('name-err', '');
   document.getElementById('name-out').innerHTML = '';
 
-  var nameUrl = document.getElementById('n-url') ? document.getElementById('n-url').value.trim() : '';
-  var nameWebCtx = nameUrl ? await fetchWebsiteContext(nameUrl, null, 'n-url-status') : null;
+  var webCtx = url ? await fetchWebsiteContext(url, null, 'nb-url-status') : null;
+  lastNamePrompt = { mode:'brand', what:what, cat:cat, market:market, syl:syl, avoid:avoid, sound:sound, guard:guard, webCtx:webCtx };
 
-  lastNamePrompt = { what:what, audience:audience, cat:cat, inc:inc, avoid:avoid, existing:existing, guard:guard, websiteCtx:nameWebCtx };
+  var prompt = buildBrandNamePrompt(what, cat, market, syl, avoid, sound, guard, webCtx, '');
   try {
-    var data = await callAI(buildNamePrompt(what, audience, cat, inc, avoid, existing, guard, '', nameWebCtx));
-    document.getElementById('name-out').innerHTML = buildNameHtml(data.names || []);
+    var d = await callAI(prompt);
+    document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'brand');
     flashNew('name-out');
   } catch(e) {
     showErr('name-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
   }
-  setLoading('name-btn', false, 'Generate Names');
+  setLoading('nb-btn', false, 'Generate Brand Names');
 }
+
+function buildBrandNamePrompt(what, cat, market, syl, avoid, sound, guard, webCtx, feedback) {
+  var soundProfile = getSoundProfile(sound);
+  var lines = [
+    'Generate exactly 6 brand names for the following brief.',
+    'Each name must use a DIFFERENT naming principle from the behavioral science library.',
+    'Every name must work as a brand identity — memorable, distinctive, ownable.',
+    '',
+    'BRIEF: ' + what,
+    cat    ? 'CATEGORY: ' + cat : '',
+    market ? 'MARKET: ' + market : '',
+    'SYLLABLES: ' + (syl === 'Any' ? 'No restriction' : 'Prefer ' + syl + '-syllable names'),
+    'SOUND PROFILE: ' + soundProfile,
+    avoid  ? 'AVOID: ' + avoid : '',
+    guard  ? 'GUARDRAILS: ' + guard : '',
+    webCtx ? 'BRAND CONTEXT:\\n' + webCtx.slice(0, 800) : '',
+    feedback ? 'USER FEEDBACK: ' + feedback : '',
+    '',
+    'NAMING SCIENCE TO APPLY (use a different one per name):',
+    '- Fluency: easy to pronounce = trusted, lower perceived risk',
+    '- Bouba/Kiki effect: sound profile must match the brand personality as specified above',
+    '- Cognitive Ease: familiar sound patterns feel safe and trustworthy',
+    '- Concreteness: tangible, imageable names have better recall',
+    '- Distinctiveness: break category naming conventions deliberately',
+    '- Alliteration / Rhyme: improves memorability and processing speed',
+    '- Keats Heuristic: rhythmic names feel more true and trustworthy',
+    '- Emotional resonance: name should evoke the right feeling without explanation',
+    '',
+    'For each name also provide:',
+    '- phonetics: syllable breakdown and stress pattern (e.g. BO-ra, stress on first)',
+    '- sound_profile: soft / balanced / bold',
+    '- convention: descriptive / coined / metaphorical / portmanteau / abstract',
+    '',
+    'Return JSON only:',
+    '{"names":[{"name":"...","description":"max 50 chars — what it is","tagline":"3-4 word tagline","phonetics":"e.g. LU-ma (soft, 2 syllables)","sound_profile":"soft","convention":"coined","technique":{"name":"Naming Principle","explanation":"What this principle is","application":"How it shaped this specific name — be specific"}}]}'
+  ];
+  return lines.filter(function(l){ return l !== ''; }).join('\n');
+}
+
+// ── SUB-BRAND NAME GENERATION ─────────────────────────────────────
+async function generateSubBrandNames() {
+  var parent = document.getElementById('ns-parent').value.trim();
+  var what   = document.getElementById('ns-what').value.trim();
+  if (!parent || !what) { showErr('name-err', 'Parent brand name and sub-brand purpose are required.'); return; }
+
+  var dist     = getPill('ns-dist-pills');
+  var audRel   = getPill('ns-aud-pills');
+  var existing = document.getElementById('ns-existing').value.trim();
+  var guard    = document.getElementById('ns-guard') ? document.getElementById('ns-guard').value.trim() : '';
+  var url      = document.getElementById('ns-url') ? document.getElementById('ns-url').value.trim() : '';
+
+  setLoading('ns-btn', true, 'Generate Sub-brand Names');
+  showErr('name-err', '');
+  document.getElementById('name-out').innerHTML = '';
+
+  var webCtx = url ? await fetchWebsiteContext(url, null, 'ns-url-status') : null;
+  lastNamePrompt = { mode:'subbrand', parent:parent, what:what, dist:dist, audRel:audRel, existing:existing, guard:guard, webCtx:webCtx };
+
+  var prompt = buildSubBrandNamePrompt(parent, what, dist, audRel, existing, guard, webCtx, '');
+  try {
+    var d = await callAI(prompt);
+    document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'subbrand');
+    flashNew('name-out');
+  } catch(e) {
+    showErr('name-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
+  }
+  setLoading('ns-btn', false, 'Generate Sub-brand Names');
+}
+
+function buildSubBrandNamePrompt(parent, what, dist, audRel, existing, guard, webCtx, feedback) {
+  var archMap = {
+    'Close \u2014 endorsed by parent':   'ENDORSED — name should clearly reference or sit under the parent brand. e.g. Tata Nexon, Google Pixel.',
+    'Balanced \u2014 hybrid':            'HYBRID — name stands independently but parent brand is clearly associated. e.g. Nykaa Naturals, Airbnb Rooms.',
+    'Distinct \u2014 stands alone':      'FREESTANDING — name is fully independent. Parent brand can be silent. e.g. Dove (Unilever), Gillette (P&G).'
+  };
+  var architecture = archMap[dist] || archMap['Balanced \u2014 hybrid'];
+  var audNote = audRel === 'New audience' ? 'IMPORTANT: This sub-brand targets a NEW audience — the name must work independently without relying on parent brand recognition.' :
+                audRel === 'Adjacent'    ? 'This sub-brand targets an ADJACENT audience — name should feel familiar to parent brand customers but speak to new needs.' :
+                'This sub-brand targets the SAME audience as the parent — name should deepen the relationship, not confuse.';
+
+  var lines = [
+    'Generate exactly 6 sub-brand names for the following brief.',
+    'Each name must apply a DIFFERENT naming principle. Brand architecture is critical here.',
+    '',
+    'PARENT BRAND: ' + parent,
+    'SUB-BRAND PURPOSE: ' + what,
+    'BRAND ARCHITECTURE: ' + architecture,
+    audNote,
+    existing ? 'EXISTING SUB-BRANDS IN PORTFOLIO (maintain naming family coherence): ' + existing : '',
+    guard    ? 'GUARDRAILS: ' + guard : '',
+    webCtx   ? 'PARENT BRAND CONTEXT:\\n' + webCtx.slice(0, 800) : '',
+    feedback ? 'USER FEEDBACK: ' + feedback : '',
+    '',
+    'For each name, specify:',
+    '- architecture: endorsed / hybrid / freestanding',
+    '- equity_inherited: what equity this name borrows from the parent',
+    '- equity_sacrificed: what equity it loses (if any)',
+    '',
+    'Return JSON only:',
+    '{"names":[{"name":"...","description":"max 50 chars","tagline":"3-4 word tagline","architecture":"endorsed/hybrid/freestanding","equity_inherited":"...","equity_sacrificed":"...","technique":{"name":"Naming Principle","explanation":"1 sentence","application":"How it shaped this name"}}]}'
+  ];
+  return lines.filter(function(l){ return l !== ''; }).join('\n');
+}
+
+// ── PRODUCT NAME GENERATION ───────────────────────────────────────
+async function generateProductNames() {
+  var parent = document.getElementById('np-parent').value.trim();
+  var what   = document.getElementById('np-what').value.trim();
+  var cat    = document.getElementById('np-cat').value.trim();
+  if (!parent || !what) { showErr('name-err', 'Parent brand name and product description are required.'); return; }
+
+  var audience = document.getElementById('np-audience').value.trim();
+  var existing = ['np-r1','np-r2','np-r3'].map(function(id){ return document.getElementById(id).value.trim(); }).filter(Boolean);
+  var guard    = document.getElementById('np-guard') ? document.getElementById('np-guard').value.trim() : '';
+  var url      = document.getElementById('np-url')   ? document.getElementById('np-url').value.trim()   : '';
+
+  setLoading('np-btn', true, 'Generate Product Names');
+  showErr('name-err', '');
+  document.getElementById('name-out').innerHTML = '';
+
+  var webCtx = url ? await fetchWebsiteContext(url, null, 'np-url-status') : null;
+  lastNamePrompt = { mode:'product', parent:parent, what:what, cat:cat, audience:audience, existing:existing, guard:guard, webCtx:webCtx };
+
+  var prompt = buildProductNamePrompt(parent, what, cat, audience, existing, guard, webCtx, '');
+  try {
+    var d = await callAI(prompt);
+    document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'product');
+    flashNew('name-out');
+  } catch(e) {
+    showErr('name-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
+  }
+  setLoading('np-btn', false, 'Generate Product Names');
+}
+
+function buildProductNamePrompt(parent, what, cat, audience, existing, guard, webCtx, feedback) {
+  var conventionNote = existing.length
+    ? 'CRITICAL: First analyse the naming convention used in these existing products: ' + existing.join(', ') + '. Then generate names that follow the SAME convention so the new product fits the portfolio naturally. Identify the convention (descriptive / benefit-led / ingredient-led / coined / metaphorical) before naming.'
+    : 'No existing portfolio names provided. Generate names using the most appropriate convention for this category.';
+
+  var lines = [
+    'Generate exactly 6 product names for the following brief.',
+    'Product naming is about category fit, benefit communication, and portfolio coherence.',
+    'Each name must use a DIFFERENT naming convention or apply a different behavioral principle.',
+    '',
+    'PARENT BRAND: ' + parent,
+    'PRODUCT: ' + what,
+    cat      ? 'CATEGORY: ' + cat : '',
+    audience ? 'AUDIENCE: ' + audience : '',
+    conventionNote,
+    guard    ? 'GUARDRAILS: ' + guard : '',
+    webCtx   ? 'BRAND WEBSITE CONTEXT:\\n' + webCtx.slice(0, 800) : '',
+    feedback ? 'USER FEEDBACK: ' + feedback : '',
+    '',
+    'PRODUCT NAMING SCIENCE TO APPLY:',
+    '- Concreteness: tangible names aid recall and signal category membership',
+    '- Expectancy Theory: name should prime the right expectations for the product',
+    '- Cognitive Ease: easy to say = easy to trust = easy to buy',
+    '- Distinctiveness: stands out on shelf/screen from direct competitors',
+    '- Precision: specific names feel more credible than vague ones',
+    '- Labelling: name that makes user identify with the product',
+    '',
+    'For each name provide:',
+    '- convention: descriptive / benefit-led / ingredient-led / coined / metaphorical / portmanteau',
+    '- portfolio_fit: how this name follows or extends the existing naming convention',
+    '- shelf_cue: what category/benefit signal this name gives at first glance',
+    '',
+    'Return JSON only:',
+    '{"names":[{"name":"...","description":"max 50 chars","tagline":"3-4 word tagline","convention":"...","portfolio_fit":"...","shelf_cue":"...","technique":{"name":"Naming Principle","explanation":"1 sentence","application":"How it shaped this name"}}]}'
+  ];
+  return lines.filter(function(l){ return l !== ''; }).join('\n');
+}
+
+// ── SHARED NAME HTML BUILDER ──────────────────────────────────────
+function buildNameHtml(names, mode) {
+  var modeLabel = mode === 'brand' ? 'Brand Name' : mode === 'subbrand' ? 'Sub-brand Name' : 'Product Name';
+  var html = '<div class="results-label">6 Behaviorally-Engineered ' + modeLabel + 's</div>';
+
+  names.forEach(function(n, i) {
+    // Meta chips — different per mode
+    var chips = '';
+    if (mode === 'brand') {
+      if (n.phonetics)     chips += '<span class="name-meta-chip">&#9670; ' + esc(n.phonetics) + '</span>';
+      if (n.sound_profile) chips += '<span class="name-meta-chip">&#9675; ' + esc(n.sound_profile) + '</span>';
+      if (n.convention)    chips += '<span class="name-meta-chip">&#9645; ' + esc(n.convention) + '</span>';
+    } else if (mode === 'subbrand') {
+      if (n.architecture)        chips += '<span class="name-meta-chip">&#9670; ' + esc(n.architecture) + '</span>';
+      if (n.equity_inherited)    chips += '<span class="name-meta-chip" style="color:var(--green);">&#8679; ' + esc(n.equity_inherited) + '</span>';
+      if (n.equity_sacrificed)   chips += '<span class="name-meta-chip" style="color:var(--amber);">&#8681; ' + esc(n.equity_sacrificed) + '</span>';
+    } else if (mode === 'product') {
+      if (n.convention)    chips += '<span class="name-meta-chip">&#9645; ' + esc(n.convention) + '</span>';
+      if (n.shelf_cue)     chips += '<span class="name-meta-chip">&#9671; ' + esc(n.shelf_cue) + '</span>';
+      if (n.portfolio_fit) chips += '<span class="name-meta-chip" style="color:var(--green);">&#10003; ' + esc(n.portfolio_fit) + '</span>';
+    }
+
+    html += '<div class="name-card-v2">'
+      + '<div class="name-card-mode">' + String(i+1).padStart(2,'0') + ' &mdash; ' + modeLabel + '</div>'
+      + '<div class="name-v2-text">' + esc(n.name) + '</div>'
+      + '<div class="name-v2-desc">' + esc(n.description||'') + '</div>'
+      + '<div class="name-v2-tagline">' + esc(n.tagline||'') + '</div>'
+      + (chips ? '<div class="name-v2-meta">' + chips + '</div>' : '')
+      + (n.technique ? '<div class="name-v2-rationale">' + makeBiasTag(n.technique) + '</div>' : '')
+      + '</div>';
+  });
+
+  html += '<div class="show-more-bar">'
+    + '<button class="show-more-btn" onclick="openNameMoreOptions()">&#43; Show me more options</button>'
+    + '</div>';
+  return html;
+}
+
 function openNameMoreOptions() {
   if (!lastNamePrompt) return;
+  var p = lastNamePrompt;
   openModal(
     'Show me more options',
-    'What direction should the new names explore? All 8 names will be refreshed.',
+    'What direction should the new names explore? All 6 names will be refreshed.',
     'e.g. More playful, shorter, avoid foreign words, more premium sounding...',
     async function(feedback) {
-      var p = lastNamePrompt;
-      setModalLoading('Generating 8 new names\u2026', 'Applying naming science\u2026');
+      setModalLoading('Generating new names\u2026', 'Applying naming science\u2026');
       try {
-        var data = await callAI(buildNamePrompt(p.what, p.audience, p.cat, p.inc, p.avoid, p.existing, p.guard, feedback));
-        document.getElementById('name-out').innerHTML = buildNameHtml(data.names || []);
+        var d;
+        if (p.mode === 'brand') {
+          d = await callAI(buildBrandNamePrompt(p.what, p.cat, p.market, p.syl, p.avoid, p.sound, p.guard, p.webCtx, feedback));
+        } else if (p.mode === 'subbrand') {
+          d = await callAI(buildSubBrandNamePrompt(p.parent, p.what, p.dist, p.audRel, p.existing, p.guard, p.webCtx, feedback));
+        } else {
+          d = await callAI(buildProductNamePrompt(p.parent, p.what, p.cat, p.audience, p.existing, p.guard, p.webCtx, feedback));
+        }
+        document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], p.mode || 'brand');
         flashNew('name-out');
         closeModal();
         document.getElementById('name-out').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1640,8 +2073,14 @@ function buildAuditPrompt(copy, brand, extra, websiteCtx) {
 // origScore: optional score of the original (un-improved) copy, for delta display
 function buildAuditHtml(d, origScore, improvedScore) {
   var working = d.working || [], missing = d.missing || [];
-  var sc = calcBiasScore(working, missing, null); // audit: no copy type filter — score universally
-  var scoreCol = sc >= 7.5 ? 'var(--green)' : sc >= 5 ? 'var(--amber)' : 'var(--red)';
+  // origScore = score of this copy AS-IS (deterministic from working/missing)
+  // improvedScore = score if all missing biases were addressed (deterministic)
+  // We always display improvedScore as the "headline" — it's the most stable number
+  // because it assumes maximum bias application. origScore is the baseline.
+  var sc = calcBiasScore(working, missing, null);
+  // Use improvedScore as headline if available, else sc
+  var displayScore = (improvedScore !== undefined && improvedScore !== null) ? improvedScore : sc;
+  var scoreCol = displayScore >= 7.5 ? 'var(--green)' : displayScore >= 5 ? 'var(--amber)' : 'var(--red)';
 
   var workItems = working.map(function(w){
     return '<div class="audit-item">'
@@ -1653,34 +2092,35 @@ function buildAuditHtml(d, origScore, improvedScore) {
   var missItems = missing.map(function(m){
     return '<div class="audit-item">'
       + '<div class="a-dot" style="background:var(--amber);"></div>'
-      + '<div><span class="a-bias-name" style="color:var(--amber);">' + esc(m.bias) + ': </span>'
-      + '<span class="a-bias-desc">' + esc(m.opportunity) + '</span></div></div>';
-  }).join('');
+  // Score: always use deterministic values
+  // displayScore = improvedScore (if rewrite available) else sc
+  // origScore = score of copy as-is, shown as 'current' baseline
+  var sc = calcBiasScore(working, missing, null);
+  var displayScore = (improvedScore !== undefined && improvedScore !== null) ? improvedScore : sc;
+  var scoreCol = displayScore >= 7.5 ? 'var(--green)' : displayScore >= 5 ? 'var(--amber)' : 'var(--red)';
 
-  // Score delta — show original → improved if origScore is provided
+  // Delta — only show if there is a real positive gap to highlight
   var deltaHtml = '';
-  if (origScore !== undefined && origScore !== null) {
-    var displaySc = (improvedScore !== undefined) ? improvedScore : sc;
-    var diff = Math.round((displaySc - origScore) * 10) / 10;
-    var diffCol = diff > 0 ? 'var(--green)' : (diff < 0 ? 'var(--red)' : 'var(--mid)');
-    var diffStr = (diff > 0 ? '+' : '') + diff.toFixed(1);
-    var arrow = diff > 0 ? '&#8593;' : (diff < 0 ? '&#8595;' : '&#8596;');
-    var bgCol = diff > 0 ? 'var(--greenbg)' : 'rgba(192,57,43,.07)';
+  if (origScore !== undefined && origScore !== null && displayScore > origScore) {
+    var diff = Math.round((displayScore - origScore) * 10) / 10;
+    var diffStr = '+' + diff.toFixed(1);
     deltaHtml = '<div class="score-delta">'
-      + '<span class="score-delta-label">Your copy</span>'
+      + '<span class="score-delta-label">Current</span>'
       + '<span class="score-delta-num dim">' + origScore + '</span>'
       + '<span class="score-delta-arrow">&#8594;</span>'
-      + '<span class="score-delta-num" style="color:' + diffCol + ';">' + displaySc + '</span>'
-      + '<span class="score-delta-badge" style="color:' + diffCol + ';background:' + bgCol + ';">' + arrow + ' ' + diffStr + '</span>'
+      + '<span class="score-delta-num" style="color:var(--green);">' + displayScore + '</span>'
+      + '<span class="score-delta-badge" style="color:var(--green);background:var(--greenbg);">&#8593; ' + diffStr + '</span>'
+      + '<span style="font-size:10px;color:var(--dim);">&nbsp;with rewrite</span>'
       + '</div>';
   }
 
   // Use data-body attribute — zero inline string quoting needed
   var html = '<div class="results-label">Audit Results</div>'
     + '<div class="score-card"><div>'
-    + '<div class="score-num" style="color:' + scoreCol + ';">' + sc + '</div>'
+    + '<div class="score-num" style="color:' + scoreCol + ';">' + displayScore + '</div>'
     + '<div class="score-den">/ 10</div></div><div class="score-sep"></div>'
-    + '<div class="score-body"><div class="score-label-text">Behavioral Score' + (origScore !== undefined && origScore !== null ? ' of Improved Copy' : '') + '</div>'
+    + '<div class="score-body"><div class="score-label-text">Behavioral Score</div>'
+    + '<div style="font-size:11px;color:var(--mid);margin-bottom:5px;">' + working.length + ' active bias' + (working.length !== 1 ? 'es' : '') + ' found in your copy</div>'
     + '<div class="score-summary">' + esc(d.summary||'') + '</div>'
     + deltaHtml
     + '</div></div>'
@@ -1696,7 +2136,7 @@ function buildAuditHtml(d, origScore, improvedScore) {
     + '<span class="audit-count" style="background:var(--amberbg);color:var(--amber);border:1px solid var(--amberbd);">' + missing.length + '</span>'
     + '<span class="audit-chevron">&#9660;</span></span></button>'
     + '<div class="audit-body hidden" id="missing-body" style="margin-bottom:20px;">' + missItems + '</div>'
-    + '<div class="rewrite-card"><div class="rw-header">&#8593; Improved Version</div>'
+    + '<div class="rewrite-card"><div class="rw-header" style="display:flex;justify-content:space-between;align-items:center;">'    + '<span>&#8593; Improved Version</span>'    + (improvedScore ? '<span style="font-size:10px;font-weight:700;color:var(--green);background:var(--greenbg);padding:2px 9px;border-radius:20px;border:1px solid var(--greenbd);">Target: ' + improvedScore + '/10</span>' : '')    + '</div>'
     + '<div class="rw-text">' + renderCopyText(d.rewrite||'') + '</div>'
     + '<div class="bias-tags" style="margin-bottom:16px;">'
     + (d.rwBias1 && d.rwBias1.name ? makeBiasTag(d.rwBias1) : '')
@@ -1958,9 +2398,7 @@ function renderCampaignStage(stageKey, data) {
       + '<div class="bias-tags">' + biasHtml + '</div>'
       + '</div>'
       + '<div class="copy-format-text' + (isHeadline ? ' headline-style' : '') + '">' + renderCopyText(text) + '</div>'
-      + '<div class="format-foot">'
-      + '<button class="copy-btn" data-copy="' + esc(text) + '" onclick="copyToClip(this)">Copy</button>'
-      + '</div></div>';
+      + '</div>';
   }
 
   if (data.facebook_headline) formats.push(
