@@ -1319,6 +1319,8 @@
 'use strict';
 'use strict';
 'use strict';
+'use strict';
+'use strict';
 
 var lastCopyPrompt  = null;
 var lastNamePrompt  = null;
@@ -1594,7 +1596,7 @@ function calcBiasScore(working, missing, copyType) {
 function getCopyTypeStack(type) {
   var matrix = BIAS_MATRIX[type];
   if (!matrix) return '';
-  return 'PRIORITY BIAS STACK for ' + type + ': Lead with these in order — '
+  return 'PRIORITY BIAS STACK for ' + type + ': Lead with these in order: '
     + matrix.priority.join(', ')
     + '. These are the highest-conversion biases for this specific format based on behavioral research.';
 }
@@ -1607,22 +1609,22 @@ function inferObjection(brand, ctx, product, audience) {
   var counterBiases = '';
 
   if (/premium|luxury|high.end|expensive|price|cost|afford/.test(brief)) {
-    objection = 'Price justification — audience may hesitate on cost';
+    objection = 'Price justification - audience may hesitate on cost';
     counterBiases = 'Veblen Goods (price = quality signal), Costly Signalling, Anchoring (set a high reference point), Expectancy Theory (presentation justifies price)';
   } else if (/new|launch|first|unknown|startup|unfamiliar|trust/.test(brief)) {
-    objection = 'Trust deficit — audience unfamiliar with the brand';
+    objection = 'Trust deficit - audience unfamiliar with the brand';
     counterBiases = 'Pratfall Effect (admit a small flaw to build credibility), Social Proof (specific numbers), Halo Effect (lead with one undeniable strength), Cognitive Ease (familiarity breeds trust)';
   } else if (/switch|change|habit|already|current|existing|competitor/.test(brief)) {
-    objection = 'Switching inertia — audience is habituated to a competitor';
+    objection = 'Switching inertia - audience is habituated to a competitor';
     counterBiases = 'Fresh Start Effect (target transition moments), Loss Aversion (frame staying put as losing), Endowment Effect (help them imagine owning this instead), Sunk Cost reframe';
   } else if (/health|safe|natural|organic|clean|eco|green/.test(brief)) {
-    objection = 'Efficacy doubt — does natural/clean mean it actually works?';
+    objection = 'Efficacy doubt - does natural/clean mean it actually works?';
     counterBiases = 'Precision (specific efficacy numbers), Expectancy Theory (presentation signals potency), Concreteness (tangible outcomes not abstract claims), Confirmation Bias (speak to believers first)';
   } else if (/app|digital|tech|software|platform|online/.test(brief)) {
-    objection = 'Complexity fear — will this be too complicated to use?';
+    objection = 'Complexity fear - will this be too complicated to use?';
     counterBiases = 'Make It Easy (emphasise frictionlessness), Cognitive Ease (simple language = trusted), Fluent Innovation (80% familiar, 20% new), Default Choice Bias (make adopting the obvious move)';
   } else {
-    objection = 'Generic hesitation — audience needs a reason to act now';
+    objection = 'Generic hesitation - audience needs a reason to act now';
     counterBiases = 'Scarcity, Loss Aversion, Social Proof, Precision';
   }
 
@@ -1757,20 +1759,20 @@ function updateSliderLabel(slider, labelId) {
   var v = parseInt(slider.value);
   var label = document.getElementById(labelId);
   if (!label) return;
-  if (v < 25)      label.textContent = 'Very Soft — gentle, rounded sounds';
-  else if (v < 45) label.textContent = 'Soft — warm and approachable';
-  else if (v < 55) label.textContent = 'Balanced';
-  else if (v < 75) label.textContent = 'Bold — confident and energetic';
-  else             label.textContent = 'Very Bold — sharp, hard-hitting sounds';
+  if (v < 25)      label.textContent = "Very Soft: gentle, rounded sounds";
+  else if (v < 45) label.textContent = "Soft: warm and approachable";
+  else if (v < 55) label.textContent = "Balanced";
+  else if (v < 75) label.textContent = "Bold: confident and energetic";
+  else             label.textContent = "Very Bold: sharp, hard-hitting sounds";
 }
 
 function getSoundProfile(val) {
   var v = parseInt(val || 50);
-  if (v < 25)      return 'Very soft and rounded — use sounds like L, M, O, A, V, N. Avoid K, X, T, R hard sounds.';
-  if (v < 45)      return 'Soft and warm — favour gentle vowels and nasal consonants (M, N, L). Minimal hard stops.';
-  if (v < 55)      return 'Balanced — mix of soft and hard sounds, neither extreme.';
-  if (v < 75)      return 'Bold and confident — use crisp consonants (T, C, R, D). Some hard stops acceptable.';
-  return 'Very bold and sharp — use hard stops and crisp consonants (K, X, T, CR, Z). Short, punchy structure.';
+  if (v < 25)      return "Very soft and rounded: use sounds like L, M, O, A, V, N. Avoid K, X, T, R hard sounds.";
+  if (v < 45)      return "Soft and warm: favour gentle vowels and nasal consonants (M, N, L). Minimal hard stops.";
+  if (v < 55)      return "Balanced: mix of soft and hard sounds, neither extreme.";
+  if (v < 75)      return "Bold and confident: use crisp consonants (T, C, R, D). Some hard stops acceptable.";
+  return "Very bold and sharp: use hard stops and crisp consonants (K, X, T, CR, Z). Short, punchy structure.";
 }
 
 // ── BRAND NAME GENERATION ────────────────────────────────────────
@@ -1809,7 +1811,7 @@ function buildBrandNamePrompt(what, cat, market, syl, avoid, sound, guard, webCt
   var lines = [
     'Generate exactly 6 brand names for the following brief.',
     'Each name must use a DIFFERENT naming principle from the behavioral science library.',
-    'Every name must work as a brand identity — memorable, distinctive, ownable.',
+    "Every name must work as a brand identity: memorable, distinctive, ownable.",
     '',
     'BRIEF: ' + what,
     cat    ? 'CATEGORY: ' + cat : '',
@@ -1873,106 +1875,62 @@ async function generateSubBrandNames() {
 }
 
 function buildSubBrandNamePrompt(parent, what, dist, audRel, existing, guard, webCtx, feedback) {
-  var archMap = {
-    'Close \u2014 endorsed by parent':   'ENDORSED — name should clearly reference or sit under the parent brand. e.g. Tata Nexon, Google Pixel.',
-    'Balanced \u2014 hybrid':            'HYBRID — name stands independently but parent brand is clearly associated. e.g. Nykaa Naturals, Airbnb Rooms.',
-    'Distinct \u2014 stands alone':      'FREESTANDING — name is fully independent. Parent brand can be silent. e.g. Dove (Unilever), Gillette (P&G).'
-  };
-  var architecture = archMap[dist] || archMap['Balanced \u2014 hybrid'];
-  var audNote = audRel === 'New audience' ? 'IMPORTANT: This sub-brand targets a NEW audience — the name must work independently without relying on parent brand recognition.' :
-                audRel === 'Adjacent'    ? 'This sub-brand targets an ADJACENT audience — name should feel familiar to parent brand customers but speak to new needs.' :
-                'This sub-brand targets the SAME audience as the parent — name should deepen the relationship, not confuse.';
-
-  var lines = [
-    'Generate exactly 6 sub-brand names for the following brief.',
-    'Each name must apply a DIFFERENT naming principle. Brand architecture is critical here.',
-    '',
-    'PARENT BRAND: ' + parent,
-    'SUB-BRAND PURPOSE: ' + what,
-    'BRAND ARCHITECTURE: ' + architecture,
+  var archNote = dist.indexOf('Close') >= 0
+    ? "ENDORSED architecture: name should clearly reference or sit under the parent brand. e.g. Tata Nexon, Google Pixel."
+    : dist.indexOf('Distinct') >= 0
+    ? "FREESTANDING architecture: name is fully independent. Parent brand can be silent. e.g. Dove (by Unilever), Gillette (by P and G)."
+    : "HYBRID architecture: name stands independently but parent brand is clearly associated. e.g. Nykaa Naturals, Airbnb Rooms.";
+  var audNote = audRel.indexOf('New') >= 0
+    ? "IMPORTANT: This sub-brand targets a NEW audience. The name must work independently without relying on parent brand recognition."
+    : audRel.indexOf('Adjacent') >= 0
+    ? "This sub-brand targets an ADJACENT audience. Name should feel familiar to parent brand customers but speak to new needs."
+    : "This sub-brand targets the SAME audience as the parent. Name should deepen the relationship, not confuse.";
+  var parts = [
+    "Generate exactly 6 sub-brand names for the following brief.",
+    "Each name must apply a DIFFERENT naming principle. Brand architecture is critical here.",
+    "PARENT BRAND: " + parent,
+    "SUB-BRAND PURPOSE: " + what,
+    "BRAND ARCHITECTURE: " + archNote,
     audNote,
-    existing ? 'EXISTING SUB-BRANDS IN PORTFOLIO (maintain naming family coherence): ' + existing : '',
-    guard    ? 'GUARDRAILS: ' + guard : '',
-    webCtx   ? 'PARENT BRAND CONTEXT:\\n' + webCtx.slice(0, 800) : '',
-    feedback ? 'USER FEEDBACK: ' + feedback : '',
-    '',
-    'For each name, specify:',
-    '- architecture: endorsed / hybrid / freestanding',
-    '- equity_inherited: what equity this name borrows from the parent',
-    '- equity_sacrificed: what equity it loses (if any)',
-    '',
-    'Return JSON only:',
-    '{"names":[{"name":"...","description":"max 50 chars","tagline":"3-4 word tagline","architecture":"endorsed/hybrid/freestanding","equity_inherited":"...","equity_sacrificed":"...","technique":{"name":"Naming Principle","explanation":"1 sentence","application":"How it shaped this name"}}]}'
+    existing ? "EXISTING SUB-BRANDS IN PORTFOLIO (maintain naming family coherence): " + existing : "",
+    guard ? "GUARDRAILS: " + guard : "",
+    webCtx ? "PARENT BRAND CONTEXT: " + webCtx.slice(0, 600) : "",
+    feedback ? "USER FEEDBACK: " + feedback : "",
+    "For each name, specify architecture (endorsed/hybrid/freestanding), equity_inherited, and equity_sacrificed.",
+    "Return JSON only:",
+    JSON.stringify({names:[{name:"...",description:"max 50 chars",tagline:"3-4 word tagline",architecture:"endorsed/hybrid/freestanding",equity_inherited:"...",equity_sacrificed:"...",technique:{name:"Naming Principle",explanation:"1 sentence",application:"How it shaped this name"}}]})
   ];
-  return lines.filter(function(l){ return l !== ''; }).join('\n');
-}
-
-// ── PRODUCT NAME GENERATION ───────────────────────────────────────
-async function generateProductNames() {
-  var parent = document.getElementById('np-parent').value.trim();
-  var what   = document.getElementById('np-what').value.trim();
-  var cat    = document.getElementById('np-cat').value.trim();
-  if (!parent || !what) { showErr('name-err', 'Parent brand name and product description are required.'); return; }
-
-  var audience = document.getElementById('np-audience').value.trim();
-  var existing = ['np-r1','np-r2','np-r3'].map(function(id){ return document.getElementById(id).value.trim(); }).filter(Boolean);
-  var guard    = document.getElementById('np-guard') ? document.getElementById('np-guard').value.trim() : '';
-  var url      = document.getElementById('np-url')   ? document.getElementById('np-url').value.trim()   : '';
-
-  setLoading('np-btn', true, 'Generate Product Names');
-  showErr('name-err', '');
-  document.getElementById('name-out').innerHTML = '';
-
-  var webCtx = url ? await fetchWebsiteContext(url, null, 'np-url-status') : null;
-  lastNamePrompt = { mode:'product', parent:parent, what:what, cat:cat, audience:audience, existing:existing, guard:guard, webCtx:webCtx };
-
-  var prompt = buildProductNamePrompt(parent, what, cat, audience, existing, guard, webCtx, '');
-  try {
-    var d = await callAI(prompt);
-    document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'product');
-    flashNew('name-out');
-  } catch(e) {
-    showErr('name-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
-  }
-  setLoading('np-btn', false, 'Generate Product Names');
+  return parts.filter(function(p){ return p !== ""; }).join("\n");
 }
 
 function buildProductNamePrompt(parent, what, cat, audience, existing, guard, webCtx, feedback) {
   var conventionNote = existing.length
-    ? 'CRITICAL: First analyse the naming convention used in these existing products: ' + existing.join(', ') + '. Then generate names that follow the SAME convention so the new product fits the portfolio naturally. Identify the convention (descriptive / benefit-led / ingredient-led / coined / metaphorical) before naming.'
-    : 'No existing portfolio names provided. Generate names using the most appropriate convention for this category.';
-
-  var lines = [
-    'Generate exactly 6 product names for the following brief.',
-    'Product naming is about category fit, benefit communication, and portfolio coherence.',
-    'Each name must use a DIFFERENT naming convention or apply a different behavioral principle.',
-    '',
-    'PARENT BRAND: ' + parent,
-    'PRODUCT: ' + what,
-    cat      ? 'CATEGORY: ' + cat : '',
-    audience ? 'AUDIENCE: ' + audience : '',
+    ? "CRITICAL: First analyse the naming convention used in these existing products: " + existing.join(", ") + ". Then generate names that follow the SAME convention so the new product fits the portfolio naturally. Identify the convention (descriptive/benefit-led/ingredient-led/coined/metaphorical) before naming."
+    : "No existing portfolio names provided. Generate names using the most appropriate convention for this category.";
+  var parts = [
+    "Generate exactly 6 product names for the following brief.",
+    "Product naming is about category fit, benefit communication, and portfolio coherence.",
+    "Each name must use a DIFFERENT naming convention or apply a different behavioral principle.",
+    "PARENT BRAND: " + parent,
+    "PRODUCT: " + what,
+    cat ? "CATEGORY: " + cat : "",
+    audience ? "AUDIENCE: " + audience : "",
     conventionNote,
-    guard    ? 'GUARDRAILS: ' + guard : '',
-    webCtx   ? 'BRAND WEBSITE CONTEXT:\\n' + webCtx.slice(0, 800) : '',
-    feedback ? 'USER FEEDBACK: ' + feedback : '',
-    '',
-    'PRODUCT NAMING SCIENCE TO APPLY:',
-    '- Concreteness: tangible names aid recall and signal category membership',
-    '- Expectancy Theory: name should prime the right expectations for the product',
-    '- Cognitive Ease: easy to say = easy to trust = easy to buy',
-    '- Distinctiveness: stands out on shelf/screen from direct competitors',
-    '- Precision: specific names feel more credible than vague ones',
-    '- Labelling: name that makes user identify with the product',
-    '',
-    'For each name provide:',
-    '- convention: descriptive / benefit-led / ingredient-led / coined / metaphorical / portmanteau',
-    '- portfolio_fit: how this name follows or extends the existing naming convention',
-    '- shelf_cue: what category/benefit signal this name gives at first glance',
-    '',
-    'Return JSON only:',
-    '{"names":[{"name":"...","description":"max 50 chars","tagline":"3-4 word tagline","convention":"...","portfolio_fit":"...","shelf_cue":"...","technique":{"name":"Naming Principle","explanation":"1 sentence","application":"How it shaped this name"}}]}'
+    guard ? "GUARDRAILS: " + guard : "",
+    webCtx ? "BRAND WEBSITE CONTEXT: " + webCtx.slice(0, 600) : "",
+    feedback ? "USER FEEDBACK: " + feedback : "",
+    "PRODUCT NAMING SCIENCE TO APPLY:",
+    "- Concreteness: tangible names aid recall and signal category membership",
+    "- Expectancy Theory: name should prime the right expectations for the product",
+    "- Cognitive Ease: easy to say = easy to trust = easy to buy",
+    "- Distinctiveness: stands out on shelf or screen from direct competitors",
+    "- Precision: specific names feel more credible than vague ones",
+    "- Labelling: name that makes the user identify with the product",
+    "For each name provide: convention (descriptive/benefit-led/ingredient-led/coined/metaphorical/portmanteau), portfolio_fit, and shelf_cue.",
+    "Return JSON only:",
+    JSON.stringify({names:[{name:"...",description:"max 50 chars",tagline:"3-4 word tagline",convention:"...",portfolio_fit:"...",shelf_cue:"...",technique:{name:"Naming Principle",explanation:"1 sentence",application:"How it shaped this name"}}]})
   ];
-  return lines.filter(function(l){ return l !== ''; }).join('\n');
+  return parts.filter(function(p){ return p !== ""; }).join("\n");
 }
 
 // ── SHARED NAME HTML BUILDER ──────────────────────────────────────
@@ -2045,31 +2003,30 @@ function openNameMoreOptions() {
 
 // ── BIAS AUDIT ───────────────────────────────────────────────
 function buildAuditPrompt(copy, brand, extra, websiteCtx) {
-  var lines = [
-    'Perform a comprehensive behavioral science audit of this copy.',
-    'Copy: "' + copy.replace(/\\/g,'\\\\').replace(/"/g,'\\"') + '"'
+  var safeCopy = copy.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  var parts = [
+    "Perform a comprehensive behavioral science audit of this copy.",
+    'Copy: "' + safeCopy + '"'
   ];
-  if (brand) lines.push('Brand/Product: ' + brand);
-  if (websiteCtx) lines.push('BRAND WEBSITE CONTEXT:\n' + websiteCtx.slice(0, 800));
-  // Upgrade 2: infer objection for audit rewrites too
-  if (brand || copy) {
-    lines.push(inferObjection(brand, copy.slice(0, 200), '', ''));
-  }
-  if (extra) lines.push(extra);
-  lines.push(
-    'Identify biases actively present (working) and missing but impactful (missing).',
-    'STRICT RULES FOR MISSING BIASES:',
-    '- Only list a bias as MISSING if it is (a) clearly absent AND (b) would materially improve conversion for this specific copy',
-    '- Do NOT list every bias that is not loudly present — most copy cannot and should not use all 62 principles',
-    '- Maximum 3 missing biases. Quality over quantity. Only the most commercially impactful gaps.',
-    '- If the copy is already well-engineered, it is acceptable to list 0-1 missing biases',
-    'DO NOT include a score.',
-    'In the rewrite: use **bold** for key phrases. Include [Visual: suggestion] tags for image ideas.',
-    'Return JSON only:',
-    '{"summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence"}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}'
+  if (brand) parts.push("Brand/Product: " + brand);
+  if (websiteCtx) parts.push("BRAND WEBSITE CONTEXT: " + websiteCtx.slice(0, 800));
+  if (brand || copy) parts.push(inferObjection(brand, copy.slice(0, 200), "", ""));
+  if (extra) parts.push(extra);
+  parts.push(
+    "Identify biases actively present (working) and missing but impactful (missing).",
+    "STRICT RULES FOR MISSING BIASES:",
+    "- Only list a bias as MISSING if it is (a) clearly absent AND (b) would materially improve conversion for this specific copy",
+    "- Do NOT list every bias that is not loudly present",
+    "- Maximum 3 missing biases. Quality over quantity. Only the most commercially impactful gaps.",
+    "- If the copy is already well-engineered, it is acceptable to list 0-1 missing biases",
+    "DO NOT include a score.",
+    "In the rewrite: use **bold** for key phrases. Include [Visual: suggestion] tags for image ideas.",
+    "Return JSON only:",
+    JSON.stringify({summary:"specific one-sentence assessment",working:[{bias:"[Code] Name",how:"1 sentence"}],missing:[{bias:"[Code] Name",opportunity:"1-2 sentences"}],rewrite:"full improved copy",rwBias1:{name:"...",explanation:"...",application:"..."},rwBias2:{name:"...",explanation:"...",application:"..."}})
   );
-  return lines.join('\n');
+  return parts.join("\n");
 }
+
 // origScore: optional score of the original (un-improved) copy, for delta display
 function buildAuditHtml(d, origScore, improvedScore) {
   var working = d.working || [], missing = d.missing || [];
@@ -2144,7 +2101,6 @@ function buildAuditHtml(d, origScore, improvedScore) {
     + '</div>'
     + '<div class="show-more-bar">'
     + '<button class="show-more-btn" onclick="openAuditMoreOptions()">&#43; Show me more options</button>'
-
     + '</div></div>';
   return html;
 }
@@ -2222,7 +2178,7 @@ var FUNNEL_STAGES = {
     label: 'Top of Funnel',
     badge: 'TOF',
     badgeClass: 'badge-tof',
-    desc: 'Awareness — cold audience, first contact',
+    desc: 'Awareness - cold audience, first contact',
     objective: 'Create awareness and stop the scroll. Audience does not know you yet.',
     biasStack: 'Distinctiveness (Von Restorff), Emotional Dynamism, Cognitive Ease, Social Proof, Availability Heuristic',
     formats: ['Facebook Ad', 'Google Ad Headline', 'Instagram Caption']
@@ -2231,7 +2187,7 @@ var FUNNEL_STAGES = {
     label: 'Middle of Funnel',
     badge: 'MOF',
     badgeClass: 'badge-mof',
-    desc: 'Consideration — warm audience, building intent',
+    desc: 'Consideration - warm audience, building intent',
     objective: 'Deepen interest and build preference. Audience has shown some intent.',
     biasStack: 'Expectancy Theory, Concreteness, Social Proof (specific), Halo Effect, Generation Effect, Labelling',
     formats: ['Email Subject + Body', 'WhatsApp Message', 'Instagram Caption']
@@ -2240,7 +2196,7 @@ var FUNNEL_STAGES = {
     label: 'Bottom of Funnel',
     badge: 'BOF',
     badgeClass: 'badge-bof',
-    desc: 'Conversion — hot audience, ready to decide',
+    desc: 'Conversion - hot audience, ready to decide',
     objective: 'Remove final objection and drive action. Audience is evaluating.',
     biasStack: 'Loss Aversion, Scarcity, Pratfall Effect, Precision, Fear of Regret, Endowment Effect, Social Proof',
     formats: ['Facebook Ad', 'Email Subject + Body', 'WhatsApp Message', 'SMS / Push Notification']
@@ -2275,7 +2231,7 @@ async function fetchWebsiteContext(url, labelElId, statusElId) {
     if (res.ok) {
       var d = await res.json();
       if (d.text) {
-        setStatus('ok', '\u2713 Website scraped — copies will be brand-specific');
+        setStatus('ok', '\u2713 Website scraped - copies will be brand-specific');
         return d.text;
       }
     }
