@@ -11,32 +11,19 @@
 // Adding future/preview Gemini IDs — they 404-skip gracefully if not live yet.
 
 const MODEL_CHAIN = [
-  // ── GEMINI — Tier 1: Frontier (smartest, strictest quota) ──────
-  { provider: 'gemini', model: 'gemini-3.1-pro-preview'       },  // future
-  { provider: 'gemini', model: 'gemini-2.5-pro'               },  // best stable
-  { provider: 'gemini', model: 'gemini-3-flash-preview'        },  // future
-  // ── GEMINI — Tier 2: Workhorses (fast, moderate quota) ─────────
-  { provider: 'gemini', model: 'gemini-2.5-flash'              },  // primary workhorse
-  { provider: 'gemini', model: 'gemini-2.5-flash-preview-05-20'},  // preview alt
-  { provider: 'gemini', model: 'gemini-2.0-flash'              },  // stable reliable
-  // ── GEMINI — Tier 3: Safety nets (highest free quota) ──────────
-  { provider: 'gemini', model: 'gemini-3.1-flash-lite-preview' },  // future lite
-  { provider: 'gemini', model: 'gemini-2.5-flash-lite'         },  // lite stable
-  { provider: 'gemini', model: 'gemini-2.0-flash-lite'         },  // lite workhorse
-  { provider: 'gemini', model: 'gemini-1.5-flash'              },  // high quota net
-  { provider: 'gemini', model: 'gemini-1.5-flash-latest'       },  // alias
-  // ── GROQ — Ultra-fast inference, generous free tier ────────────
-  { provider: 'groq',   model: 'llama-3.3-70b-versatile'       },  // best Groq model
-  { provider: 'groq',   model: 'llama-3.1-70b-versatile'       },  // stable alt
-  { provider: 'groq',   model: 'mixtral-8x7b-32768'            },  // fast, long ctx
-  { provider: 'groq',   model: 'llama3-70b-8192'               },  // very reliable
-  { provider: 'groq',   model: 'gemma2-9b-it'                  },  // Google via Groq
-  // ── OPENROUTER — Final net, 50+ free models ────────────────────
-  { provider: 'openrouter', model: 'meta-llama/llama-3.3-70b-instruct:free'    },
-  { provider: 'openrouter', model: 'meta-llama/llama-3.1-70b-instruct:free'    },
-  { provider: 'openrouter', model: 'mistralai/mistral-7b-instruct:free'         },
-  { provider: 'openrouter', model: 'google/gemma-3-27b-it:free'                 },
-  { provider: 'openrouter', model: 'microsoft/phi-3-medium-128k-instruct:free'  },
+  // Gemini: confirmed working on v1beta (no preview/future models — they cause 404 hangs)
+  { provider: 'gemini', model: 'gemini-2.5-flash'      },
+  { provider: 'gemini', model: 'gemini-2.0-flash'      },
+  { provider: 'gemini', model: 'gemini-2.0-flash-lite' },
+  { provider: 'gemini', model: 'gemini-1.5-flash'      },
+  // Groq: ultra-fast inference, generous free tier
+  { provider: 'groq', model: 'llama-3.3-70b-versatile' },
+  { provider: 'groq', model: 'llama3-70b-8192'         },
+  { provider: 'groq', model: 'mixtral-8x7b-32768'      },
+  { provider: 'groq', model: 'gemma2-9b-it'            },
+  // OpenRouter: final safety net
+  { provider: 'openrouter', model: 'meta-llama/llama-3.3-70b-instruct:free' },
+  { provider: 'openrouter', model: 'mistralai/mistral-7b-instruct:free'      },
 ];
 
 const BIAS_ENGINE = `You are the behavioral science engine behind Right Copywriter — a tool that writes copy engineered on 62+ psychological principles from Richard Shotton, Daniel Kahneman, Rory Sutherland, and System 1 Group research.
@@ -251,7 +238,12 @@ async function callGemini(model, prompt, apiKey) {
         generationConfig: { temperature: 0.82, maxOutputTokens: 8192, responseMimeType: 'application/json' }
       };
 
-  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const gCtrl = new AbortController();
+  const gTimer = setTimeout(() => gCtrl.abort(), 8000);
+  let res;
+  try {
+    res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: gCtrl.signal });
+  } finally { clearTimeout(gTimer); }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(`${res.status} — ${err?.error?.message || 'unknown'}`);
@@ -266,7 +258,11 @@ async function callGemini(model, prompt, apiKey) {
 
 // Groq — OpenAI-compatible, system message + user message
 async function callGroq(model, prompt, apiKey) {
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const groqCtrl = new AbortController();
+  const groqTimer = setTimeout(() => groqCtrl.abort(), 8000);
+  let res;
+  try {
+    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
     body: JSON.stringify({
@@ -279,7 +275,8 @@ async function callGroq(model, prompt, apiKey) {
       max_tokens: 8192,
       response_format: { type: 'json_object' }
     })
-  });
+    });
+  } finally { clearTimeout(groqTimer); }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(`${res.status} — ${err?.error?.message || 'unknown'}`);
@@ -292,7 +289,11 @@ async function callGroq(model, prompt, apiKey) {
 
 // OpenRouter — OpenAI-compatible, system + user messages
 async function callOpenRouter(model, prompt, apiKey) {
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const orCtrl = new AbortController();
+  const orTimer = setTimeout(() => orCtrl.abort(), 8000);
+  let res;
+  try {
+    res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -309,7 +310,8 @@ async function callOpenRouter(model, prompt, apiKey) {
       temperature: 0.82,
       max_tokens: 8192,
     })
-  });
+    });
+  } finally { clearTimeout(orTimer); }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(`${res.status} — ${err?.error?.message || err?.error || 'unknown'}`);

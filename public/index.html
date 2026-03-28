@@ -1203,12 +1203,10 @@
         </div>
       </div>
       <div class="field">
-        <div class="label">Existing product names in portfolio <span class="opt">— so names follow the same convention</span></div>
-        <div class="g3">
-          <div><div class="label" style="font-size:10px">Name 1</div><input id="np-r1" placeholder="e.g. Onion Oil"></div>
-          <div><div class="label" style="font-size:10px">Name 2</div><input id="np-r2" placeholder="e.g. Ubtan Face Wash"></div>
-          <div><div class="label" style="font-size:10px">Name 3</div><input id="np-r3" placeholder="e.g. Tea Tree Toner"></div>
-        </div>
+        <div class="label">Brand Website</div>
+        <div style="font-size:11px;color:var(--mid);margin-bottom:8px;">We will scan your site to learn your existing product names and naming style automatically.</div>
+        <input id="np-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
+        <div class="cm-website-status" id="np-url-status"></div>
       </div>
       <button class="more-btn" id="np-more-btn" onclick="toggleMore('np-more','np-more-btn')">
         <span class="more-btn-left"><span class="more-icon">+</span> Add more context</span>
@@ -1216,11 +1214,6 @@
       </button>
       <div class="more-panel hidden" id="np-more">
         <div class="field">
-          <div class="label">Brand Website <span class="opt">optional</span></div>
-          <input id="np-url" placeholder="https://www.yourbrand.com" type="url" autocomplete="off">
-          <div class="cm-website-status" id="np-url-status"></div>
-        </div>
-        <div class="field" style="margin-bottom:0">
           <div class="label">Guardrails</div>
           <textarea id="np-guard" rows="2" placeholder="e.g. Max 3 words, must be descriptive, avoid ingredient names..."></textarea>
         </div>
@@ -1953,9 +1946,11 @@ async function generateSubBrandNames() {
 
 // ── PRODUCT NAMES ──────────────────────────────────────────────
 function buildProductNamePrompt(parent, what, cat, audience, existing, guard, webCtx, feedback) {
-  var conventionNote = existing && existing.length
-    ? 'CRITICAL: First analyse the naming convention used in these existing products: ' + existing.join(', ') + '. Then generate names that follow the SAME convention so the new product fits the portfolio naturally. Identify the convention (descriptive/benefit-led/ingredient-led/coined/metaphorical) before naming.'
-    : 'No existing portfolio names provided. Generate names using the most appropriate convention for this category.';
+  var conventionNote = webCtx
+    ? 'CRITICAL: The brand website content is provided below. Scan it to identify existing product names and the naming convention they follow (descriptive/benefit-led/ingredient-led/coined/metaphorical). Then generate names that follow the EXACT SAME convention so the new product fits the portfolio naturally. State the identified convention before naming.'
+    : existing && existing.length
+    ? 'CRITICAL: First analyse the naming convention used in these existing products: ' + existing.join(', ') + '. Then generate names that follow the SAME convention.'
+    : 'No existing portfolio names or website provided. Generate names using the most appropriate convention for this category.';
   var parts = [
     'Generate exactly 6 product names for the following brief.',
     'Product naming is about category fit, benefit communication, and portfolio coherence.',
@@ -1989,7 +1984,6 @@ async function generateProductNames() {
 
   var cat      = document.getElementById('np-cat').value.trim();
   var audience = document.getElementById('np-audience').value.trim();
-  var existing = ['np-r1','np-r2','np-r3'].map(function(id) { return document.getElementById(id).value.trim(); }).filter(Boolean);
   var guardEl  = document.getElementById('np-guard');
   var guard    = guardEl ? guardEl.value.trim() : '';
   var urlEl    = document.getElementById('np-url');
@@ -1999,11 +1993,12 @@ async function generateProductNames() {
   showErr('name-err', '');
   document.getElementById('name-out').innerHTML = '';
 
+  // Fetch brand website — extract existing product names automatically
   var webCtx = url ? await fetchWebsiteContext(url, null, 'np-url-status') : null;
-  lastNamePrompt = { mode: 'product', parent: parent, what: what, cat: cat, audience: audience, existing: existing, guard: guard, webCtx: webCtx };
+  lastNamePrompt = { mode: 'product', parent: parent, what: what, cat: cat, audience: audience, existing: [], guard: guard, webCtx: webCtx };
 
   try {
-    var d = await callAI(buildProductNamePrompt(parent, what, cat, audience, existing, guard, webCtx, ''));
+    var d = await callAI(buildProductNamePrompt(parent, what, cat, audience, [], guard, webCtx, ''));
     document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'product');
     flashNew('name-out');
   } catch(e) {

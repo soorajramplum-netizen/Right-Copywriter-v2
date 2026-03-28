@@ -5,20 +5,25 @@
   "functions": {
     "api/generate.js": {
       "memory": 256,
-      "maxDuration": 30
+      "maxDuration": 60
+    },
+    "api/fetch-url.js": {
+      "memory": 128,
+      "maxDuration": 15
     }
   },
   "rewrites": [
-    { "source": "/api/generate", "destination": "/api/generate" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api/generate",  "destination": "/api/generate"  },
+    { "source": "/api/fetch-url", "destination": "/api/fetch-url" },
+    { "source": "/(.*)",          "destination": "/index.html"    }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Origin",  "value": "*"             },
         { "key": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type"  }
       ]
     }
   ]
