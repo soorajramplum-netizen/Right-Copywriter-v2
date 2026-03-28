@@ -1306,28 +1306,14 @@
 
 <script>
 'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
-'use strict';
 
+// ── STATE ──────────────────────────────────────────────────────
 var lastCopyPrompt  = null;
 var lastNamePrompt  = null;
 var lastAuditPrompt = null;
 var modalCallback   = null;
 
-// ── NAVIGATION ──────────────────────────────────────────────
+// ── NAVIGATION ─────────────────────────────────────────────────
 function switchTab(name, el) {
   document.querySelectorAll('[id^="tab-"]').forEach(function(t){ t.classList.add('hidden'); });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
@@ -1346,23 +1332,39 @@ function getPill(groupId) {
 function toggleMore(panelId, btnId) {
   var panel = document.getElementById(panelId);
   var btn   = document.getElementById(btnId);
-  var isHidden = panel.classList.contains('hidden');
-  panel.classList.toggle('hidden', !isHidden);
-  btn.classList.toggle('open', isHidden);
+  var hidden = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden', !hidden);
+  btn.classList.toggle('open', hidden);
   var icon = btn.querySelector('.more-icon');
-  if (icon) icon.textContent = isHidden ? '\u2212' : '+';
+  if (icon) icon.textContent = hidden ? '\u2212' : '+';
 }
-// Called by data-body / data-btn attributes — no inline string quoting needed
 function toggleAuditSectionEl(btn) {
   var bodyId = btn.getAttribute('data-body');
   var body = document.getElementById(bodyId);
   if (!body) return;
-  var isHidden = body.classList.contains('hidden');
-  body.classList.toggle('hidden', !isHidden);
-  btn.classList.toggle('open', isHidden);
+  var hidden = body.classList.contains('hidden');
+  body.classList.toggle('hidden', !hidden);
+  btn.classList.toggle('open', hidden);
+}
+function switchCopyMode(mode, btn) {
+  document.querySelectorAll('.cm-sub-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.cm-sub-panel').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('cm-' + mode).classList.add('active');
+}
+function toggleFunnelStage(el) {
+  el.closest('.funnel-stage').classList.toggle('open');
+}
+function switchNameMode(mode, btn) {
+  document.querySelectorAll('.ng-mode-pill').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.ng-panel').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('ng-' + mode).classList.add('active');
+  showErr('name-err', '');
+  document.getElementById('name-out').innerHTML = '';
 }
 
-// ── MODAL ───────────────────────────────────────────────────
+// ── MODAL ──────────────────────────────────────────────────────
 function openModal(title, sub, placeholder, onSubmit) {
   modalCallback = onSubmit;
   document.getElementById('modal-title').textContent = title;
@@ -1394,9 +1396,10 @@ async function submitModal() {
   if (modalCallback) await modalCallback(feedback);
 }
 
-// ── GENERAL HELPERS ─────────────────────────────────────────
+// ── HELPERS ────────────────────────────────────────────────────
 function setLoading(btnId, on, label) {
   var btn = document.getElementById(btnId);
+  if (!btn) return;
   btn.disabled = on;
   btn.innerHTML = on
     ? '<span class="spinner"></span>Working\u2026'
@@ -1404,89 +1407,67 @@ function setLoading(btnId, on, label) {
 }
 function showErr(id, msg) {
   var el = document.getElementById(id);
+  if (!el) return;
   el.textContent = msg || '';
   el.classList.toggle('hidden', !msg);
 }
 function esc(s) {
   if (!s) return '';
   return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
-// Bold **text**, [Visual: ...] chips, newlines → <br>
 function renderCopyText(raw) {
   if (!raw) return '';
-  var s = String(raw)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  var s = esc(raw);
   s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  s = s.replace(/\[(Visual:[^\]]+|Image:[^\]]+|Add\s[^\]]+)\]/g, function(m, inner){
+  s = s.replace(/\[(Visual:[^\]]+|Image:[^\]]+|Add\s[^\]]+)\]/g, function(m, inner) {
     return '<span class="visual-hint">' + inner.trim() + '</span>';
   });
   return s.replace(/\n/g, '<br>');
 }
-
-// Fade+slide in, then pulse the label to show content is new
 function flashNew(elId) {
   var el = document.getElementById(elId);
   if (!el) return;
   el.style.transition = 'none';
   el.style.opacity = '0';
   el.style.transform = 'translateY(14px)';
-  // Brief delay so browser registers the initial state
-  setTimeout(function(){
+  setTimeout(function() {
     el.style.transition = 'opacity .45s ease, transform .45s ease';
     el.style.opacity = '1';
     el.style.transform = 'translateY(0)';
-    // After fade-in, flash the results-label green briefly
-    setTimeout(function(){
+    setTimeout(function() {
       var lbl = el.querySelector('.results-label');
       if (lbl) {
         lbl.style.transition = 'color .15s';
         lbl.style.color = 'var(--green)';
-        setTimeout(function(){ lbl.style.color = ''; }, 900);
+        setTimeout(function() { lbl.style.color = ''; }, 900);
       }
     }, 460);
   }, 30);
 }
 
-// ── COPY TYPE CONFIG ─────────────────────────────────────────
-var CT = {
-  'Headline':            { label: 'Core Message',              ph: 'The single most important thing this headline must communicate...', product: false },
-  'Tagline':             { label: 'What the brand stands for', ph: 'What feeling or truth should this tagline capture?', product: false },
-  'Product Description': { label: 'Key Benefits to Highlight', ph: 'Top 2-3 features or benefits to focus on...', product: true },
-  'General Description': { label: 'What to Communicate',      ph: 'What should readers understand and feel after reading?', product: true },
-  'Social Caption':      { label: 'Hook and Purpose',          ph: 'What is the one thing this post needs to do?', product: false },
-  'Email Subject':       { label: 'Email Context and Goal',    ph: 'What is this email about and what action should it drive?', product: false },
-  'Email Copy':          { label: 'Core Message and CTA',      ph: 'What is the main point and what do you want them to do?', product: true },
-};
-function updateCopyForm() {
-  var type = getPill('ct-pills');
-  var cfg  = CT[type] || CT['Headline'];
-  document.getElementById('c-ctx-label').textContent = cfg.label;
-  document.getElementById('c-ctx').placeholder = cfg.ph;
-  document.getElementById('c-product-wrap').classList.toggle('hidden', !cfg.product);
-}
-updateCopyForm();
-
-// ── BIAS TAGS ────────────────────────────────────────────────
+// ── BIAS TAGS ──────────────────────────────────────────────────
 var activePop = null;
-document.addEventListener('click', function(e){
+document.addEventListener('click', function(e) {
   if (!e.target.closest('.bias-wrap') && activePop) {
-    activePop.classList.remove('open'); activePop = null;
+    activePop.classList.remove('open');
+    activePop = null;
   }
 });
 function makeBiasTag(b) {
   if (!b || !b.name) return '';
-  var id = 'pop_' + Math.random().toString(36).slice(2,8);
-  // Use data-id attribute to avoid quoting issues in onclick
+  var id = 'pop_' + Math.random().toString(36).slice(2, 8);
   return '<div class="bias-wrap">'
     + '<div class="bias-tag" tabindex="0" role="button" data-popid="' + id + '" onclick="togglePopById(this)">'
     + esc(b.name) + ' <i class="info-i">i</i></div>'
     + '<div class="bias-popup" id="' + id + '" role="tooltip">'
     + '<div class="bp-name">' + esc(b.name) + '</div>'
-    + '<div class="bp-what">' + esc(b.explanation||'') + '</div>'
+    + '<div class="bp-what">' + esc(b.explanation || '') + '</div>'
     + '<div class="bp-how-label">Applied here</div>'
-    + '<div class="bp-how">' + esc(b.application||'') + '</div>'
+    + '<div class="bp-how">' + esc(b.application || '') + '</div>'
     + '</div></div>';
 }
 function togglePopById(btn) {
@@ -1499,7 +1480,7 @@ function togglePopById(btn) {
   activePop = opening ? el : null;
 }
 
-// ── API ──────────────────────────────────────────────────────
+// ── API ────────────────────────────────────────────────────────
 async function callAI(prompt) {
   var res = await fetch('/api/generate', {
     method: 'POST',
@@ -1507,23 +1488,66 @@ async function callAI(prompt) {
     body: JSON.stringify({ prompt: prompt })
   });
   if (!res.ok) {
-    var errData = await res.json().catch(function(){ return {}; });
-    throw new Error(errData.error || 'Server error (' + res.status + ')');
+    var err = await res.json().catch(function() { return {}; });
+    throw new Error(err.error || 'Server error (' + res.status + ')');
   }
   var d = await res.json();
   try { return JSON.parse(d.text); } catch(e) {
     var match = (d.text || '').match(/\{[\s\S]*\}/);
-    if (match) { try { return JSON.parse(match[0]); } catch(_){} }
+    if (match) { try { return JSON.parse(match[0]); } catch(_) {} }
     throw new Error('Could not parse response. Please try again.');
   }
 }
 
-// ── SCORING ──────────────────────────────────────────────────
-// Deterministic: 5 base + 0.7 per working bias (cap 6) - 0.5 per missing (cap 5). Range 2-9.5.
-// ── UPGRADE 1: Copy-type bias applicability matrix ──────────────
-// Defines which biases are APPLICABLE per copy type.
-// Scoring only penalises for missing biases that are actually relevant.
-// Sourced from Shotton, Kahneman, Sutherland — applied per format logic.
+// 3-tier website context fetch
+async function fetchWebsiteContext(url, labelElId, statusElId) {
+  if (!url || !url.startsWith('http')) return null;
+  var statusEl = statusElId ? document.getElementById(statusElId) : null;
+  function setStatus(type, msg) {
+    if (!statusEl) return;
+    statusEl.style.display = 'block';
+    statusEl.className = 'cm-website-status ' + type;
+    statusEl.textContent = msg;
+  }
+  // Tier 1: direct scrape
+  try {
+    var res = await fetch('/api/fetch-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: url })
+    });
+    if (res.ok) {
+      var d = await res.json();
+      if (d.text) {
+        setStatus('ok', '\u2713 Website context loaded');
+        return d.text;
+      }
+    }
+  } catch(e) {}
+  // Tier 2: AI knowledge fallback
+  try {
+    var domain = url.replace(/https?:\/\//, '').replace(/\/.*/, '');
+    var aiRes = await callAI(
+      'What do you know about the brand or company at ' + url + '? '
+      + 'Describe what they sell, their audience, brand positioning, and key messages. '
+      + 'Return JSON only: {"known":true,"description":"...","products":"...","positioning":"...","audience":"..."} '
+      + 'or {"known":false} if unknown.'
+    );
+    if (aiRes && aiRes.known && aiRes.description) {
+      var ctx = 'AI research on ' + domain + ': ' + aiRes.description + ' '
+        + (aiRes.products ? 'Products: ' + aiRes.products + '. ' : '')
+        + (aiRes.positioning ? 'Positioning: ' + aiRes.positioning + '. ' : '')
+        + (aiRes.audience ? 'Audience: ' + aiRes.audience : '');
+      setStatus('ok', '\u2713 Brand researched via AI');
+      return ctx;
+    }
+  } catch(e) {}
+  // Tier 3: skip
+  setStatus('skip', '\u25CB Could not fetch - generating from inputs only');
+  return null;
+}
+
+// ── SCORING ────────────────────────────────────────────────────
 var BIAS_MATRIX = {
   'Headline': {
     priority: ['Distinctiveness','Keats Heuristic','Concreteness','Loss Aversion','Generation Effect','Cognitive Ease','Labelling','Framing'],
@@ -1590,97 +1614,145 @@ function calcBiasScore(working, missing, copyType) {
   return Math.round(Math.max(2.0, Math.min(9.8, raw)) * 2) / 2;
 }
 
-// ── UPGRADE 2: Copy-type bias stacks + objection inference ───────
-// Each copy type gets a recommended lead-bias stack.
-// The objection is inferred from the brief — no new field needed.
+
+// Confidence-adjusted scoring
+// 5 base + 0.8 per working bias (cap 6) - 0.3 per applicable-missing (cap 3)
+function calcBiasScore(working, missing, copyType) {
+  var matrix = copyType ? BIAS_MATRIX[copyType] : null;
+  var maxApp  = matrix ? matrix.maxApplicable : 10;
+  var filteredMissing = missing || [];
+  if (matrix && matrix.applicable) {
+    filteredMissing = filteredMissing.filter(function(m) {
+      var name = (m.bias || m.name || '').toLowerCase();
+      return matrix.applicable.some(function(a) {
+        return name.indexOf(a.toLowerCase()) >= 0;
+      });
+    });
+  }
+  var w = Math.min((working || []).length, Math.min(maxApp, 6));
+  var m = Math.min(filteredMissing.length, 3);
+  var raw = 5 + (w * 0.8) - (m * 0.3);
+  return Math.round(Math.max(2.0, Math.min(9.8, raw)) * 2) / 2;
+}
+
+
+// ── UPGRADE 2: Objection inference ────────────────────────────
 function getCopyTypeStack(type) {
   var matrix = BIAS_MATRIX[type];
   if (!matrix) return '';
   return 'PRIORITY BIAS STACK for ' + type + ': Lead with these in order: '
     + matrix.priority.join(', ')
-    + '. These are the highest-conversion biases for this specific format based on behavioral research.';
+    + '. These are the highest-conversion biases for this specific format.';
 }
 
 function inferObjection(brand, ctx, product, audience) {
-  // Infer the most likely purchase objection from brief signals
-  // Maps to specific counter-biases from the engine
   var brief = (brand + ' ' + ctx + ' ' + product + ' ' + audience).toLowerCase();
   var objection = '';
   var counterBiases = '';
-
   if (/premium|luxury|high.end|expensive|price|cost|afford/.test(brief)) {
     objection = 'Price justification - audience may hesitate on cost';
-    counterBiases = 'Veblen Goods (price = quality signal), Costly Signalling, Anchoring (set a high reference point), Expectancy Theory (presentation justifies price)';
+    counterBiases = 'Veblen Goods, Costly Signalling, Anchoring, Expectancy Theory';
   } else if (/new|launch|first|unknown|startup|unfamiliar|trust/.test(brief)) {
     objection = 'Trust deficit - audience unfamiliar with the brand';
-    counterBiases = 'Pratfall Effect (admit a small flaw to build credibility), Social Proof (specific numbers), Halo Effect (lead with one undeniable strength), Cognitive Ease (familiarity breeds trust)';
+    counterBiases = 'Pratfall Effect, Social Proof, Halo Effect, Cognitive Ease';
   } else if (/switch|change|habit|already|current|existing|competitor/.test(brief)) {
-    objection = 'Switching inertia - audience is habituated to a competitor';
-    counterBiases = 'Fresh Start Effect (target transition moments), Loss Aversion (frame staying put as losing), Endowment Effect (help them imagine owning this instead), Sunk Cost reframe';
+    objection = 'Switching inertia - audience habituated to a competitor';
+    counterBiases = 'Fresh Start Effect, Loss Aversion, Endowment Effect, Sunk Cost reframe';
   } else if (/health|safe|natural|organic|clean|eco|green/.test(brief)) {
-    objection = 'Efficacy doubt - does natural/clean mean it actually works?';
-    counterBiases = 'Precision (specific efficacy numbers), Expectancy Theory (presentation signals potency), Concreteness (tangible outcomes not abstract claims), Confirmation Bias (speak to believers first)';
+    objection = 'Efficacy doubt - does natural mean it actually works?';
+    counterBiases = 'Precision, Expectancy Theory, Concreteness, Confirmation Bias';
   } else if (/app|digital|tech|software|platform|online/.test(brief)) {
     objection = 'Complexity fear - will this be too complicated to use?';
-    counterBiases = 'Make It Easy (emphasise frictionlessness), Cognitive Ease (simple language = trusted), Fluent Innovation (80% familiar, 20% new), Default Choice Bias (make adopting the obvious move)';
+    counterBiases = 'Make It Easy, Cognitive Ease, Fluent Innovation, Default Choice Bias';
   } else {
     objection = 'Generic hesitation - audience needs a reason to act now';
     counterBiases = 'Scarcity, Loss Aversion, Social Proof, Precision';
   }
-
-  return 'INFERRED PURCHASE OBJECTION: ' + objection
-    + '. Counter it using: ' + counterBiases + '.';
+  return 'INFERRED PURCHASE OBJECTION: ' + objection + '. Counter it using: ' + counterBiases + '.';
 }
 
-// ── COPYWRITER ───────────────────────────────────────────────────
+var CT = {
+  'Headline':            { label: 'Core Message',              ph: 'The single most important thing this headline must communicate...', product: false },
+  'Tagline':             { label: 'What the brand stands for', ph: 'What feeling or truth should this tagline capture?', product: false },
+  'Product Description': { label: 'Key Benefits to Highlight', ph: 'Top 2-3 features or benefits to focus on...', product: true },
+  'General Description': { label: 'What to Communicate',      ph: 'What should readers understand and feel after reading?', product: true },
+  'Social Caption':      { label: 'Hook and Purpose',          ph: 'What is the one thing this post needs to do?', product: false },
+  'Email Subject':       { label: 'Email Context and Goal',    ph: 'What is this email about and what action should it drive?', product: false },
+  'Email Copy':          { label: 'Core Message and CTA',      ph: 'What is the main point and what do you want them to do?', product: true },
+};
+function updateCopyForm() {
+  var type = getPill('ct-pills');
+  var cfg  = CT[type] || CT['Headline'];
+  document.getElementById('c-ctx-label').textContent = cfg.label;
+  document.getElementById('c-ctx').placeholder = cfg.ph;
+  document.getElementById('c-product-wrap').classList.toggle('hidden', !cfg.product);
+}
+updateCopyForm();
+
+// ── SOUND SLIDER (Name Generator) ─────────────────────────────
+function updateSliderLabel(slider, labelId) {
+  var v = parseInt(slider.value);
+  var label = document.getElementById(labelId);
+  if (!label) return;
+  if (v < 25)       label.textContent = 'Very Soft: gentle, rounded sounds';
+  else if (v < 45)  label.textContent = 'Soft: warm and approachable';
+  else if (v < 55)  label.textContent = 'Balanced';
+  else if (v < 75)  label.textContent = 'Bold: confident and energetic';
+  else              label.textContent = 'Very Bold: sharp, hard-hitting sounds';
+}
+function getSoundProfile(val) {
+  var v = parseInt(val || 50);
+  if (v < 25) return 'Very soft and rounded: use L, M, O, A, V, N sounds. Avoid K, X, T, R.';
+  if (v < 45) return 'Soft and warm: favour gentle vowels and nasal consonants (M, N, L). Minimal hard stops.';
+  if (v < 55) return 'Balanced: mix of soft and hard sounds, neither extreme.';
+  if (v < 75) return 'Bold and confident: use crisp consonants (T, C, R, D). Some hard stops acceptable.';
+  return 'Very bold and sharp: use hard stops and crisp consonants (K, X, T, Z). Short, punchy structure.';
+}
+
+
+// ── COPYWRITER ─────────────────────────────────────────────────
 function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo, feedback, websiteCtx) {
   var biasNote = turbo
-    ? 'CRITICAL: Each variant MUST apply at least 6 distinct named biases. List ALL in the biases array. Copy must be extraordinary — not safe or generic.'
+    ? 'CRITICAL: Each variant MUST apply at least 6 distinct named biases. List ALL in the biases array. Copy must be extraordinary.'
     : 'Each variant must apply at least 4 distinct named biases. List ALL in the biases array.';
   var label = (CT[type] && CT[type].label) ? CT[type].label : 'Core Message';
-
-  var lines = [
-    'Write 3 behaviorally distinct ' + type + ' variants. Each must be genuinely different in approach and angle.',
+  var parts = [
+    'Write 3 behaviorally distinct ' + type + ' variants. Each must be genuinely different.',
     'Brand: ' + brand,
     label + ': ' + ctx
   ];
-  if (product)     lines.push('Product detail: ' + product);
-  if (audience)    lines.push('Target Audience: ' + audience);
-  if (tone)        lines.push('Tone: ' + tone);
-  if (refs.length) lines.push('Brand Voice References:', refs.map(function(r,i){ return (i+1)+'. '+r; }).join(' | '));
-
-  // Upgrade 1: inject copy-type priority stack
-  lines.push('');
-  lines.push(getCopyTypeStack(type));
-  if (websiteCtx) lines.push('BRAND WEBSITE CONTEXT (use to make copy accurate):\n' + websiteCtx.slice(0, 800));
-
-  // Upgrade 2: inject inferred objection + counter-biases
-  lines.push(inferObjection(brand, ctx, product, audience));
-
-  lines.push('');
-  lines.push(biasNote);
-  if (feedback) lines.push('User feedback: ' + feedback + '. Rework all variants accordingly.');
-  lines.push('Return JSON only (no markdown):');
-  lines.push('{"variants":[{"copy":"text","biases":[{"name":"Bias Name","explanation":"one sentence","application":"exactly how applied in this copy"}],"primaryBias":{"name":"...","explanation":"...","application":"..."},"secondaryBias":{"name":"...","explanation":"...","application":"..."}}]}');
-  return lines.join('\n');
+  if (product)     parts.push('Product detail: ' + product);
+  if (audience)    parts.push('Target Audience: ' + audience);
+  if (tone)        parts.push('Tone: ' + tone);
+  if (refs && refs.length) parts.push('Brand Voice References: ' + refs.map(function(r, i) { return (i+1) + '. ' + r; }).join(' | '));
+  if (websiteCtx)  parts.push('BRAND WEBSITE CONTEXT: ' + websiteCtx.slice(0, 800));
+  parts.push('');
+  parts.push(getCopyTypeStack(type));
+  parts.push(inferObjection(brand, ctx, product, audience));
+  parts.push('');
+  parts.push(biasNote);
+  if (feedback) parts.push('User feedback: ' + feedback + '. Rework all variants accordingly.');
+  parts.push('Return JSON only (no markdown):');
+  parts.push('{"variants":[{"copy":"text","biases":[{"name":"Bias Name","explanation":"one sentence","application":"exactly how applied"}],"primaryBias":{"name":"...","explanation":"...","application":"..."},"secondaryBias":{"name":"...","explanation":"...","application":"..."}}]}');
+  return parts.join('\n');
 }
+
 function buildCopyHtml(variants, isLong) {
   var html = '<div class="results-label">3 Behaviorally-Engineered Variants</div>';
   variants.forEach(function(v, i) {
     var biases = (v.biases && v.biases.length)
       ? v.biases
-      : [v.primaryBias, v.secondaryBias].filter(function(b){ return b && b.name; });
+      : [v.primaryBias, v.secondaryBias].filter(function(b) { return b && b.name; });
     var sc = calcBiasScore(biases, [], lastCopyPrompt ? lastCopyPrompt.type : null);
     var scCol = sc >= 8.5 ? 'var(--green)' : sc >= 7 ? 'var(--amber)' : 'var(--red)';
     html += '<div class="copy-card">'
       + '<div class="card-num" style="display:flex;justify-content:space-between;align-items:center;">'
-      + '<span>VARIANT ' + (i+1) + '</span>'
+      + '<span>VARIANT ' + (i + 1) + '</span>'
       + '<span style="font-size:11px;font-weight:700;color:' + scCol + ';">&#9679; ' + sc + '/10</span>'
       + '</div>'
       + '<div class="' + (isLong ? 'copy-long' : 'copy-short') + '">' + renderCopyText(v.copy) + '</div>'
       + '<div class="card-foot">'
-      + '<div class="bias-tags">' + biases.slice(0,3).map(makeBiasTag).join('') + '</div>'
-
+      + '<div class="bias-tags">' + biases.slice(0, 3).map(makeBiasTag).join('') + '</div>'
       + '</div></div>';
   });
   html += '<div class="show-more-bar">'
@@ -1689,47 +1761,49 @@ function buildCopyHtml(variants, isLong) {
     + ' Show me more options</button></div>';
   return html;
 }
+
 async function generateCopy() {
   var brand = document.getElementById('c-brand').value.trim();
   var ctx   = document.getElementById('c-ctx').value.trim();
   if (!brand || !ctx) { showErr('copy-err', 'Brand name and core message are required.'); return; }
-  var type    = getPill('ct-pills');
-  var product = document.getElementById('c-product').value.trim();
-  var audience= document.getElementById('c-audience').value.trim();
-  var tone    = document.getElementById('c-tone').value.trim();
-  var refs    = ['c-r1','c-r2','c-r3'].map(function(id){ return document.getElementById(id).value.trim(); }).filter(Boolean);
-  var isLong  = ['Product Description','General Description','Email Copy'].indexOf(type) >= 0;
+
+  var type     = getPill('ct-pills');
+  var product  = document.getElementById('c-product').value.trim();
+  var audience = document.getElementById('c-audience').value.trim();
+  var tone     = document.getElementById('c-tone').value.trim();
+  var refs     = ['c-r1','c-r2','c-r3'].map(function(id) { return document.getElementById(id).value.trim(); }).filter(Boolean);
+  var isLong   = ['Product Description','General Description','Email Copy'].indexOf(type) >= 0;
+  var urlEl    = document.getElementById('c-url');
+  var brandUrl = urlEl ? urlEl.value.trim() : '';
+
   setLoading('copy-btn', true, 'Generate Copy');
   showErr('copy-err', '');
   document.getElementById('copy-out').innerHTML = '';
 
-  // Fetch brand website context if provided
-  var brandUrl = document.getElementById('c-url') ? document.getElementById('c-url').value.trim() : '';
   var brandWebCtx = brandUrl ? await fetchWebsiteContext(brandUrl, null, 'c-url-status') : null;
+  lastCopyPrompt = { type: type, brand: brand, ctx: ctx, product: product, audience: audience, tone: tone, refs: refs, isLong: isLong, websiteCtx: brandWebCtx };
 
-  lastCopyPrompt = { type:type, brand:brand, ctx:ctx, product:product, audience:audience, tone:tone, refs:refs, isLong:isLong, websiteCtx:brandWebCtx };
   try {
     var data = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, false, '', brandWebCtx));
-    var variants = data.variants || [];
-
-    document.getElementById('copy-out').innerHTML = buildCopyHtml(variants, isLong);
+    document.getElementById('copy-out').innerHTML = buildCopyHtml(data.variants || [], isLong);
     flashNew('copy-out');
   } catch(e) {
     showErr('copy-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
   }
   setLoading('copy-btn', false, 'Generate Copy');
 }
+
 function openCopyMoreOptions() {
   if (!lastCopyPrompt) return;
   openModal(
     'Show me more options',
     'Tell us what to change and we will regenerate all 3 variants.',
-    'e.g. More urgency, try a different emotional angle, shorter, more playful...',
+    'e.g. More urgency, different emotional angle, shorter, more playful...',
     async function(feedback) {
       var p = lastCopyPrompt;
       setModalLoading('Regenerating with your feedback\u2026', 'Applying behavioral biases\u2026');
       try {
-        var data = await callAI(buildCopyPrompt(p.type, p.brand, p.ctx, p.product, p.audience, p.tone, p.refs, false, feedback, p.websiteCtx||null));
+        var data = await callAI(buildCopyPrompt(p.type, p.brand, p.ctx, p.product, p.audience, p.tone, p.refs, false, feedback, p.websiteCtx || null));
         document.getElementById('copy-out').innerHTML = buildCopyHtml(data.variants || [], p.isLong);
         flashNew('copy-out');
         closeModal();
@@ -1742,62 +1816,67 @@ function openCopyMoreOptions() {
   );
 }
 
-// ── NAME GENERATOR ───────────────────────────────────────────
-// ── NAME GENERATOR ───────────────────────────────────────────────
 
-function switchNameMode(mode, btn) {
-  document.querySelectorAll('.ng-mode-pill').forEach(function(b){ b.classList.remove('active'); });
-  document.querySelectorAll('.ng-panel').forEach(function(p){ p.classList.remove('active'); });
-  btn.classList.add('active');
-  document.getElementById('ng-' + mode).classList.add('active');
-  showErr('name-err', '');
-  document.getElementById('name-out').innerHTML = '';
+// ── NAME GENERATOR ─────────────────────────────────────────────
+
+// ── BRAND NAMES ────────────────────────────────────────────────
+function buildBrandNamePrompt(what, cat, market, syl, avoid, sound, guard, webCtx, feedback) {
+  var soundProfile = getSoundProfile(sound);
+  var sylNote = (syl === 'Any' || !syl) ? 'No syllable restriction' : 'Prefer ' + syl + '-syllable names';
+  var parts = [
+    'Generate exactly 6 brand names for the following brief.',
+    'Each name must use a DIFFERENT naming principle from the behavioral science library.',
+    'Every name must work as a brand identity: memorable, distinctive, ownable.',
+    'BRIEF: ' + what
+  ];
+  if (cat)     parts.push('CATEGORY: ' + cat);
+  if (market)  parts.push('MARKET: ' + market);
+  parts.push('SYLLABLES: ' + sylNote);
+  parts.push('SOUND PROFILE: ' + soundProfile);
+  if (avoid)   parts.push('AVOID: ' + avoid);
+  if (guard)   parts.push('GUARDRAILS: ' + guard);
+  if (webCtx)  parts.push('BRAND CONTEXT: ' + webCtx.slice(0, 800));
+  if (feedback) parts.push('USER FEEDBACK: ' + feedback);
+  parts.push('');
+  parts.push('NAMING SCIENCE TO APPLY (use a different one per name):');
+  parts.push('- Fluency: easy to pronounce = trusted, lower perceived risk');
+  parts.push('- Bouba/Kiki: sound profile must match the brand personality specified above');
+  parts.push('- Cognitive Ease: familiar patterns feel safe and trustworthy');
+  parts.push('- Concreteness: tangible, imageable names have better recall');
+  parts.push('- Distinctiveness: break category naming conventions deliberately');
+  parts.push('- Alliteration or Rhyme: improves memorability and processing speed');
+  parts.push('- Keats Heuristic: rhythmic names feel more true and trustworthy');
+  parts.push('- Emotional resonance: name should evoke the right feeling without explanation');
+  parts.push('');
+  parts.push('For each name also provide: phonetics (syllable breakdown), sound_profile (soft/balanced/bold), convention (descriptive/coined/metaphorical/portmanteau/abstract).');
+  parts.push('Return JSON only:');
+  parts.push('{"names":[{"name":"...","description":"max 50 chars","tagline":"3-4 word tagline","phonetics":"e.g. LU-ma (soft, 2 syllables)","sound_profile":"soft","convention":"coined","technique":{"name":"Naming Principle","explanation":"What this principle is","application":"How it shaped this specific name"}}]}');
+  return parts.join('\n');
 }
 
-// Slider label updater
-function updateSliderLabel(slider, labelId) {
-  var v = parseInt(slider.value);
-  var label = document.getElementById(labelId);
-  if (!label) return;
-  if (v < 25)      label.textContent = "Very Soft: gentle, rounded sounds";
-  else if (v < 45) label.textContent = "Soft: warm and approachable";
-  else if (v < 55) label.textContent = "Balanced";
-  else if (v < 75) label.textContent = "Bold: confident and energetic";
-  else             label.textContent = "Very Bold: sharp, hard-hitting sounds";
-}
-
-function getSoundProfile(val) {
-  var v = parseInt(val || 50);
-  if (v < 25)      return "Very soft and rounded: use sounds like L, M, O, A, V, N. Avoid K, X, T, R hard sounds.";
-  if (v < 45)      return "Soft and warm: favour gentle vowels and nasal consonants (M, N, L). Minimal hard stops.";
-  if (v < 55)      return "Balanced: mix of soft and hard sounds, neither extreme.";
-  if (v < 75)      return "Bold and confident: use crisp consonants (T, C, R, D). Some hard stops acceptable.";
-  return "Very bold and sharp: use hard stops and crisp consonants (K, X, T, CR, Z). Short, punchy structure.";
-}
-
-// ── BRAND NAME GENERATION ────────────────────────────────────────
 async function generateBrandNames() {
-  var what   = document.getElementById('nb-what').value.trim();
-  var cat    = document.getElementById('nb-cat').value.trim();
+  var what = document.getElementById('nb-what').value.trim();
   if (!what) { showErr('name-err', 'Please describe what this brand stands for.'); return; }
-
+  var cat    = document.getElementById('nb-cat').value.trim();
   var market = document.getElementById('nb-market').value.trim();
   var syl    = getPill('nb-syl-pills');
   var avoid  = document.getElementById('nb-avoid').value.trim();
-  var sound  = document.getElementById('nb-sound') ? document.getElementById('nb-sound').value : '50';
-  var guard  = document.getElementById('nb-guard') ? document.getElementById('nb-guard').value.trim() : '';
-  var url    = document.getElementById('nb-url') ? document.getElementById('nb-url').value.trim() : '';
+  var soundEl = document.getElementById('nb-sound');
+  var sound  = soundEl ? soundEl.value : '50';
+  var guardEl = document.getElementById('nb-guard');
+  var guard  = guardEl ? guardEl.value.trim() : '';
+  var urlEl  = document.getElementById('nb-url');
+  var url    = urlEl ? urlEl.value.trim() : '';
 
   setLoading('nb-btn', true, 'Generate Brand Names');
   showErr('name-err', '');
   document.getElementById('name-out').innerHTML = '';
 
   var webCtx = url ? await fetchWebsiteContext(url, null, 'nb-url-status') : null;
-  lastNamePrompt = { mode:'brand', what:what, cat:cat, market:market, syl:syl, avoid:avoid, sound:sound, guard:guard, webCtx:webCtx };
+  lastNamePrompt = { mode: 'brand', what: what, cat: cat, market: market, syl: syl, avoid: avoid, sound: sound, guard: guard, webCtx: webCtx };
 
-  var prompt = buildBrandNamePrompt(what, cat, market, syl, avoid, sound, guard, webCtx, '');
   try {
-    var d = await callAI(prompt);
+    var d = await callAI(buildBrandNamePrompt(what, cat, market, syl, avoid, sound, guard, webCtx, ''));
     document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'brand');
     flashNew('name-out');
   } catch(e) {
@@ -1806,45 +1885,42 @@ async function generateBrandNames() {
   setLoading('nb-btn', false, 'Generate Brand Names');
 }
 
-function buildBrandNamePrompt(what, cat, market, syl, avoid, sound, guard, webCtx, feedback) {
-  var soundProfile = getSoundProfile(sound);
-  var lines = [
-    'Generate exactly 6 brand names for the following brief.',
-    'Each name must use a DIFFERENT naming principle from the behavioral science library.',
-    "Every name must work as a brand identity: memorable, distinctive, ownable.",
-    '',
-    'BRIEF: ' + what,
-    cat    ? 'CATEGORY: ' + cat : '',
-    market ? 'MARKET: ' + market : '',
-    'SYLLABLES: ' + (syl === 'Any' ? 'No restriction' : 'Prefer ' + syl + '-syllable names'),
-    'SOUND PROFILE: ' + soundProfile,
-    avoid  ? 'AVOID: ' + avoid : '',
-    guard  ? 'GUARDRAILS: ' + guard : '',
-    webCtx ? 'BRAND CONTEXT:\\n' + webCtx.slice(0, 800) : '',
-    feedback ? 'USER FEEDBACK: ' + feedback : '',
-    '',
-    'NAMING SCIENCE TO APPLY (use a different one per name):',
-    '- Fluency: easy to pronounce = trusted, lower perceived risk',
-    '- Bouba/Kiki effect: sound profile must match the brand personality as specified above',
-    '- Cognitive Ease: familiar sound patterns feel safe and trustworthy',
-    '- Concreteness: tangible, imageable names have better recall',
-    '- Distinctiveness: break category naming conventions deliberately',
-    '- Alliteration / Rhyme: improves memorability and processing speed',
-    '- Keats Heuristic: rhythmic names feel more true and trustworthy',
-    '- Emotional resonance: name should evoke the right feeling without explanation',
-    '',
-    'For each name also provide:',
-    '- phonetics: syllable breakdown and stress pattern (e.g. BO-ra, stress on first)',
-    '- sound_profile: soft / balanced / bold',
-    '- convention: descriptive / coined / metaphorical / portmanteau / abstract',
-    '',
-    'Return JSON only:',
-    '{"names":[{"name":"...","description":"max 50 chars — what it is","tagline":"3-4 word tagline","phonetics":"e.g. LU-ma (soft, 2 syllables)","sound_profile":"soft","convention":"coined","technique":{"name":"Naming Principle","explanation":"What this principle is","application":"How it shaped this specific name — be specific"}}]}'
+// ── SUB-BRAND NAMES ────────────────────────────────────────────
+function buildSubBrandNamePrompt(parent, what, dist, audRel, existing, guard, webCtx, feedback) {
+  var archNote;
+  if (dist.indexOf('Close') >= 0) {
+    archNote = 'ENDORSED architecture: name should clearly reference or sit under the parent brand. e.g. Tata Nexon, Google Pixel.';
+  } else if (dist.indexOf('Distinct') >= 0) {
+    archNote = 'FREESTANDING architecture: name is fully independent. Parent brand can be silent. e.g. Dove (Unilever), Gillette (P and G).';
+  } else {
+    archNote = 'HYBRID architecture: name stands independently but parent brand is clearly associated. e.g. Nykaa Naturals, Airbnb Rooms.';
+  }
+  var audNote;
+  if (audRel.indexOf('New') >= 0) {
+    audNote = 'IMPORTANT: This sub-brand targets a NEW audience. The name must work independently without relying on parent brand recognition.';
+  } else if (audRel.indexOf('Adjacent') >= 0) {
+    audNote = 'This sub-brand targets an ADJACENT audience. Name should feel familiar to parent brand customers but speak to new needs.';
+  } else {
+    audNote = 'This sub-brand targets the SAME audience as the parent. Name should deepen the relationship, not confuse.';
+  }
+  var parts = [
+    'Generate exactly 6 sub-brand names for the following brief.',
+    'Each name must apply a DIFFERENT naming principle. Brand architecture is critical here.',
+    'PARENT BRAND: ' + parent,
+    'SUB-BRAND PURPOSE: ' + what,
+    'BRAND ARCHITECTURE: ' + archNote,
+    audNote
   ];
-  return lines.filter(function(l){ return l !== ''; }).join('\n');
+  if (existing)  parts.push('EXISTING SUB-BRANDS IN PORTFOLIO (maintain naming family coherence): ' + existing);
+  if (guard)     parts.push('GUARDRAILS: ' + guard);
+  if (webCtx)    parts.push('PARENT BRAND CONTEXT: ' + webCtx.slice(0, 600));
+  if (feedback)  parts.push('USER FEEDBACK: ' + feedback);
+  parts.push('For each name, specify: architecture (endorsed/hybrid/freestanding), equity_inherited (what equity this name borrows from the parent), equity_sacrificed (what it loses, if any).');
+  parts.push('Return JSON only:');
+  parts.push('{"names":[{"name":"...","description":"max 50 chars","tagline":"3-4 word tagline","architecture":"endorsed/hybrid/freestanding","equity_inherited":"...","equity_sacrificed":"...","technique":{"name":"Naming Principle","explanation":"1 sentence","application":"How it shaped this name"}}]}');
+  return parts.join('\n');
 }
 
-// ── SUB-BRAND NAME GENERATION ─────────────────────────────────────
 async function generateSubBrandNames() {
   var parent = document.getElementById('ns-parent').value.trim();
   var what   = document.getElementById('ns-what').value.trim();
@@ -1853,19 +1929,20 @@ async function generateSubBrandNames() {
   var dist     = getPill('ns-dist-pills');
   var audRel   = getPill('ns-aud-pills');
   var existing = document.getElementById('ns-existing').value.trim();
-  var guard    = document.getElementById('ns-guard') ? document.getElementById('ns-guard').value.trim() : '';
-  var url      = document.getElementById('ns-url') ? document.getElementById('ns-url').value.trim() : '';
+  var guardEl  = document.getElementById('ns-guard');
+  var guard    = guardEl ? guardEl.value.trim() : '';
+  var urlEl    = document.getElementById('ns-url');
+  var url      = urlEl ? urlEl.value.trim() : '';
 
   setLoading('ns-btn', true, 'Generate Sub-brand Names');
   showErr('name-err', '');
   document.getElementById('name-out').innerHTML = '';
 
   var webCtx = url ? await fetchWebsiteContext(url, null, 'ns-url-status') : null;
-  lastNamePrompt = { mode:'subbrand', parent:parent, what:what, dist:dist, audRel:audRel, existing:existing, guard:guard, webCtx:webCtx };
+  lastNamePrompt = { mode: 'subbrand', parent: parent, what: what, dist: dist, audRel: audRel, existing: existing, guard: guard, webCtx: webCtx };
 
-  var prompt = buildSubBrandNamePrompt(parent, what, dist, audRel, existing, guard, webCtx, '');
   try {
-    var d = await callAI(prompt);
+    var d = await callAI(buildSubBrandNamePrompt(parent, what, dist, audRel, existing, guard, webCtx, ''));
     document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'subbrand');
     flashNew('name-out');
   } catch(e) {
@@ -1874,97 +1951,95 @@ async function generateSubBrandNames() {
   setLoading('ns-btn', false, 'Generate Sub-brand Names');
 }
 
-function buildSubBrandNamePrompt(parent, what, dist, audRel, existing, guard, webCtx, feedback) {
-  var archNote = dist.indexOf('Close') >= 0
-    ? "ENDORSED architecture: name should clearly reference or sit under the parent brand. e.g. Tata Nexon, Google Pixel."
-    : dist.indexOf('Distinct') >= 0
-    ? "FREESTANDING architecture: name is fully independent. Parent brand can be silent. e.g. Dove (by Unilever), Gillette (by P and G)."
-    : "HYBRID architecture: name stands independently but parent brand is clearly associated. e.g. Nykaa Naturals, Airbnb Rooms.";
-  var audNote = audRel.indexOf('New') >= 0
-    ? "IMPORTANT: This sub-brand targets a NEW audience. The name must work independently without relying on parent brand recognition."
-    : audRel.indexOf('Adjacent') >= 0
-    ? "This sub-brand targets an ADJACENT audience. Name should feel familiar to parent brand customers but speak to new needs."
-    : "This sub-brand targets the SAME audience as the parent. Name should deepen the relationship, not confuse.";
-  var parts = [
-    "Generate exactly 6 sub-brand names for the following brief.",
-    "Each name must apply a DIFFERENT naming principle. Brand architecture is critical here.",
-    "PARENT BRAND: " + parent,
-    "SUB-BRAND PURPOSE: " + what,
-    "BRAND ARCHITECTURE: " + archNote,
-    audNote,
-    existing ? "EXISTING SUB-BRANDS IN PORTFOLIO (maintain naming family coherence): " + existing : "",
-    guard ? "GUARDRAILS: " + guard : "",
-    webCtx ? "PARENT BRAND CONTEXT: " + webCtx.slice(0, 600) : "",
-    feedback ? "USER FEEDBACK: " + feedback : "",
-    "For each name, specify architecture (endorsed/hybrid/freestanding), equity_inherited, and equity_sacrificed.",
-    "Return JSON only:",
-    JSON.stringify({names:[{name:"...",description:"max 50 chars",tagline:"3-4 word tagline",architecture:"endorsed/hybrid/freestanding",equity_inherited:"...",equity_sacrificed:"...",technique:{name:"Naming Principle",explanation:"1 sentence",application:"How it shaped this name"}}]})
-  ];
-  return parts.filter(function(p){ return p !== ""; }).join("\n");
-}
-
+// ── PRODUCT NAMES ──────────────────────────────────────────────
 function buildProductNamePrompt(parent, what, cat, audience, existing, guard, webCtx, feedback) {
-  var conventionNote = existing.length
-    ? "CRITICAL: First analyse the naming convention used in these existing products: " + existing.join(", ") + ". Then generate names that follow the SAME convention so the new product fits the portfolio naturally. Identify the convention (descriptive/benefit-led/ingredient-led/coined/metaphorical) before naming."
-    : "No existing portfolio names provided. Generate names using the most appropriate convention for this category.";
+  var conventionNote = existing && existing.length
+    ? 'CRITICAL: First analyse the naming convention used in these existing products: ' + existing.join(', ') + '. Then generate names that follow the SAME convention so the new product fits the portfolio naturally. Identify the convention (descriptive/benefit-led/ingredient-led/coined/metaphorical) before naming.'
+    : 'No existing portfolio names provided. Generate names using the most appropriate convention for this category.';
   var parts = [
-    "Generate exactly 6 product names for the following brief.",
-    "Product naming is about category fit, benefit communication, and portfolio coherence.",
-    "Each name must use a DIFFERENT naming convention or apply a different behavioral principle.",
-    "PARENT BRAND: " + parent,
-    "PRODUCT: " + what,
-    cat ? "CATEGORY: " + cat : "",
-    audience ? "AUDIENCE: " + audience : "",
-    conventionNote,
-    guard ? "GUARDRAILS: " + guard : "",
-    webCtx ? "BRAND WEBSITE CONTEXT: " + webCtx.slice(0, 600) : "",
-    feedback ? "USER FEEDBACK: " + feedback : "",
-    "PRODUCT NAMING SCIENCE TO APPLY:",
-    "- Concreteness: tangible names aid recall and signal category membership",
-    "- Expectancy Theory: name should prime the right expectations for the product",
-    "- Cognitive Ease: easy to say = easy to trust = easy to buy",
-    "- Distinctiveness: stands out on shelf or screen from direct competitors",
-    "- Precision: specific names feel more credible than vague ones",
-    "- Labelling: name that makes the user identify with the product",
-    "For each name provide: convention (descriptive/benefit-led/ingredient-led/coined/metaphorical/portmanteau), portfolio_fit, and shelf_cue.",
-    "Return JSON only:",
-    JSON.stringify({names:[{name:"...",description:"max 50 chars",tagline:"3-4 word tagline",convention:"...",portfolio_fit:"...",shelf_cue:"...",technique:{name:"Naming Principle",explanation:"1 sentence",application:"How it shaped this name"}}]})
+    'Generate exactly 6 product names for the following brief.',
+    'Product naming is about category fit, benefit communication, and portfolio coherence.',
+    'Each name must use a DIFFERENT naming convention or apply a different behavioral principle.',
+    'PARENT BRAND: ' + parent,
+    'PRODUCT: ' + what
   ];
-  return parts.filter(function(p){ return p !== ""; }).join("\n");
+  if (cat)       parts.push('CATEGORY: ' + cat);
+  if (audience)  parts.push('AUDIENCE: ' + audience);
+  parts.push(conventionNote);
+  if (guard)     parts.push('GUARDRAILS: ' + guard);
+  if (webCtx)    parts.push('BRAND WEBSITE CONTEXT: ' + webCtx.slice(0, 600));
+  if (feedback)  parts.push('USER FEEDBACK: ' + feedback);
+  parts.push('PRODUCT NAMING SCIENCE TO APPLY:');
+  parts.push('- Concreteness: tangible names aid recall and signal category membership');
+  parts.push('- Expectancy Theory: name should prime the right expectations for the product');
+  parts.push('- Cognitive Ease: easy to say = easy to trust = easy to buy');
+  parts.push('- Distinctiveness: stands out on shelf or screen from direct competitors');
+  parts.push('- Precision: specific names feel more credible than vague ones');
+  parts.push('- Labelling: name that makes the user identify with the product');
+  parts.push('For each name provide: convention (descriptive/benefit-led/ingredient-led/coined/metaphorical/portmanteau), portfolio_fit, shelf_cue.');
+  parts.push('Return JSON only:');
+  parts.push('{"names":[{"name":"...","description":"max 50 chars","tagline":"3-4 word tagline","convention":"...","portfolio_fit":"...","shelf_cue":"...","technique":{"name":"Naming Principle","explanation":"1 sentence","application":"How it shaped this name"}}]}');
+  return parts.join('\n');
 }
 
-// ── SHARED NAME HTML BUILDER ──────────────────────────────────────
+async function generateProductNames() {
+  var parent = document.getElementById('np-parent').value.trim();
+  var what   = document.getElementById('np-what').value.trim();
+  if (!parent || !what) { showErr('name-err', 'Parent brand name and product description are required.'); return; }
+
+  var cat      = document.getElementById('np-cat').value.trim();
+  var audience = document.getElementById('np-audience').value.trim();
+  var existing = ['np-r1','np-r2','np-r3'].map(function(id) { return document.getElementById(id).value.trim(); }).filter(Boolean);
+  var guardEl  = document.getElementById('np-guard');
+  var guard    = guardEl ? guardEl.value.trim() : '';
+  var urlEl    = document.getElementById('np-url');
+  var url      = urlEl ? urlEl.value.trim() : '';
+
+  setLoading('np-btn', true, 'Generate Product Names');
+  showErr('name-err', '');
+  document.getElementById('name-out').innerHTML = '';
+
+  var webCtx = url ? await fetchWebsiteContext(url, null, 'np-url-status') : null;
+  lastNamePrompt = { mode: 'product', parent: parent, what: what, cat: cat, audience: audience, existing: existing, guard: guard, webCtx: webCtx };
+
+  try {
+    var d = await callAI(buildProductNamePrompt(parent, what, cat, audience, existing, guard, webCtx, ''));
+    document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'product');
+    flashNew('name-out');
+  } catch(e) {
+    showErr('name-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
+  }
+  setLoading('np-btn', false, 'Generate Product Names');
+}
+
+// ── SHARED NAME OUTPUT ─────────────────────────────────────────
 function buildNameHtml(names, mode) {
   var modeLabel = mode === 'brand' ? 'Brand Name' : mode === 'subbrand' ? 'Sub-brand Name' : 'Product Name';
   var html = '<div class="results-label">6 Behaviorally-Engineered ' + modeLabel + 's</div>';
-
   names.forEach(function(n, i) {
-    // Meta chips — different per mode
     var chips = '';
     if (mode === 'brand') {
       if (n.phonetics)     chips += '<span class="name-meta-chip">&#9670; ' + esc(n.phonetics) + '</span>';
       if (n.sound_profile) chips += '<span class="name-meta-chip">&#9675; ' + esc(n.sound_profile) + '</span>';
       if (n.convention)    chips += '<span class="name-meta-chip">&#9645; ' + esc(n.convention) + '</span>';
     } else if (mode === 'subbrand') {
-      if (n.architecture)        chips += '<span class="name-meta-chip">&#9670; ' + esc(n.architecture) + '</span>';
-      if (n.equity_inherited)    chips += '<span class="name-meta-chip" style="color:var(--green);">&#8679; ' + esc(n.equity_inherited) + '</span>';
-      if (n.equity_sacrificed)   chips += '<span class="name-meta-chip" style="color:var(--amber);">&#8681; ' + esc(n.equity_sacrificed) + '</span>';
-    } else if (mode === 'product') {
+      if (n.architecture)       chips += '<span class="name-meta-chip">&#9670; ' + esc(n.architecture) + '</span>';
+      if (n.equity_inherited)   chips += '<span class="name-meta-chip" style="color:var(--green);">&#8679; ' + esc(n.equity_inherited) + '</span>';
+      if (n.equity_sacrificed)  chips += '<span class="name-meta-chip" style="color:var(--amber);">&#8681; ' + esc(n.equity_sacrificed) + '</span>';
+    } else {
       if (n.convention)    chips += '<span class="name-meta-chip">&#9645; ' + esc(n.convention) + '</span>';
       if (n.shelf_cue)     chips += '<span class="name-meta-chip">&#9671; ' + esc(n.shelf_cue) + '</span>';
       if (n.portfolio_fit) chips += '<span class="name-meta-chip" style="color:var(--green);">&#10003; ' + esc(n.portfolio_fit) + '</span>';
     }
-
     html += '<div class="name-card-v2">'
-      + '<div class="name-card-mode">' + String(i+1).padStart(2,'0') + ' &mdash; ' + modeLabel + '</div>'
+      + '<div class="name-card-mode">' + String(i + 1).padStart(2, '0') + ' &mdash; ' + modeLabel + '</div>'
       + '<div class="name-v2-text">' + esc(n.name) + '</div>'
-      + '<div class="name-v2-desc">' + esc(n.description||'') + '</div>'
-      + '<div class="name-v2-tagline">' + esc(n.tagline||'') + '</div>'
+      + '<div class="name-v2-desc">' + esc(n.description || '') + '</div>'
+      + '<div class="name-v2-tagline">' + esc(n.tagline || '') + '</div>'
       + (chips ? '<div class="name-v2-meta">' + chips + '</div>' : '')
       + (n.technique ? '<div class="name-v2-rationale">' + makeBiasTag(n.technique) + '</div>' : '')
       + '</div>';
   });
-
   html += '<div class="show-more-bar">'
     + '<button class="show-more-btn" onclick="openNameMoreOptions()">&#43; Show me more options</button>'
     + '</div>';
@@ -2001,62 +2076,53 @@ function openNameMoreOptions() {
   );
 }
 
-// ── BIAS AUDIT ───────────────────────────────────────────────
+
+// ── BIAS AUDIT ─────────────────────────────────────────────────
 function buildAuditPrompt(copy, brand, extra, websiteCtx) {
-  var safeCopy = copy.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
   var parts = [
-    "Perform a comprehensive behavioral science audit of this copy.",
-    'Copy: "' + safeCopy + '"'
+    'Perform a comprehensive behavioral science audit of this copy.',
+    'Copy: "' + copy.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"'
   ];
-  if (brand) parts.push("Brand/Product: " + brand);
-  if (websiteCtx) parts.push("BRAND WEBSITE CONTEXT: " + websiteCtx.slice(0, 800));
-  if (brand || copy) parts.push(inferObjection(brand, copy.slice(0, 200), "", ""));
-  if (extra) parts.push(extra);
+  if (brand)      parts.push('Brand/Product: ' + brand);
+  if (websiteCtx) parts.push('BRAND WEBSITE CONTEXT: ' + websiteCtx.slice(0, 800));
+  if (brand || copy) parts.push(inferObjection(brand, copy.slice(0, 200), '', ''));
+  if (extra)      parts.push(extra);
   parts.push(
-    "Identify biases actively present (working) and missing but impactful (missing).",
-    "STRICT RULES FOR MISSING BIASES:",
-    "- Only list a bias as MISSING if it is (a) clearly absent AND (b) would materially improve conversion for this specific copy",
-    "- Do NOT list every bias that is not loudly present",
-    "- Maximum 3 missing biases. Quality over quantity. Only the most commercially impactful gaps.",
-    "- If the copy is already well-engineered, it is acceptable to list 0-1 missing biases",
-    "DO NOT include a score.",
-    "In the rewrite: use **bold** for key phrases. Include [Visual: suggestion] tags for image ideas.",
-    "Return JSON only:",
-    JSON.stringify({summary:"specific one-sentence assessment",working:[{bias:"[Code] Name",how:"1 sentence"}],missing:[{bias:"[Code] Name",opportunity:"1-2 sentences"}],rewrite:"full improved copy",rwBias1:{name:"...",explanation:"...",application:"..."},rwBias2:{name:"...",explanation:"...",application:"..."}})
+    'Identify biases actively present (working) and missing but impactful (missing).',
+    'STRICT RULES FOR MISSING BIASES:',
+    '- Only list a bias as MISSING if it is (a) clearly absent AND (b) would materially improve conversion for this specific copy',
+    '- Do NOT list every bias that is not loudly present',
+    '- Maximum 3 missing biases. Quality over quantity. Only the most commercially impactful gaps.',
+    '- If the copy is already well-engineered, it is acceptable to list 0-1 missing biases',
+    'DO NOT include a score.',
+    'In the rewrite: use **bold** for key phrases. Include [Visual: suggestion] tags for image ideas.',
+    'Return JSON only:',
+    '{"summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence"}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}'
   );
-  return parts.join("\n");
+  return parts.join('\n');
 }
 
-// origScore: optional score of the original (un-improved) copy, for delta display
 function buildAuditHtml(d, origScore, improvedScore) {
-  var working = d.working || [], missing = d.missing || [];
-  // origScore = score of this copy AS-IS (deterministic from working/missing)
-  // improvedScore = score if all missing biases were addressed (deterministic)
-  // We always display improvedScore as the "headline" — it's the most stable number
-  // because it assumes maximum bias application. origScore is the baseline.
+  var working = d.working || [];
+  var missing = d.missing || [];
   var sc = calcBiasScore(working, missing, null);
-  // Use improvedScore as headline if available, else sc
   var displayScore = (improvedScore !== undefined && improvedScore !== null) ? improvedScore : sc;
   var scoreCol = displayScore >= 7.5 ? 'var(--green)' : displayScore >= 5 ? 'var(--amber)' : 'var(--red)';
 
-  var workItems = working.map(function(w){
+  var workItems = working.map(function(w) {
     return '<div class="audit-item">'
       + '<div class="a-dot" style="background:var(--green);"></div>'
       + '<div><span class="a-bias-name" style="color:var(--green);">' + esc(w.bias) + ': </span>'
       + '<span class="a-bias-desc">' + esc(w.how) + '</span></div></div>';
   }).join('') || '<div class="audit-item"><div class="a-dot" style="background:var(--dim);"></div><div class="a-bias-desc">No strong biases detected.</div></div>';
 
-  var missItems = missing.map(function(m){
+  var missItems = missing.map(function(m) {
     return '<div class="audit-item">'
       + '<div class="a-dot" style="background:var(--amber);"></div>'
-  // Score: always use deterministic values
-  // displayScore = improvedScore (if rewrite available) else sc
-  // origScore = score of copy as-is, shown as 'current' baseline
-  var sc = calcBiasScore(working, missing, null);
-  var displayScore = (improvedScore !== undefined && improvedScore !== null) ? improvedScore : sc;
-  var scoreCol = displayScore >= 7.5 ? 'var(--green)' : displayScore >= 5 ? 'var(--amber)' : 'var(--red)';
+      + '<div><span class="a-bias-name" style="color:var(--amber);">' + esc(m.bias) + ': </span>'
+      + '<span class="a-bias-desc">' + esc(m.opportunity) + '</span></div></div>';
+  }).join('');
 
-  // Delta — only show if there is a real positive gap to highlight
   var deltaHtml = '';
   if (origScore !== undefined && origScore !== null && displayScore > origScore) {
     var diff = Math.round((displayScore - origScore) * 10) / 10;
@@ -2071,14 +2137,18 @@ function buildAuditHtml(d, origScore, improvedScore) {
       + '</div>';
   }
 
-  // Use data-body attribute — zero inline string quoting needed
-  var html = '<div class="results-label">Audit Results</div>'
+  var rwHeader = '<div class="rw-header" style="display:flex;justify-content:space-between;align-items:center;">'
+    + '<span>&#8593; Improved Version</span>'
+    + (improvedScore ? '<span style="font-size:10px;font-weight:700;color:var(--green);background:var(--greenbg);padding:2px 9px;border-radius:20px;border:1px solid var(--greenbd);">Target: ' + improvedScore + '/10</span>' : '')
+    + '</div>';
+
+  return '<div class="results-label">Audit Results</div>'
     + '<div class="score-card"><div>'
     + '<div class="score-num" style="color:' + scoreCol + ';">' + displayScore + '</div>'
     + '<div class="score-den">/ 10</div></div><div class="score-sep"></div>'
     + '<div class="score-body"><div class="score-label-text">Behavioral Score</div>'
-    + '<div style="font-size:11px;color:var(--mid);margin-bottom:5px;">' + working.length + ' active bias' + (working.length !== 1 ? 'es' : '') + ' found in your copy</div>'
-    + '<div class="score-summary">' + esc(d.summary||'') + '</div>'
+    + '<div style="font-size:11px;color:var(--mid);margin-bottom:5px;">' + working.length + ' active bias' + (working.length !== 1 ? 'es' : '') + ' found</div>'
+    + '<div class="score-summary">' + esc(d.summary || '') + '</div>'
     + deltaHtml
     + '</div></div>'
     + '<button class="audit-toggle" data-body="working-body" onclick="toggleAuditSectionEl(this)">'
@@ -2093,8 +2163,9 @@ function buildAuditHtml(d, origScore, improvedScore) {
     + '<span class="audit-count" style="background:var(--amberbg);color:var(--amber);border:1px solid var(--amberbd);">' + missing.length + '</span>'
     + '<span class="audit-chevron">&#9660;</span></span></button>'
     + '<div class="audit-body hidden" id="missing-body" style="margin-bottom:20px;">' + missItems + '</div>'
-    + '<div class="rewrite-card"><div class="rw-header" style="display:flex;justify-content:space-between;align-items:center;">'    + '<span>&#8593; Improved Version</span>'    + (improvedScore ? '<span style="font-size:10px;font-weight:700;color:var(--green);background:var(--greenbg);padding:2px 9px;border-radius:20px;border:1px solid var(--greenbd);">Target: ' + improvedScore + '/10</span>' : '')    + '</div>'
-    + '<div class="rw-text">' + renderCopyText(d.rewrite||'') + '</div>'
+    + '<div class="rewrite-card">'
+    + rwHeader
+    + '<div class="rw-text">' + renderCopyText(d.rewrite || '') + '</div>'
     + '<div class="bias-tags" style="margin-bottom:16px;">'
     + (d.rwBias1 && d.rwBias1.name ? makeBiasTag(d.rwBias1) : '')
     + (d.rwBias2 && d.rwBias2.name ? makeBiasTag(d.rwBias2) : '')
@@ -2102,13 +2173,14 @@ function buildAuditHtml(d, origScore, improvedScore) {
     + '<div class="show-more-bar">'
     + '<button class="show-more-btn" onclick="openAuditMoreOptions()">&#43; Show me more options</button>'
     + '</div></div>';
-  return html;
 }
+
 async function runAudit() {
   var copy = document.getElementById('a-copy').value.trim();
   if (!copy) { showErr('audit-err', 'Please paste your copy first.'); return; }
-  var brand = document.getElementById('a-brand').value.trim();
-  var auditUrl = document.getElementById('a-url') ? document.getElementById('a-url').value.trim() : '';
+  var brand  = document.getElementById('a-brand').value.trim();
+  var urlEl  = document.getElementById('a-url');
+  var auditUrl = urlEl ? urlEl.value.trim() : '';
 
   setLoading('audit-btn', true, 'Audit My Copy');
   showErr('audit-err', '');
@@ -2116,15 +2188,12 @@ async function runAudit() {
 
   var auditWebCtx = auditUrl ? await fetchWebsiteContext(auditUrl, null, 'a-url-status') : null;
   lastAuditPrompt = { copy: copy, brand: brand, origScore: null, websiteCtx: auditWebCtx };
+
   try {
     var d = await callAI(buildAuditPrompt(copy, brand, '', auditWebCtx));
-    // Calculate original copy score from what biases were found working vs missing
-    // Then the improved copy score is derived from the rewrite analysis
-    var origScore = calcBiasScore(d.working || [], d.missing || []);
+    var origScore = calcBiasScore(d.working || [], d.missing || [], null);
     lastAuditPrompt.origScore = origScore;
-    // Improved score: assume the rewrite fixes all missing biases (they become working)
-    // So improved working = all working + all missing, improved missing = 0
-    var improvedWorking = (d.working||[]).concat(d.missing||[]);
+    var improvedWorking = (d.working || []).concat(d.missing || []);
     var improvedScore = calcBiasScore(improvedWorking, [], null);
     document.getElementById('audit-out').innerHTML = buildAuditHtml(d, origScore, improvedScore);
     flashNew('audit-out');
@@ -2133,6 +2202,7 @@ async function runAudit() {
   }
   setLoading('audit-btn', false, 'Audit My Copy');
 }
+
 function openAuditMoreOptions() {
   if (!lastAuditPrompt) return;
   openModal(
@@ -2143,9 +2213,11 @@ function openAuditMoreOptions() {
       var p = lastAuditPrompt;
       setModalLoading('Rewriting with your feedback\u2026', 'Applying behavioral science\u2026');
       try {
-        var d = await callAI(buildAuditPrompt(p.copy, p.brand, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.'));
+        var d = await callAI(buildAuditPrompt(p.copy, p.brand, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.', p.websiteCtx || null));
         var oSc = p.origScore || null;
-        document.getElementById('audit-out').innerHTML = buildAuditHtml(d, oSc);
+        var iWorking = (d.working || []).concat(d.missing || []);
+        var iScore = calcBiasScore(iWorking, [], null);
+        document.getElementById('audit-out').innerHTML = buildAuditHtml(d, oSc, iScore);
         flashNew('audit-out');
         closeModal();
         document.getElementById('audit-out').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2158,44 +2230,24 @@ function openAuditMoreOptions() {
 }
 
 
-
-// ── CAMPAIGN MANAGER ─────────────────────────────────────────────
-
-function switchCopyMode(mode, btn) {
-  document.querySelectorAll('.cm-sub-btn').forEach(function(b){ b.classList.remove('active'); });
-  document.querySelectorAll('.cm-sub-panel').forEach(function(p){ p.classList.remove('active'); });
-  btn.classList.add('active');
-  document.getElementById('cm-' + mode).classList.add('active');
-}
-
-function toggleFunnelStage(el) {
-  el.closest('.funnel-stage').classList.toggle('open');
-}
-
-// Funnel stage definitions — TOF/MOF/BOF with objectives and bias stacks
+// ── CAMPAIGN MANAGER ───────────────────────────────────────────
 var FUNNEL_STAGES = {
   tof: {
-    label: 'Top of Funnel',
-    badge: 'TOF',
-    badgeClass: 'badge-tof',
+    label: 'Top of Funnel', badge: 'TOF', badgeClass: 'badge-tof',
     desc: 'Awareness - cold audience, first contact',
     objective: 'Create awareness and stop the scroll. Audience does not know you yet.',
     biasStack: 'Distinctiveness (Von Restorff), Emotional Dynamism, Cognitive Ease, Social Proof, Availability Heuristic',
     formats: ['Facebook Ad', 'Google Ad Headline', 'Instagram Caption']
   },
   mof: {
-    label: 'Middle of Funnel',
-    badge: 'MOF',
-    badgeClass: 'badge-mof',
+    label: 'Middle of Funnel', badge: 'MOF', badgeClass: 'badge-mof',
     desc: 'Consideration - warm audience, building intent',
     objective: 'Deepen interest and build preference. Audience has shown some intent.',
-    biasStack: 'Expectancy Theory, Concreteness, Social Proof (specific), Halo Effect, Generation Effect, Labelling',
+    biasStack: 'Expectancy Theory, Concreteness, Social Proof, Halo Effect, Generation Effect, Labelling',
     formats: ['Email Subject + Body', 'WhatsApp Message', 'Instagram Caption']
   },
   bof: {
-    label: 'Bottom of Funnel',
-    badge: 'BOF',
-    badgeClass: 'badge-bof',
+    label: 'Bottom of Funnel', badge: 'BOF', badgeClass: 'badge-bof',
     desc: 'Conversion - hot audience, ready to decide',
     objective: 'Remove final objection and drive action. Audience is evaluating.',
     biasStack: 'Loss Aversion, Scarcity, Pratfall Effect, Precision, Fear of Regret, Endowment Effect, Social Proof',
@@ -2203,179 +2255,100 @@ var FUNNEL_STAGES = {
   }
 };
 
-// Try to fetch brand website context for richer copy
-// 3-tier website context fetch:
-// Tier 1: Direct scrape via /api/fetch-url
-// Tier 2: AI knowledge fallback — ask the model what it knows about the site
-// Tier 3: Silent skip — return null, generation continues without context
-async function fetchWebsiteContext(url, labelElId, statusElId) {
-  if (!url || !url.startsWith('http')) return null;
-
-  var statusEl = statusElId ? document.getElementById(statusElId) : null;
-  var labelEl  = labelElId  ? document.getElementById(labelElId)  : null;
-
-  function setStatus(type, msg) {
-    if (!statusEl) return;
-    statusEl.style.display = 'block';
-    statusEl.className = 'cm-website-status ' + type;
-    statusEl.textContent = msg;
-  }
-
-  // Tier 1: Direct scrape
-  try {
-    var res = await fetch('/api/fetch-url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: url })
-    });
-    if (res.ok) {
-      var d = await res.json();
-      if (d.text) {
-        setStatus('ok', '\u2713 Website scraped - copies will be brand-specific');
-        return d.text;
-      }
-    }
-  } catch(e) {}
-
-  // Tier 2: AI knowledge fallback
-  if (labelEl) labelEl.textContent = 'Using AI to research ' + url + '...';
-  try {
-    var domain = url.replace(/https?:\/\//, '').replace(/\/.*/, '');
-    var aiRes = await callAI(
-      'What do you know about the brand or company at ' + url + '? '
-      + 'Describe: what they sell, who their target audience is, their brand positioning, '
-      + 'and their key marketing messages. Be specific and factual. '
-      + 'If you have no knowledge of this specific website, say UNKNOWN. '
-      + 'Return JSON only: {"known":true,"description":"...","products":"...","positioning":"...","audience":"..."}  '
-      + 'or {"known":false} if unknown.'
-    );
-    if (aiRes && aiRes.known && aiRes.description) {
-      var ctx = 'AI research on ' + domain + ': '
-        + aiRes.description + ' '
-        + (aiRes.products ? 'Products: ' + aiRes.products + '. ' : '')
-        + (aiRes.positioning ? 'Positioning: ' + aiRes.positioning + '. ' : '')
-        + (aiRes.audience ? 'Audience: ' + aiRes.audience : '');
-      setStatus('ok', '\u2713 Brand researched via AI — context applied');
-      return ctx;
-    }
-  } catch(e) {}
-
-  // Tier 3: Skip silently
-  setStatus('skip', '\u25CB Could not fetch — generating from your inputs only');
-  return null;
-}
-
 function buildCampaignPrompt(stage, brand, goal, audience, tone, competitor, websiteContext, competitorContext) {
   var s = FUNNEL_STAGES[stage];
-  var formats = s.formats;
-
-  var lines = [
+  var parts = [
     'You are writing a ' + s.label + ' campaign for the following brand.',
     'Write one version of each format listed below.',
-    '',
     'BRAND: ' + brand,
     'CAMPAIGN GOAL: ' + goal,
     'TARGET AUDIENCE: ' + audience,
-    'FUNNEL STAGE: ' + s.label + ' — ' + s.objective,
-    tone ? 'TONE: ' + tone : '',
-    competitor ? 'COMPETITOR TO OUTPERFORM: ' + competitor + '. Write copy that is more compelling, more emotionally resonant, and more behaviorally engineered than what they produce.' : '',
-    competitorContext ? 'COMPETITOR INTELLIGENCE (scraped from their website — use this to understand what they say and how to outflank them):\n' + competitorContext.slice(0, 900) : '',
-    websiteContext ? 'YOUR BRAND CONTEXT (scraped from your website — use for accurate, brand-specific copy):\n' + websiteContext.slice(0, 1200) : '',
-    '',
-    'PRIORITY BIAS STACK for ' + s.label + ': ' + s.biasStack,
-    inferObjection(brand, goal, '', audience),
-    '',
-    'FORMATS TO WRITE:'
+    'FUNNEL STAGE: ' + s.label + ' - ' + s.objective
   ];
-
-  formats.forEach(function(fmt) {
+  if (tone)               parts.push('TONE: ' + tone);
+  if (competitor)         parts.push('COMPETITOR TO OUTPERFORM: ' + competitor + '. Write copy that is more compelling, more emotionally resonant, and more behaviorally engineered than what they produce.');
+  if (competitorContext)  parts.push('COMPETITOR INTELLIGENCE (use this to understand what they say and how to outflank them): ' + competitorContext.slice(0, 900));
+  if (websiteContext)     parts.push('YOUR BRAND CONTEXT (use for accurate, brand-specific copy): ' + websiteContext.slice(0, 1200));
+  parts.push('PRIORITY BIAS STACK for ' + s.label + ': ' + s.biasStack);
+  parts.push(inferObjection(brand, goal, '', audience));
+  parts.push('FORMATS TO WRITE:');
+  s.formats.forEach(function(fmt) {
     if (fmt === 'Facebook Ad') {
-      lines.push('- Facebook Ad: write a HEADLINE (max 8 words, pattern-interrupting) and a CAPTION (2-3 sentences, emotionally driven)');
+      parts.push('- Facebook Ad: write a HEADLINE (max 8 words, pattern-interrupting) and a CAPTION (2-3 sentences, emotionally driven)');
     } else if (fmt === 'Google Ad Headline') {
-      lines.push('- Google Ad Headline: max 30 characters, benefit-led, specific');
+      parts.push('- Google Ad Headline: max 30 characters, benefit-led, specific');
     } else if (fmt === 'Email Subject + Body') {
-      lines.push('- Email Subject: max 9 words, curiosity or loss framing');
-      lines.push('- Email Body: 3-4 short paragraphs, opens with a hook, ends with a clear CTA');
+      parts.push('- Email Subject: max 9 words, curiosity or loss framing');
+      parts.push('- Email Body: 3-4 short paragraphs, opens with a hook, ends with a clear CTA');
     } else if (fmt === 'WhatsApp Message') {
-      lines.push('- WhatsApp Message: conversational, max 3 sentences, personal tone, ends with one clear action');
+      parts.push('- WhatsApp Message: conversational, max 3 sentences, personal tone, ends with one clear action');
     } else if (fmt === 'Instagram Caption') {
-      lines.push('- Instagram Caption: hook in first line (before the fold), 2-3 lines, ends with a question or CTA');
+      parts.push('- Instagram Caption: hook in first line (before the fold), 2-3 lines, ends with a question or CTA');
     } else if (fmt === 'SMS / Push Notification') {
-      lines.push('- SMS / Push Notification: max 120 characters, urgent, concrete, one action');
+      parts.push('- SMS / Push Notification: max 120 characters, urgent, concrete, one action');
     }
   });
-
-  lines.push('');
-  lines.push('For each format, identify the PRIMARY behavioral bias applied and how.');
-  lines.push('Return JSON only (no markdown):');
-
-  // Build dynamic JSON schema based on formats
+  parts.push('For each format, identify the PRIMARY behavioral bias applied and how.');
+  parts.push('Return JSON only (no markdown):');
   var schema = { stage: stage };
-  formats.forEach(function(fmt) {
+  s.formats.forEach(function(fmt) {
     if (fmt === 'Facebook Ad') {
       schema.facebook_headline = 'text';
-      schema.facebook_caption = 'text';
-      schema.facebook_bias = { name: '...', application: '...' };
+      schema.facebook_caption  = 'text';
+      schema.facebook_bias     = { name: '...', application: '...' };
     } else if (fmt === 'Google Ad Headline') {
       schema.google_headline = 'text';
-      schema.google_bias = { name: '...', application: '...' };
+      schema.google_bias     = { name: '...', application: '...' };
     } else if (fmt === 'Email Subject + Body') {
       schema.email_subject = 'text';
-      schema.email_body = 'text';
-      schema.email_bias = { name: '...', application: '...' };
+      schema.email_body    = 'text';
+      schema.email_bias    = { name: '...', application: '...' };
     } else if (fmt === 'WhatsApp Message') {
-      schema.whatsapp = 'text';
+      schema.whatsapp      = 'text';
       schema.whatsapp_bias = { name: '...', application: '...' };
     } else if (fmt === 'Instagram Caption') {
-      schema.instagram = 'text';
+      schema.instagram      = 'text';
       schema.instagram_bias = { name: '...', application: '...' };
     } else if (fmt === 'SMS / Push Notification') {
-      schema.sms = 'text';
+      schema.sms      = 'text';
       schema.sms_bias = { name: '...', application: '...' };
     }
   });
-
-  lines.push(JSON.stringify(schema));
-  return lines.filter(function(l){ return l !== ''; }).join('\n');
+  parts.push(JSON.stringify(schema));
+  return parts.join('\n');
 }
 
 function renderCampaignStage(stageKey, data) {
   var s = FUNNEL_STAGES[stageKey];
   var formats = [];
-
   function fCard(labelText, fieldKey, biasKey, isHeadline) {
     var text = data[fieldKey] || '';
     if (!text) return '';
     var biasObj = data[biasKey];
     var biasHtml = biasObj && biasObj.name ? makeBiasTag(biasObj) : '';
     return '<div class="copy-format-card">'
-      + '<div class="copy-format-label">'
-      + '<span>' + labelText + '</span>'
-      + '<div class="bias-tags">' + biasHtml + '</div>'
-      + '</div>'
+      + '<div class="copy-format-label"><span>' + labelText + '</span>'
+      + '<div class="bias-tags">' + biasHtml + '</div></div>'
       + '<div class="copy-format-text' + (isHeadline ? ' headline-style' : '') + '">' + renderCopyText(text) + '</div>'
       + '</div>';
   }
-
   if (data.facebook_headline) formats.push(
-    fCard('Facebook Ad — Headline', 'facebook_headline', 'facebook_bias', true)
-    + fCard('Facebook Ad — Caption', 'facebook_caption', 'facebook_bias', false)
+    fCard('Facebook Ad - Headline', 'facebook_headline', 'facebook_bias', true)
+    + fCard('Facebook Ad - Caption', 'facebook_caption', 'facebook_bias', false)
   );
-  if (data.google_headline) formats.push(fCard('Google Ad Headline', 'google_headline', 'google_bias', true));
-  if (data.email_subject)   formats.push(
-    fCard('Email — Subject Line', 'email_subject', 'email_bias', true)
-    + fCard('Email — Body', 'email_body', 'email_bias', false)
+  if (data.google_headline)  formats.push(fCard('Google Ad Headline', 'google_headline', 'google_bias', true));
+  if (data.email_subject)    formats.push(
+    fCard('Email - Subject Line', 'email_subject', 'email_bias', true)
+    + fCard('Email - Body', 'email_body', 'email_bias', false)
   );
-  if (data.whatsapp)        formats.push(fCard('WhatsApp Message', 'whatsapp', 'whatsapp_bias', false));
-  if (data.instagram)       formats.push(fCard('Instagram Caption', 'instagram', 'instagram_bias', false));
-  if (data.sms)             formats.push(fCard('SMS / Push Notification', 'sms', 'sms_bias', true));
-
+  if (data.whatsapp)         formats.push(fCard('WhatsApp Message', 'whatsapp', 'whatsapp_bias', false));
+  if (data.instagram)        formats.push(fCard('Instagram Caption', 'instagram', 'instagram_bias', false));
+  if (data.sms)              formats.push(fCard('SMS / Push Notification', 'sms', 'sms_bias', true));
   return '<div class="funnel-stage open" id="cm-stage-' + stageKey + '">'
     + '<div class="funnel-stage-header" onclick="toggleFunnelStage(this)">'
     + '<div class="funnel-stage-title">'
     + '<span class="funnel-badge ' + s.badgeClass + '">' + s.badge + '</span>'
-    + '<div>'
-    + '<div class="funnel-stage-label">' + s.label + '</div>'
+    + '<div><div class="funnel-stage-label">' + s.label + '</div>'
     + '<div class="funnel-stage-desc">' + s.desc + '</div>'
     + '</div></div>'
     + '<div class="funnel-chevron">&#9660;</div>'
@@ -2392,32 +2365,28 @@ async function generateCampaign() {
     showErr('cm-err', 'Brand name, campaign goal, and target audience are required.');
     return;
   }
-
-  var url          = document.getElementById('cm-url').value.trim();
-  var compName     = document.getElementById('cm-comp-name').value.trim();
-  var tone         = document.getElementById('cm-tone').value.trim();
+  var url       = document.getElementById('cm-url').value.trim();
+  var compUrl   = document.getElementById('cm-comp-url') ? document.getElementById('cm-comp-url').value.trim() : '';
+  var compNameEl = document.getElementById('cm-comp-name');
+  var compName  = compNameEl ? compNameEl.value.trim() : '';
+  var toneEl    = document.getElementById('cm-tone');
+  var tone      = toneEl ? toneEl.value.trim() : '';
 
   setLoading('cm-gen-btn', true, 'Build Full Funnel Campaign');
   showErr('cm-err', '');
-
-  // Loading UI
   document.getElementById('cm-out').innerHTML =
     '<div class="cm-loading-steps">'
     + '<div class="cm-loading-spinner"></div>'
-    + '<div class="cm-loading-label" id="cm-load-label">Fetching brand context...</div>'
-    + '<div class="cm-loading-step" id="cm-load-step">Visiting your website</div>'
+    + '<div class="cm-loading-label" id="cm-load-label">Researching your brand...</div>'
+    + '<div class="cm-loading-step" id="cm-load-step"></div>'
     + '</div>';
 
-  // Step 1a: Fetch brand website context
   var websiteContext = null;
   if (url) {
     document.getElementById('cm-load-label').textContent = 'Researching your brand...';
     document.getElementById('cm-load-step').textContent = url;
     websiteContext = await fetchWebsiteContext(url, 'cm-load-step', 'cm-url-status');
   }
-
-  // Step 1b: Fetch competitor website context
-  var compUrl  = document.getElementById('cm-comp-url').value.trim();
   var compContext = null;
   if (compUrl) {
     document.getElementById('cm-load-label').textContent = 'Researching your competitor...';
@@ -2425,31 +2394,26 @@ async function generateCampaign() {
     compContext = await fetchWebsiteContext(compUrl, 'cm-load-step', 'cm-comp-url-status');
   }
 
-  // Step 2: Generate all 3 funnel stages in parallel
   document.getElementById('cm-load-label').textContent = 'Writing your full funnel campaign...';
   document.getElementById('cm-load-step').textContent = 'TOF + MOF + BOF simultaneously';
 
-  var stages = ['tof', 'mof', 'bof'];
+  var stages  = ['tof', 'mof', 'bof'];
   var results = {};
-  var errors = [];
+  var errors  = [];
 
   await Promise.all(stages.map(async function(stage) {
     try {
       var prompt = buildCampaignPrompt(stage, brand, goal, audience, tone, compName, websiteContext, compContext);
-      var d = await callAI(prompt);
-      results[stage] = d;
+      results[stage] = await callAI(prompt);
     } catch(e) {
       errors.push(stage + ': ' + e.message);
       results[stage] = null;
     }
   }));
 
-  // Render results
   var html = '<div class="results-label">Full Funnel Campaign</div>';
   stages.forEach(function(stage) {
-    if (results[stage]) {
-      html += renderCampaignStage(stage, results[stage]);
-    }
+    if (results[stage]) html += renderCampaignStage(stage, results[stage]);
   });
 
   if (errors.length === stages.length) {
@@ -2459,13 +2423,12 @@ async function generateCampaign() {
     document.getElementById('cm-out').innerHTML = html;
     flashNew('cm-out');
     document.getElementById('cm-out').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    if (errors.length > 0) {
-      showErr('cm-err', 'Some stages failed: ' + errors.join(', ') + '. Others generated successfully.');
-    }
+    if (errors.length > 0) showErr('cm-err', 'Some stages failed: ' + errors.join(', '));
   }
-
   setLoading('cm-gen-btn', false, 'Build Full Funnel Campaign');
 }
+
+
 </script>
 <!-- ── MODAL ──────────────────────────────────────────────── -->
 <div class="modal-backdrop" id="refine-modal" onclick="closeModal(event)">
