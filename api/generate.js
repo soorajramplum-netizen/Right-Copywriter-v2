@@ -226,7 +226,7 @@ CRITICAL INSTRUCTIONS
 // ─── PROVIDER CALLERS ────────────────────────────────────────────
 
 // Gemini — uses system_instruction for 2.x+, embeds engine in prompt for 1.x
-async function callGemini(model, prompt, apiKey) {
+async function callGemini(model, prompt, apiKey, temp) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   const fullPrompt = BIAS_ENGINE + '\n\n---\n\nUSER REQUEST:\n' + prompt;
   // system_instruction + responseMimeType only supported on gemini-2.x
@@ -235,11 +235,11 @@ async function callGemini(model, prompt, apiKey) {
     ? {
         system_instruction: { parts: [{ text: BIAS_ENGINE }] },
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.82, maxOutputTokens: 8192, responseMimeType: 'application/json' }
+        generationConfig: { temperature: temp, maxOutputTokens: 8192, responseMimeType: 'application/json' }
       }
     : {
         contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-        generationConfig: { temperature: 0.82, maxOutputTokens: 8192 }
+        generationConfig: { temperature: temp, maxOutputTokens: 8192 }
       };
 
   const gCtrl = new AbortController();
@@ -261,7 +261,7 @@ async function callGemini(model, prompt, apiKey) {
 }
 
 // Groq — OpenAI-compatible, system message + user message
-async function callGroq(model, prompt, apiKey) {
+async function callGroq(model, prompt, apiKey, temp) {
   const groqCtrl = new AbortController();
   const groqTimer = setTimeout(() => groqCtrl.abort(), 30000);
   let res;
@@ -275,7 +275,7 @@ async function callGroq(model, prompt, apiKey) {
         { role: 'system', content: BIAS_ENGINE },
         { role: 'user',   content: prompt + '\n\nReturn ONLY valid JSON. No markdown backticks. No preamble.' }
       ],
-      temperature: 0.82,
+      temperature: temp,
       max_tokens: 8192,
       response_format: { type: 'json_object' }
     })
@@ -292,7 +292,7 @@ async function callGroq(model, prompt, apiKey) {
 }
 
 // OpenRouter — OpenAI-compatible, system + user messages
-async function callOpenRouter(model, prompt, apiKey) {
+async function callOpenRouter(model, prompt, apiKey, temp) {
   const orCtrl = new AbortController();
   const orTimer = setTimeout(() => orCtrl.abort(), 30000);
   let res;
@@ -311,7 +311,7 @@ async function callOpenRouter(model, prompt, apiKey) {
         { role: 'system', content: BIAS_ENGINE },
         { role: 'user',   content: prompt + '\n\nReturn ONLY valid JSON. No markdown backticks. No preamble.' }
       ],
-      temperature: 0.82,
+      temperature: temp,
       max_tokens: 8192,
     })
     });
@@ -343,9 +343,11 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'No API keys configured. Set GEMINI_API_KEY, GROQ_API_KEY, or OPENROUTER_API_KEY in Vercel environment variables.' });
   }
 
-  const { prompt } = req.body || {};
+  const { prompt, temperature } = req.body || {};
   if (!prompt) return res.status(400).json({ error: 'No prompt provided' });
 
+  // Default to 0.82 for creative generation, but allow 0 for strict audits
+  const temp = typeof temperature === 'number' ? temperature : 0.82;
   let lastError = '';
 
   for (const { provider, model } of MODEL_CHAIN) {
@@ -357,9 +359,9 @@ export default async function handler(req, res) {
     try {
       let rawText = '';
 
-      if (provider === 'gemini')     rawText = await callGemini(model, prompt, geminiKey);
-      if (provider === 'groq')       rawText = await callGroq(model, prompt, groqKey);
-      if (provider === 'openrouter') rawText = await callOpenRouter(model, prompt, openrouterKey);
+      if (provider === 'gemini')     rawText = await callGemini(model, prompt, geminiKey, temp);
+      if (provider === 'groq')       rawText = await callGroq(model, prompt, groqKey, temp);
+      if (provider === 'openrouter') rawText = await callOpenRouter(model, prompt, openrouterKey, temp);
 
       // Strip any markdown fences and validate JSON
       const cleaned = rawText.replace(/```json\n?|```\n?/g, '').trim();

@@ -893,7 +893,7 @@
       <div class="logo"><span class="logo-letter">R</span></div>
       <div class="brand-text">
         <div class="brand-name">Right Copywriter</div>
-        <div class="brand-sub">Copy that sells.</div>
+        <div class="brand-sub">Copy that sells by Sooraj Ram.</div>
       </div>
       <div class="science-badge">Behavioral Science</div>
     </div>
@@ -1467,11 +1467,11 @@ function togglePopById(btn) {
 }
 
 // ── API ────────────────────────────────────────────────────────
-async function callAI(prompt) {
+async function callAI(prompt, temp) {
   var res = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt: prompt })
+    body: JSON.stringify({ prompt: prompt, temperature: temp })
   });
   if (!res.ok) {
     var err = await res.json().catch(function() { return {}; });
@@ -2127,6 +2127,12 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
     '2. Based on that friction tag, pull the most synergistic behavioral biases to rewrite the copy.',
     '3. For each active bias found in the original copy, AND each bias used in the rewrite, you MUST assign an "executionScore" from 1 to 5 (1=Poor, 5=Perfectly integrated).',
     '',
+    'STRICT RULES FOR AUDITING THE ORIGINAL COPY (WORKING BIASES):',
+    '- Be completely objective, analytical, and highly strict.',
+    '- ONLY list a bias as "working" if it is UNDENIABLY and EXPLICITLY present in the text.',
+    '- Do not stretch definitions. If a bias is weak, accidental, or subjective, IGNORE IT.',
+    '- Limit working biases to ONLY the 1 to 4 most dominant psychological levers actually used to ensure scoring consistency.',
+    '',
     'STRICT RULES FOR MISSING BIASES:',
     '- Only list a bias as MISSING if it is (a) clearly absent AND (b) would materially improve conversion for this specific copy.',
     '- Maximum 3 missing biases. Quality over quantity.',
@@ -2143,7 +2149,6 @@ function buildAuditHtml(d, origScore) {
   var working = d.working || [];
   var missing = d.missing || [];
   
-  // Display strictly the score of the ORIGINAL copy
   var displayScore = origScore;
   var scoreCol = displayScore >= 7.5 ? 'var(--green)' : displayScore >= 5 ? 'var(--amber)' : 'var(--red)';
 
@@ -2213,9 +2218,9 @@ async function runAudit() {
   lastAuditPrompt = { copy: copy, brand: brand, intent: intent, origScore: null, websiteCtx: auditWebCtx };
 
   try {
-    var d = await callAI(buildAuditPrompt(copy, brand, intent, '', auditWebCtx));
+    // Send 0.0 temperature for strict audit
+    var d = await callAI(buildAuditPrompt(copy, brand, intent, '', auditWebCtx), 0.0);
     
-    // Calculate ONLY the original score
     var origScore = calcBiasScore(d.working || [], d.missing || [], null);
     lastAuditPrompt.origScore = origScore;
     
@@ -2237,7 +2242,8 @@ function openAuditMoreOptions() {
       var p = lastAuditPrompt;
       setModalLoading('Rewriting with your feedback\u2026', 'Applying behavioral science\u2026');
       try {
-        var d = await callAI(buildAuditPrompt(p.copy, p.brand, p.intent, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.', p.websiteCtx || null));
+        // Pass 0.0 temperature here as well
+        var d = await callAI(buildAuditPrompt(p.copy, p.brand, p.intent, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.', p.websiteCtx || null), 0.0);
         var oSc = p.origScore || null;
 
         document.getElementById('audit-out').innerHTML = buildAuditHtml(d, oSc);
