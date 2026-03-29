@@ -893,7 +893,7 @@
       <div class="logo"><span class="logo-letter">R</span></div>
       <div class="brand-text">
         <div class="brand-name">Right Copywriter</div>
-        <div class="brand-sub">Copy that sells.</div>
+        <div class="brand-sub">Copy that sells. Sooraj Ram</div>
       </div>
       <div class="science-badge">Behavioral Science</div>
     </div>
@@ -1409,10 +1409,17 @@ function esc(s) {
 function renderCopyText(raw) {
   if (!raw) return '';
   var s = esc(raw);
+  
+  // Format bolding
   s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  
+  // Format visual hints
   s = s.replace(/\[(Visual:[^\]]+|Image:[^\]]+|Add\s[^\]]+)\]/g, function(m, inner) {
     return '<span class="visual-hint">' + inner.trim() + '</span>';
   });
+  
+  // FIX: Catch literal "\n" text strings sent by the AI and normal invisible line breaks
+  s = s.replace(/\\n/g, '<br>');
   return s.replace(/\n/g, '<br>');
 }
 function flashNew(elId) {
