@@ -1758,6 +1758,8 @@ function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo,
   parts.push('');
   parts.push(biasNote);
   if (feedback) parts.push('User feedback: ' + feedback + '. Rework all variants accordingly.');
+  
+  parts.push('CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines (like pressing Enter) inside the JSON strings.');
   parts.push('Return JSON only (no markdown):');
   parts.push('{"variants":[{"copy":"text","biases":[{"name":"Bias Name","explanation":"one sentence","application":"exactly how applied"}],"primaryBias":{"name":"...","explanation":"...","application":"..."},"secondaryBias":{"name":"...","explanation":"...","application":"..."}}]}');
   return parts.join('\n');
@@ -1874,6 +1876,7 @@ function buildBrandNamePrompt(what, cat, market, syl, avoid, sound, guard, webCt
   parts.push('- Keats Heuristic: rhythmic names feel more true and trustworthy');
   parts.push('- Emotional resonance: name should evoke the right feeling without explanation');
   parts.push('');
+  parts.push('CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines (like pressing Enter) inside the JSON strings.');
   parts.push('For each name also provide: phonetics (syllable breakdown), sound_profile (soft/balanced/bold), convention (descriptive/coined/metaphorical/portmanteau/abstract).');
   parts.push('Return JSON only:');
   parts.push('{"names":[{"name":"...","description":"max 50 chars","tagline":"3-4 word tagline","phonetics":"e.g. LU-ma (soft, 2 syllables)","sound_profile":"soft","convention":"coined","technique":{"name":"Naming Principle","explanation":"What this principle is","application":"How it shaped this specific name"}}]}');
@@ -1941,6 +1944,7 @@ function buildSubBrandNamePrompt(parent, what, dist, audRel, existing, guard, we
   if (guard)     parts.push('GUARDRAILS: ' + guard);
   if (webCtx)    parts.push('PARENT BRAND CONTEXT: ' + webCtx.slice(0, 600));
   if (feedback)  parts.push('USER FEEDBACK: ' + feedback);
+  parts.push('CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines (like pressing Enter) inside the JSON strings.');
   parts.push('For each name, specify: architecture (endorsed/hybrid/freestanding), equity_inherited (what equity this name borrows from the parent), equity_sacrificed (what it loses, if any).');
   parts.push('Return JSON only:');
   parts.push('{"names":[{"name":"...","description":"max 50 chars","tagline":"3-4 word tagline","architecture":"endorsed/hybrid/freestanding","equity_inherited":"...","equity_sacrificed":"...","technique":{"name":"Naming Principle","explanation":"1 sentence","application":"How it shaped this name"}}]}');
@@ -2004,6 +2008,7 @@ function buildProductNamePrompt(parent, what, cat, audience, existing, guard, we
   parts.push('- Distinctiveness: stands out on shelf or screen from direct competitors');
   parts.push('- Precision: specific names feel more credible than vague ones');
   parts.push('- Labelling: name that makes the user identify with the product');
+  parts.push('CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines (like pressing Enter) inside the JSON strings.');
   parts.push('For each name provide: convention (descriptive/benefit-led/ingredient-led/coined/metaphorical/portmanteau), portfolio_fit, shelf_cue.');
   parts.push('Return JSON only:');
   parts.push('{"names":[{"name":"...","description":"max 50 chars","tagline":"3-4 word tagline","convention":"...","portfolio_fit":"...","shelf_cue":"...","technique":{"name":"Naming Principle","explanation":"1 sentence","application":"How it shaped this name"}}]}');
@@ -2127,6 +2132,7 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
     '- Maximum 3 missing biases. Quality over quantity.',
     'DO NOT include an overall score (we calculate it mathematically).',
     'In the rewrite: use **bold** for key phrases. Include [Visual: suggestion] tags for image ideas.',
+    'CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines (like pressing Enter) inside the JSON strings.',
     'Return JSON only:',
     '{"friction_tag":"...","summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence","executionScore":4}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"...","executionScore":5},"rwBias2":{"name":"...","explanation":"...","application":"...","executionScore":5}}'
   );
@@ -2338,6 +2344,7 @@ function buildCampaignPrompt(stage, brand, goal, audience, tone, competitor, web
       parts.push('- SMS / Push Notification: max 120 characters, urgent, concrete, one action');
     }
   });
+  parts.push('CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines (like pressing Enter) inside the JSON strings.');
   parts.push('For each format, identify the PRIMARY behavioral bias applied and how.');
   parts.push('Return JSON only (no markdown):');
   var schema = { stage: stage };
