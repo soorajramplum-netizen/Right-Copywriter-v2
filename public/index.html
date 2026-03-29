@@ -597,7 +597,7 @@
     .modal-loading-icon {
       width: 44px; height: 44px; border-radius: 50%;
       border: 3px solid var(--bd); border-top-color: var(--green);
-      animation: spin 1s linear infinite; margin: 0 auto 14px;
+      animation: spin 1s linear infinite margin: 0 auto 14px;
     }
     .modal-loading-text {
       font-size: 13px; color: var(--mid); line-height: 1.55;
@@ -893,7 +893,7 @@
       <div class="logo"><span class="logo-letter">R</span></div>
       <div class="brand-text">
         <div class="brand-name">Right Copywriter</div>
-        <div class="brand-sub">Copy that sells. Sooraj Ram</div>
+        <div class="brand-sub">Copy that sells.Sooraj Ram</div>
       </div>
       <div class="science-badge">Behavioral Science</div>
     </div>
@@ -1409,16 +1409,10 @@ function esc(s) {
 function renderCopyText(raw) {
   if (!raw) return '';
   var s = esc(raw);
-  
-  // Format bolding
   s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  
-  // Format visual hints
   s = s.replace(/\[(Visual:[^\]]+|Image:[^\]]+|Add\s[^\]]+)\]/g, function(m, inner) {
     return '<span class="visual-hint">' + inner.trim() + '</span>';
   });
-  
-  // FIX: Catch literal "\n" text strings sent by the AI and normal invisible line breaks
   s = s.replace(/\\n/g, '<br>');
   return s.replace(/\n/g, '<br>');
 }
@@ -1604,75 +1598,49 @@ var BIAS_WEIGHTS = {
   "Mood": 1
 };
 
-// Legacy fallback scoring
-function calcLegacyScore(working, missing, copyType) {
-  var matrix = copyType ? BIAS_MATRIX[copyType] : null;
-  var maxApp  = matrix ? matrix.maxApplicable : 10;
-  var filteredMissing = missing || [];
-  if (matrix && matrix.applicable) {
-    filteredMissing = filteredMissing.filter(function(m) {
-      var name = (m.bias || m.name || '').toLowerCase();
-      return matrix.applicable.some(function(a) {
-        return name.indexOf(a.toLowerCase()) >= 0;
-      });
-    });
-  }
-  var w = Math.min((working || []).length, Math.min(maxApp, 6));
-  var m = Math.min(filteredMissing.length, 3);
-  var raw = 5 + (w * 0.8) - (m * 0.3);
-  return Math.round(Math.max(2.0, Math.min(9.8, raw)) * 2) / 2;
-}
-
-// New Bias Scoring Engine
+// New Deterministic Bias Scoring Engine
 function calcBiasScore(detectedBiases, missing, copyType) {
-  try {
-    var hasExecScores = detectedBiases && detectedBiases.length > 0 && detectedBiases.some(function(b) { return b.executionScore !== undefined; });
-    
-    // If we don't have execution scores from the LLM, default to the reliable legacy model
-    if (!hasExecScores) {
-      return calcLegacyScore(detectedBiases, missing, copyType);
-    }
-    
-    // Sort biases by execution score so we only grade the best ones
-    detectedBiases.sort(function(a, b) { return (b.executionScore || 0) - (a.executionScore || 0); });
-    
-    // Cap the evaluation at the Top 4 biases to prevent violent math swings
-    var evalBiases = detectedBiases.slice(0, 4); 
-    var n = evalBiases.length;
-    if (n === 0) return 3.0;
+  if (!detectedBiases || detectedBiases.length === 0) return 3.5;
+  
+  // 1. Sort biases by their Weight (highest first)
+  detectedBiases.sort(function(a, b) {
+    var wA = 1, wB = 1;
+    var nA = a.bias || a.name || "";
+    var nB = b.bias || b.name || "";
+    for (var k in BIAS_WEIGHTS) { if (nA.toLowerCase().indexOf(k.toLowerCase()) >= 0) { wA = BIAS_WEIGHTS[k]; break; } }
+    for (var k in BIAS_WEIGHTS) { if (nB.toLowerCase().indexOf(k.toLowerCase()) >= 0) { wB = BIAS_WEIGHTS[k]; break; } }
+    return wB - wA;
+  });
 
-    var totalEarned = 0;
-    var totalPossible = 0;
-
-    evalBiases.forEach(function(bias) {
-      var nameMatch = bias.bias || bias.name || "";
-      var weight = 2; 
-      for (var key in BIAS_WEIGHTS) {
-        if (nameMatch.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
-          weight = BIAS_WEIGHTS[key];
-          break;
-        }
+  // 2. Base score
+  var raw = 4.0;
+  
+  // 3. Grade up to the top 3 biases
+  var evalBiases = detectedBiases.slice(0, 3); 
+  evalBiases.forEach(function(b) {
+    var w = 1; 
+    var nameMatch = b.bias || b.name || "";
+    for (var key in BIAS_WEIGHTS) {
+      if (nameMatch.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
+        w = BIAS_WEIGHTS[key];
+        break;
       }
-      var exec = parseInt(bias.executionScore);
-      if (isNaN(exec)) exec = 3; 
-      
-      totalEarned += (weight * exec);
-      totalPossible += (weight * 5); 
-    });
+    }
+    if (w === 3) raw += 2.0;       // Macro lever
+    else if (w === 2) raw += 1.4;  // Standard lever
+    else raw += 0.8;               // Micro tweak
+  });
 
-    var rawScore = totalPossible > 0 ? (totalEarned / totalPossible) * 10 : 3.0;
-    
-    // Soften the cohesion multiplier so dense copy doesn't drop off a cliff
-    var c = 1.0; 
-    if (detectedBiases.length === 4) c = 0.95;       // 5% penalty
-    else if (detectedBiases.length >= 5) c = 0.90;   // 10% penalty maximum
+  // 4. Missing penalty
+  var m = (missing || []).length;
+  raw -= (m * 0.4);
 
-    var finalScore = rawScore * c;
-    return Math.round(Math.max(0, Math.min(10, finalScore)) * 10) / 10;
-  } catch (e) {
-    console.warn("[BiasScoring] Error in execution scoring. Falling back to legacy.", e);
-    return calcLegacyScore(detectedBiases, missing, copyType);
-  }
+  // 5. Frankenstein / Stuffing penalty (if they cram >3 biases)
+  if (detectedBiases.length === 4) raw -= 0.6;
+  if (detectedBiases.length >= 5) raw -= 1.2;
+
+  // Cap between 2.0 and 9.8
+  return Math.round(Math.max(2.0, Math.min(9.8, raw)) * 10) / 10;
 }
 
 function getCopyTypeStack(type) {
@@ -2137,12 +2105,12 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
     'SILENT AUDITOR ROUTING LOGIC:',
     '1. Diagnose the single biggest psychological friction point based on the copy and the stated Intent.',
     '2. Based on the Intent and friction tag, pull the most synergistic behavioral biases to rewrite the copy.',
-    '3. For each active bias found, assign an "executionScore" from 1 to 5.',
+    '3. For each active bias found, explain exactly how it is applied.',
     '',
     'STRICT RULES FOR AUDITING THE ORIGINAL COPY (WORKING BIASES):',
     '- Be completely objective, analytical, and highly strict.',
     '- ONLY list a bias as "working" if it is UNDENIABLY present.',
-    '- INTENT MATCHING IS CRITICAL: Evaluate if the detected biases actually serve the user\'s stated Intent. If they used a heavy Conversion bias (like Scarcity) but the Intent is "Trust building", grade its executionScore poorly (1 or 2) because it creates the wrong psychological state.',
+    '- INTENT MATCHING IS CRITICAL: Evaluate if the detected biases actually serve the user\'s stated Intent.',
     '- Limit working biases to a MAXIMUM of the 3 most dominant levers actually used.',
     '',
     'STRICT RULES FOR MISSING BIASES:',
@@ -2152,7 +2120,7 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
     'In the rewrite: use **bold** for key phrases. Include [Visual: suggestion] tags for image ideas.',
     'CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines inside the JSON strings.',
     'Return JSON only:',
-    '{"friction_tag":"...","summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence","executionScore":4}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"...","executionScore":5},"rwBias2":{"name":"...","explanation":"...","application":"...","executionScore":5}}'
+    '{"friction_tag":"...","summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence"}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}'
   );
   return parts.join('\n');
 }
