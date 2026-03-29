@@ -11,17 +11,19 @@
 // Adding future/preview Gemini IDs — they 404-skip gracefully if not live yet.
 
 const MODEL_CHAIN = [
-  // Gemini: confirmed working on v1beta (no preview/future models — they cause 404 hangs)
+  // Gemini 2.x — confirmed working, system_instruction supported
   { provider: 'gemini', model: 'gemini-2.5-flash'      },
   { provider: 'gemini', model: 'gemini-2.0-flash'      },
+  // Groq early — ultra-fast, won't timeout
+  { provider: 'groq',   model: 'llama-3.3-70b-versatile' },
+  { provider: 'groq',   model: 'llama3-70b-8192'         },
+  // Gemini lite fallbacks
   { provider: 'gemini', model: 'gemini-2.0-flash-lite' },
-  { provider: 'gemini', model: 'gemini-1.5-flash'      },
-  // Groq: ultra-fast inference, generous free tier
-  { provider: 'groq', model: 'llama-3.3-70b-versatile' },
-  { provider: 'groq', model: 'llama3-70b-8192'         },
-  { provider: 'groq', model: 'mixtral-8x7b-32768'      },
-  { provider: 'groq', model: 'gemma2-9b-it'            },
-  // OpenRouter: final safety net
+  { provider: 'gemini', model: 'gemini-2.5-flash-lite' },
+  // More Groq
+  { provider: 'groq',   model: 'mixtral-8x7b-32768'    },
+  { provider: 'groq',   model: 'gemma2-9b-it'          },
+  // OpenRouter: final net
   { provider: 'openrouter', model: 'meta-llama/llama-3.3-70b-instruct:free' },
   { provider: 'openrouter', model: 'mistralai/mistral-7b-instruct:free'      },
 ];
@@ -227,7 +229,9 @@ CRITICAL INSTRUCTIONS
 async function callGemini(model, prompt, apiKey) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   const fullPrompt = BIAS_ENGINE + '\n\n---\n\nUSER REQUEST:\n' + prompt;
-  const body = model.startsWith('gemini-2') || model.startsWith('gemini-3')
+  // system_instruction + responseMimeType only supported on gemini-2.x
+  const isModern = model.startsWith('gemini-2');
+  const body = isModern
     ? {
         system_instruction: { parts: [{ text: BIAS_ENGINE }] },
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -235,7 +239,7 @@ async function callGemini(model, prompt, apiKey) {
       }
     : {
         contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-        generationConfig: { temperature: 0.82, maxOutputTokens: 8192, responseMimeType: 'application/json' }
+        generationConfig: { temperature: 0.82, maxOutputTokens: 8192 }
       };
 
   const gCtrl = new AbortController();

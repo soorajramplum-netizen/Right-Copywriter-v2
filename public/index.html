@@ -2389,14 +2389,19 @@ async function generateCampaign() {
     compContext = await fetchWebsiteContext(compUrl, 'cm-load-step', 'cm-comp-url-status');
   }
 
-  document.getElementById('cm-load-label').textContent = 'Writing your full funnel campaign...';
-  document.getElementById('cm-load-step').textContent = 'TOF + MOF + BOF simultaneously';
+  document.getElementById('cm-load-label').textContent = 'Building your campaign...';
+  document.getElementById('cm-load-step').textContent = 'Starting with Top of Funnel...';
 
   var stages  = ['tof', 'mof', 'bof'];
   var results = {};
   var errors  = [];
 
-  await Promise.all(stages.map(async function(stage) {
+  // Sequential — not parallel — to avoid simultaneous API timeout
+  // TOF first (most important), then MOF, then BOF
+  for (var si = 0; si < stages.length; si++) {
+    var stage = stages[si];
+    document.getElementById('cm-load-label').textContent = 'Writing ' + FUNNEL_STAGES[stage].label + '...';
+    document.getElementById('cm-load-step').textContent = (si + 1) + ' of 3';
     try {
       var prompt = buildCampaignPrompt(stage, brand, goal, audience, tone, compName, websiteContext, compContext);
       results[stage] = await callAI(prompt);
@@ -2404,7 +2409,7 @@ async function generateCampaign() {
       errors.push(stage + ': ' + e.message);
       results[stage] = null;
     }
-  }));
+  }
 
   var html = '<div class="results-label">Full Funnel Campaign</div>';
   stages.forEach(function(stage) {
