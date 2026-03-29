@@ -243,7 +243,7 @@ async function callGemini(model, prompt, apiKey) {
       };
 
   const gCtrl = new AbortController();
-  const gTimer = setTimeout(() => gCtrl.abort(), 8000);
+  const gTimer = setTimeout(() => gCtrl.abort(), 30000);
   let res;
   try {
     res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: gCtrl.signal });
@@ -263,7 +263,7 @@ async function callGemini(model, prompt, apiKey) {
 // Groq — OpenAI-compatible, system message + user message
 async function callGroq(model, prompt, apiKey) {
   const groqCtrl = new AbortController();
-  const groqTimer = setTimeout(() => groqCtrl.abort(), 8000);
+  const groqTimer = setTimeout(() => groqCtrl.abort(), 30000);
   let res;
   try {
     res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -294,7 +294,7 @@ async function callGroq(model, prompt, apiKey) {
 // OpenRouter — OpenAI-compatible, system + user messages
 async function callOpenRouter(model, prompt, apiKey) {
   const orCtrl = new AbortController();
-  const orTimer = setTimeout(() => orCtrl.abort(), 8000);
+  const orTimer = setTimeout(() => orCtrl.abort(), 30000);
   let res;
   try {
     res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
