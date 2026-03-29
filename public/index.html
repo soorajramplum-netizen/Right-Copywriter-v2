@@ -887,7 +887,6 @@
 </head>
 <body>
 
-<!-- ── HEADER ─────────────────────────────────────────────── -->
 <div class="header">
   <div class="header-inner">
     <div class="brand-row">
@@ -909,18 +908,15 @@
 
 <main class="content">
 
-  <!-- ══════════════ COPYWRITER ══════════════ -->
   <section id="tab-copy" role="tabpanel">
     <h1 class="page-title">Copywriter</h1>
     <p class="page-sub">Every word earned through behavioral logic.</p>
 
-    <!-- Sub-tab switcher -->
     <div class="cm-sub-tabs">
       <button class="cm-sub-btn active" onclick="switchCopyMode('single',this)">Single Copy</button>
       <button class="cm-sub-btn" onclick="switchCopyMode('campaign',this)">Campaign Manager</button>
     </div>
 
-    <!-- ── SINGLE COPY PANEL ── -->
     <div class="cm-sub-panel active" id="cm-single">
 
     <div class="field">
@@ -984,10 +980,7 @@
     <div class="err hidden" id="copy-err"></div>
     <div id="copy-out"></div>
 
-    </div><!-- /cm-single -->
-
-    <!-- ── CAMPAIGN MANAGER PANEL ── -->
-    <div class="cm-sub-panel" id="cm-campaign">
+    </div><div class="cm-sub-panel" id="cm-campaign">
       <div class="field">
         <div class="label">Brand / Product Name</div>
         <input id="cm-brand" placeholder="e.g. Mamaearth, Noise, UrbanClap" autocomplete="off">
@@ -1001,7 +994,6 @@
         <input id="cm-audience" placeholder="e.g. Urban millennials, female, 25-35, D2C skincare buyers">
       </div>
 
-      <!-- URLs on first fold — both optional but visible -->
       <div class="g2">
         <div class="field">
           <div class="label">Your Website <span class="opt">optional</span></div>
@@ -1035,15 +1027,11 @@
       </button>
       <div class="err hidden" id="cm-err"></div>
       <div id="cm-out"></div>
-    </div><!-- /cm-campaign -->
-
-  </section>
-  <!-- ══════════════ NAME GENERATOR ══════════════ -->
+    </div></section>
   <section id="tab-names" class="hidden" role="tabpanel">
     <h1 class="page-title">Name Generator</h1>
     <p class="page-sub">Naming science applied. Not creative guesswork.</p>
 
-    <!-- Mode selector -->
     <div class="ng-mode-wrap">
       <div class="ng-mode-label">What are you naming?</div>
       <div class="ng-mode-pills">
@@ -1065,7 +1053,6 @@
       </div>
     </div>
 
-    <!-- ── BRAND MODE ── -->
     <div class="ng-panel active" id="ng-brand">
       <div class="field">
         <div class="label">What does this brand stand for?</div>
@@ -1097,7 +1084,6 @@
         </div>
       </div>
 
-      <!-- Sound profile slider -->
       <div class="field">
         <div class="label">Sound Profile
           <span style="font-size:10px;font-weight:400;color:var(--dim);margin-left:6px;text-transform:none;letter-spacing:0;">Bouba/Kiki spectrum — soft sounds feel gentle &amp; premium; hard sounds feel bold &amp; fast</span>
@@ -1130,7 +1116,6 @@
       </button>
     </div>
 
-    <!-- ── SUB-BRAND MODE ── -->
     <div class="ng-panel" id="ng-subbrand">
       <div class="field">
         <div class="label">Parent Brand Name</div>
@@ -1182,7 +1167,6 @@
       </button>
     </div>
 
-    <!-- ── PRODUCT MODE ── -->
     <div class="ng-panel" id="ng-product">
       <div class="field">
         <div class="label">Parent Brand Name</div>
@@ -1227,13 +1211,23 @@
     <div id="name-out"></div>
   </section>
   
-<!-- ══════════════ BIAS AUDIT ══════════════ -->
-  <section id="tab-audit" class="hidden" role="tabpanel">
+<section id="tab-audit" class="hidden" role="tabpanel">
     <h1 class="page-title">Bias Audit</h1>
     <p class="page-sub">Paste any copy and get a full behavioral science dissection.</p>
 
     <div class="audit-notice">
       We identify which of the 62 behavioral biases are working, which are missing, score the copy on behavioral effectiveness, and rewrite it with the gaps filled.
+    </div>
+
+    <div class="field">
+      <div class="label">Primary Intent</div>
+      <div class="pills" id="audit-intent-pills">
+        <button class="pill on" onclick="selectPill(this,'audit-intent-pills')">Awareness</button>
+        <button class="pill" onclick="selectPill(this,'audit-intent-pills')">Hook attention</button>
+        <button class="pill" onclick="selectPill(this,'audit-intent-pills')">Trust building</button>
+        <button class="pill" onclick="selectPill(this,'audit-intent-pills')">Convey benefits</button>
+        <button class="pill" onclick="selectPill(this,'audit-intent-pills')">Conversion</button>
+      </div>
     </div>
 
     <div class="field">
@@ -1267,7 +1261,6 @@
     <div id="audit-out"></div>
   </section>
 
-  <!-- ══════════════ ABOUT ══════════════ -->
   <section id="tab-about" class="hidden" role="tabpanel">
     <h1 class="page-title">About</h1>
     <p class="page-sub">Why this tool exists.</p>
@@ -1540,7 +1533,7 @@ async function fetchWebsiteContext(url, labelElId, statusElId) {
   return null;
 }
 
-// ── SCORING ────────────────────────────────────────────────────
+// ── SCORING LOGIC ──────────────────────────────────────────────
 var BIAS_MATRIX = {
   'Headline': {
     priority: ['Distinctiveness','Keats Heuristic','Concreteness','Loss Aversion','Generation Effect','Cognitive Ease','Labelling','Framing'],
@@ -1579,38 +1572,32 @@ var BIAS_MATRIX = {
   }
 };
 
-// ── UPGRADE 3: Confidence-adjusted scoring ───────────────────────
-// Only counts biases as 'missing' if they are applicable to this copy type.
-// Prevents penalising copy for not using biases irrelevant to the format.
-function calcBiasScore(working, missing, copyType) {
-  var matrix = copyType ? BIAS_MATRIX[copyType] : null;
-  var maxApp  = matrix ? matrix.maxApplicable : 10;
+var BIAS_WEIGHTS = {
+  "Distinctiveness (Von Restorff)": 2, "Cocktail Party Effect": 2, "Red Sneakers Effect": 2,
+  "Affect Heuristic": 2, "Emotional Dynamism": 2, "Moving Power": 2, "Category Fit vs Break": 2,
+  "Focusing Illusion": 2, "Wishful Seeing": 2, "Priming": 2, "Fame-Feeling-Fluency": 3,
+  "Bouba/Kiki Effect": 1, "Alliteration & Rhyme": 1, "Fluency in Naming": 1, "WYSIATI": 3,
+  "Media Context": 2, "Mirroring Principle": 2, "Social Proof": 3, "Pratfall Effect": 3,
+  "Halo Effect": 2, "Wisdom of Wit": 2, "Precision": 1, "Danger of Claimed Data": 2,
+  "Replicability Crisis": 2, "Fundamental Attribution Error": 2, "Bystander Effect": 2,
+  "Confirmation Bias": 3, "Narrative Coherence": 2, "Narrative Fallacy": 2, "Law of Small Numbers": 2,
+  "Representativeness": 2, "Keats Heuristic": 1, "Conjunction Fallacy": 2, "Power of Group": 3,
+  "Pain of Payment": 3, "Price Relativity": 3, "Extreme Aversion": 2, "Denominator Neglect": 1,
+  "Veblen Goods": 2, "Anchoring": 3, "Endowment Effect": 3, "Prospect Theory": 3,
+  "Costly Signalling": 3, "Reframing": 3, "Winner's Curse": 2, "Fairness": 2, "Expectancy Theory": 2,
+  "Placebo Effect": 3, "Peak-End Rule": 2, "Duration Neglect": 2, "Planning Fallacy": 2,
+  "Optimistic Bias": 2, "Overconfidence": 2, "Curse of Knowledge": 2, "Goodhart's Law": 2,
+  "IKEA Effect": 3, "Generation Effect": 2, "Labelling": 2, "Framing": 3, "Primacy Effect": 2,
+  "Scarcity": 3, "Loss Aversion": 3, "Fear of Regret": 3, "Make It Easy": 3, "Cognitive Ease": 2,
+  "Default Choice Bias": 3, "Satisficing": 2, "Affordance": 2, "Gratuitous Choices": 1,
+  "Substitution Heuristic": 2, "Availability Heuristic": 2, "Sunk Cost": 3, "Psycho-Logic": 2,
+  "Context Dependency": 2, "Concreteness": 1, "Concreteness in Naming": 1, "Fluent Innovation": 2,
+  "Habit Formation": 3, "Fresh Start Effect": 2, "Behaviour Before Attitude": 3, "Variability": 2,
+  "Mood": 1
+};
 
-  // Filter missing to only applicable biases for this copy type
-  var filteredMissing = missing || [];
-  if (matrix && matrix.applicable) {
-    filteredMissing = filteredMissing.filter(function(m) {
-      var biasName = (m.bias || m.name || '').toLowerCase();
-      return matrix.applicable.some(function(a) {
-        return biasName.indexOf(a.toLowerCase()) >= 0;
-      });
-    });
-  }
-
-  // Formula (calibrated):
-  // Base 5 + 0.8 per working bias (cap 6) — rewards what IS there
-  // - 0.3 per missing bias (cap 3)         — soft penalty, realistic ceiling
-  // Range: 2.0 – 9.8. Well-engineered copy with 5 working, 2 missing = 5+4-0.6 = 8.4
-  var w = Math.min((working||[]).length, Math.min(maxApp, 6));
-  var m = Math.min(filteredMissing.length, 3);
-  var raw = 5 + (w * 0.8) - (m * 0.3);
-  return Math.round(Math.max(2.0, Math.min(9.8, raw)) * 2) / 2;
-}
-
-
-// Confidence-adjusted scoring
-// 5 base + 0.8 per working bias (cap 6) - 0.3 per applicable-missing (cap 3)
-function calcBiasScore(working, missing, copyType) {
+// Legacy fallback scoring
+function calcLegacyScore(working, missing, copyType) {
   var matrix = copyType ? BIAS_MATRIX[copyType] : null;
   var maxApp  = matrix ? matrix.maxApplicable : 10;
   var filteredMissing = missing || [];
@@ -1628,8 +1615,54 @@ function calcBiasScore(working, missing, copyType) {
   return Math.round(Math.max(2.0, Math.min(9.8, raw)) * 2) / 2;
 }
 
+// New Bias Scoring Engine
+function calcBiasScore(detectedBiases, missing, copyType) {
+  try {
+    var hasExecScores = detectedBiases && detectedBiases.length > 0 && detectedBiases.some(function(b) { return b.executionScore !== undefined; });
+    
+    // If we don't have execution scores from the LLM (like in older features), default to the reliable legacy model
+    if (!hasExecScores) {
+      return calcLegacyScore(detectedBiases, missing, copyType);
+    }
+    
+    var n = detectedBiases.length;
+    if (n === 0) return 3.0;
 
-// ── UPGRADE 2: Objection inference ────────────────────────────
+    var totalEarned = 0;
+    var totalPossible = 0;
+
+    detectedBiases.forEach(function(bias) {
+      var nameMatch = bias.bias || bias.name || "";
+      var weight = 2; // default weight 2
+      for (var key in BIAS_WEIGHTS) {
+        if (nameMatch.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
+          weight = BIAS_WEIGHTS[key];
+          break;
+        }
+      }
+      var exec = parseInt(bias.executionScore);
+      if (isNaN(exec)) exec = 3; 
+      
+      totalEarned += (weight * exec);
+      totalPossible += (weight * 5); 
+    });
+
+    var rawScore = totalPossible > 0 ? (totalEarned / totalPossible) * 10 : 3.0;
+    
+    // Cohesion multiplier (anti-cramming penalty)
+    var c = 1.0; 
+    if (n === 4) c = 0.9;      
+    else if (n === 5) c = 0.8; 
+    else if (n >= 6) c = 0.7;  
+
+    var finalScore = rawScore * c;
+    return Math.round(Math.max(0, Math.min(10, finalScore)) * 10) / 10;
+  } catch (e) {
+    console.warn("[BiasScoring] Error in execution scoring. Falling back to legacy.", e);
+    return calcLegacyScore(detectedBiases, missing, copyType);
+  }
+}
+
 function getCopyTypeStack(type) {
   var matrix = BIAS_MATRIX[type];
   if (!matrix) return '';
@@ -2073,26 +2106,29 @@ function openNameMoreOptions() {
 
 
 // ── BIAS AUDIT ─────────────────────────────────────────────────
-function buildAuditPrompt(copy, brand, extra, websiteCtx) {
+function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
   var parts = [
     'Perform a comprehensive behavioral science audit of this copy.',
-    'Copy: "' + copy.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"'
+    'Copy: "' + copy.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"',
+    'User Stated Intent: ' + intent
   ];
   if (brand)      parts.push('Brand/Product: ' + brand);
   if (websiteCtx) parts.push('BRAND WEBSITE CONTEXT: ' + websiteCtx.slice(0, 800));
   if (brand || copy) parts.push(inferObjection(brand, copy.slice(0, 200), '', ''));
   if (extra)      parts.push(extra);
   parts.push(
-    'Identify biases actively present (working) and missing but impactful (missing).',
+    'SILENT AUDITOR ROUTING LOGIC:',
+    '1. Diagnose the single biggest psychological friction point based on the copy and intent (e.g. friction_ignorable, friction_skepticism, friction_low_value, friction_procrastination, or friction_forgettable).',
+    '2. Based on that friction tag, pull the most synergistic behavioral biases to rewrite the copy.',
+    '3. For each active bias found in the original copy, AND each bias used in the rewrite, you MUST assign an "executionScore" from 1 to 5 (1=Poor, 5=Perfectly integrated).',
+    '',
     'STRICT RULES FOR MISSING BIASES:',
-    '- Only list a bias as MISSING if it is (a) clearly absent AND (b) would materially improve conversion for this specific copy',
-    '- Do NOT list every bias that is not loudly present',
-    '- Maximum 3 missing biases. Quality over quantity. Only the most commercially impactful gaps.',
-    '- If the copy is already well-engineered, it is acceptable to list 0-1 missing biases',
-    'DO NOT include a score.',
+    '- Only list a bias as MISSING if it is (a) clearly absent AND (b) would materially improve conversion for this specific copy.',
+    '- Maximum 3 missing biases. Quality over quantity.',
+    'DO NOT include an overall score (we calculate it mathematically).',
     'In the rewrite: use **bold** for key phrases. Include [Visual: suggestion] tags for image ideas.',
     'Return JSON only:',
-    '{"summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence"}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}'
+    '{"friction_tag":"...","summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence","executionScore":4}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"...","executionScore":5},"rwBias2":{"name":"...","explanation":"...","application":"...","executionScore":5}}'
   );
   return parts.join('\n');
 }
@@ -2100,8 +2136,7 @@ function buildAuditPrompt(copy, brand, extra, websiteCtx) {
 function buildAuditHtml(d, origScore, improvedScore) {
   var working = d.working || [];
   var missing = d.missing || [];
-  var sc = calcBiasScore(working, missing, null);
-  var displayScore = (improvedScore !== undefined && improvedScore !== null) ? improvedScore : sc;
+  var displayScore = (improvedScore !== undefined && improvedScore !== null) ? improvedScore : origScore;
   var scoreCol = displayScore >= 7.5 ? 'var(--green)' : displayScore >= 5 ? 'var(--amber)' : 'var(--red)';
 
   var workItems = working.map(function(w) {
@@ -2176,20 +2211,33 @@ async function runAudit() {
   var brand  = document.getElementById('a-brand').value.trim();
   var urlEl  = document.getElementById('a-url');
   var auditUrl = urlEl ? urlEl.value.trim() : '';
+  var intent = getPill('audit-intent-pills'); // Grab intent
 
   setLoading('audit-btn', true, 'Audit My Copy');
   showErr('audit-err', '');
   document.getElementById('audit-out').innerHTML = '';
 
   var auditWebCtx = auditUrl ? await fetchWebsiteContext(auditUrl, null, 'a-url-status') : null;
-  lastAuditPrompt = { copy: copy, brand: brand, origScore: null, websiteCtx: auditWebCtx };
+  lastAuditPrompt = { copy: copy, brand: brand, intent: intent, origScore: null, websiteCtx: auditWebCtx };
 
   try {
-    var d = await callAI(buildAuditPrompt(copy, brand, '', auditWebCtx));
+    var d = await callAI(buildAuditPrompt(copy, brand, intent, '', auditWebCtx));
+    
+    // Original Score Calculation
     var origScore = calcBiasScore(d.working || [], d.missing || [], null);
     lastAuditPrompt.origScore = origScore;
-    var improvedWorking = (d.working || []).concat(d.missing || []);
+    
+    // Rewrite Score Calculation (using exclusively the biases outputted in the rewrite block)
+    var improvedWorking = [];
+    if (d.rwBias1 && d.rwBias1.name) improvedWorking.push(d.rwBias1);
+    if (d.rwBias2 && d.rwBias2.name) improvedWorking.push(d.rwBias2);
+    // Legacy fallback for calculating the improvement if AI doesn't format correctly
+    if (improvedWorking.length === 0) {
+        improvedWorking = (d.working || []).concat(d.missing || []);
+    }
+    
     var improvedScore = calcBiasScore(improvedWorking, [], null);
+
     document.getElementById('audit-out').innerHTML = buildAuditHtml(d, origScore, improvedScore);
     flashNew('audit-out');
   } catch(e) {
@@ -2208,10 +2256,17 @@ function openAuditMoreOptions() {
       var p = lastAuditPrompt;
       setModalLoading('Rewriting with your feedback\u2026', 'Applying behavioral science\u2026');
       try {
-        var d = await callAI(buildAuditPrompt(p.copy, p.brand, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.', p.websiteCtx || null));
+        var d = await callAI(buildAuditPrompt(p.copy, p.brand, p.intent, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.', p.websiteCtx || null));
         var oSc = p.origScore || null;
-        var iWorking = (d.working || []).concat(d.missing || []);
+        
+        var iWorking = [];
+        if (d.rwBias1 && d.rwBias1.name) iWorking.push(d.rwBias1);
+        if (d.rwBias2 && d.rwBias2.name) iWorking.push(d.rwBias2);
+        if (iWorking.length === 0) {
+            iWorking = (d.working || []).concat(d.missing || []);
+        }
         var iScore = calcBiasScore(iWorking, [], null);
+
         document.getElementById('audit-out').innerHTML = buildAuditHtml(d, oSc, iScore);
         flashNew('audit-out');
         closeModal();
@@ -2430,7 +2485,6 @@ async function generateCampaign() {
 
 
 </script>
-<!-- ── MODAL ──────────────────────────────────────────────── -->
 <div class="modal-backdrop" id="refine-modal" onclick="closeModal(event)">
   <div class="modal" role="dialog" aria-modal="true">
     <div id="modal-form-state">
