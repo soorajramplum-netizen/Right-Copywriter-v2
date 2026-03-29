@@ -2139,10 +2139,12 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
   return parts.join('\n');
 }
 
-function buildAuditHtml(d, origScore, improvedScore) {
+function buildAuditHtml(d, origScore) {
   var working = d.working || [];
   var missing = d.missing || [];
-  var displayScore = (improvedScore !== undefined && improvedScore !== null) ? improvedScore : origScore;
+  
+  // Display strictly the score of the ORIGINAL copy
+  var displayScore = origScore;
   var scoreCol = displayScore >= 7.5 ? 'var(--green)' : displayScore >= 5 ? 'var(--amber)' : 'var(--red)';
 
   var workItems = working.map(function(w) {
@@ -2159,23 +2161,8 @@ function buildAuditHtml(d, origScore, improvedScore) {
       + '<span class="a-bias-desc">' + esc(m.opportunity) + '</span></div></div>';
   }).join('');
 
-  var deltaHtml = '';
-  if (origScore !== undefined && origScore !== null && displayScore > origScore) {
-    var diff = Math.round((displayScore - origScore) * 10) / 10;
-    var diffStr = '+' + diff.toFixed(1);
-    deltaHtml = '<div class="score-delta">'
-      + '<span class="score-delta-label">Current</span>'
-      + '<span class="score-delta-num dim">' + origScore + '</span>'
-      + '<span class="score-delta-arrow">&#8594;</span>'
-      + '<span class="score-delta-num" style="color:var(--green);">' + displayScore + '</span>'
-      + '<span class="score-delta-badge" style="color:var(--green);background:var(--greenbg);">&#8593; ' + diffStr + '</span>'
-      + '<span style="font-size:10px;color:var(--dim);">&nbsp;with rewrite</span>'
-      + '</div>';
-  }
-
   var rwHeader = '<div class="rw-header" style="display:flex;justify-content:space-between;align-items:center;">'
     + '<span>&#8593; Improved Version</span>'
-    + (improvedScore ? '<span style="font-size:10px;font-weight:700;color:var(--green);background:var(--greenbg);padding:2px 9px;border-radius:20px;border:1px solid var(--greenbd);">Target: ' + improvedScore + '/10</span>' : '')
     + '</div>';
 
   return '<div class="results-label">Audit Results</div>'
@@ -2185,7 +2172,6 @@ function buildAuditHtml(d, origScore, improvedScore) {
     + '<div class="score-body"><div class="score-label-text">Behavioral Score</div>'
     + '<div style="font-size:11px;color:var(--mid);margin-bottom:5px;">' + working.length + ' active bias' + (working.length !== 1 ? 'es' : '') + ' found</div>'
     + '<div class="score-summary">' + esc(d.summary || '') + '</div>'
-    + deltaHtml
     + '</div></div>'
     + '<button class="audit-toggle" data-body="working-body" onclick="toggleAuditSectionEl(this)">'
     + '<span class="audit-toggle-left" style="color:var(--green);">&#10003; What&#8217;s Working</span>'
@@ -2217,7 +2203,7 @@ async function runAudit() {
   var brand  = document.getElementById('a-brand').value.trim();
   var urlEl  = document.getElementById('a-url');
   var auditUrl = urlEl ? urlEl.value.trim() : '';
-  var intent = getPill('audit-intent-pills'); // Grab intent
+  var intent = getPill('audit-intent-pills'); 
 
   setLoading('audit-btn', true, 'Audit My Copy');
   showErr('audit-err', '');
@@ -2229,22 +2215,11 @@ async function runAudit() {
   try {
     var d = await callAI(buildAuditPrompt(copy, brand, intent, '', auditWebCtx));
     
-    // Original Score Calculation
+    // Calculate ONLY the original score
     var origScore = calcBiasScore(d.working || [], d.missing || [], null);
     lastAuditPrompt.origScore = origScore;
     
-    // Rewrite Score Calculation (using exclusively the biases outputted in the rewrite block)
-    var improvedWorking = [];
-    if (d.rwBias1 && d.rwBias1.name) improvedWorking.push(d.rwBias1);
-    if (d.rwBias2 && d.rwBias2.name) improvedWorking.push(d.rwBias2);
-    // Legacy fallback for calculating the improvement if AI doesn't format correctly
-    if (improvedWorking.length === 0) {
-        improvedWorking = (d.working || []).concat(d.missing || []);
-    }
-    
-    var improvedScore = calcBiasScore(improvedWorking, [], null);
-
-    document.getElementById('audit-out').innerHTML = buildAuditHtml(d, origScore, improvedScore);
+    document.getElementById('audit-out').innerHTML = buildAuditHtml(d, origScore);
     flashNew('audit-out');
   } catch(e) {
     showErr('audit-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
@@ -2264,16 +2239,8 @@ function openAuditMoreOptions() {
       try {
         var d = await callAI(buildAuditPrompt(p.copy, p.brand, p.intent, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.', p.websiteCtx || null));
         var oSc = p.origScore || null;
-        
-        var iWorking = [];
-        if (d.rwBias1 && d.rwBias1.name) iWorking.push(d.rwBias1);
-        if (d.rwBias2 && d.rwBias2.name) iWorking.push(d.rwBias2);
-        if (iWorking.length === 0) {
-            iWorking = (d.working || []).concat(d.missing || []);
-        }
-        var iScore = calcBiasScore(iWorking, [], null);
 
-        document.getElementById('audit-out').innerHTML = buildAuditHtml(d, oSc, iScore);
+        document.getElementById('audit-out').innerHTML = buildAuditHtml(d, oSc);
         flashNew('audit-out');
         closeModal();
         document.getElementById('audit-out').scrollIntoView({ behavior: 'smooth', block: 'start' });
