@@ -135,7 +135,7 @@
       border: 1px solid var(--bd);
       padding: 1px 7px; border-radius: 5px;
     }
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       padding: 11px 14px;
       background: var(--surface);
@@ -150,7 +150,7 @@
       -webkit-appearance: none;
       appearance: none;
     }
-    input:focus, textarea:focus {
+    input:focus, textarea:focus, select:focus {
       border-color: var(--green);
       box-shadow: 0 0 0 3px rgba(27,67,50,.1);
     }
@@ -893,7 +893,7 @@
       <div class="logo"><span class="logo-letter">R</span></div>
       <div class="brand-text">
         <div class="brand-name">Right Copywriter</div>
-        <div class="brand-sub">Copy that sells by Sooraj Ram.</div>
+        <div class="brand-sub">Copy that sells.</div>
       </div>
       <div class="science-badge">Behavioral Science</div>
     </div>
@@ -1220,14 +1220,15 @@
     </div>
 
     <div class="field">
-      <div class="label">Primary Intent</div>
-      <div class="pills" id="audit-intent-pills">
-        <button class="pill on" onclick="selectPill(this,'audit-intent-pills')">Awareness</button>
-        <button class="pill" onclick="selectPill(this,'audit-intent-pills')">Hook attention</button>
-        <button class="pill" onclick="selectPill(this,'audit-intent-pills')">Trust building</button>
-        <button class="pill" onclick="selectPill(this,'audit-intent-pills')">Convey benefits</button>
-        <button class="pill" onclick="selectPill(this,'audit-intent-pills')">Conversion</button>
-      </div>
+      <div class="label">Primary Intent <span style="color:var(--red); margin-left:4px;">*</span></div>
+      <select id="audit-intent-select" style="cursor:pointer; appearance:auto; -webkit-appearance:auto;">
+        <option value="" disabled selected>Select what this copy needs to achieve...</option>
+        <option value="Awareness">Awareness</option>
+        <option value="Hook attention">Hook attention</option>
+        <option value="Trust building">Trust building</option>
+        <option value="Convey benefits">Convey benefits</option>
+        <option value="Conversion">Conversion</option>
+      </select>
     </div>
 
     <div class="field">
@@ -1620,20 +1621,25 @@ function calcBiasScore(detectedBiases, missing, copyType) {
   try {
     var hasExecScores = detectedBiases && detectedBiases.length > 0 && detectedBiases.some(function(b) { return b.executionScore !== undefined; });
     
-    // If we don't have execution scores from the LLM (like in older features), default to the reliable legacy model
+    // If we don't have execution scores from the LLM, default to the reliable legacy model
     if (!hasExecScores) {
       return calcLegacyScore(detectedBiases, missing, copyType);
     }
     
-    var n = detectedBiases.length;
+    // Sort biases by execution score so we only grade the best ones
+    detectedBiases.sort(function(a, b) { return (b.executionScore || 0) - (a.executionScore || 0); });
+    
+    // Cap the evaluation at the Top 4 biases to prevent violent math swings
+    var evalBiases = detectedBiases.slice(0, 4); 
+    var n = evalBiases.length;
     if (n === 0) return 3.0;
 
     var totalEarned = 0;
     var totalPossible = 0;
 
-    detectedBiases.forEach(function(bias) {
+    evalBiases.forEach(function(bias) {
       var nameMatch = bias.bias || bias.name || "";
-      var weight = 2; // default weight 2
+      var weight = 2; 
       for (var key in BIAS_WEIGHTS) {
         if (nameMatch.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
           weight = BIAS_WEIGHTS[key];
@@ -1649,11 +1655,10 @@ function calcBiasScore(detectedBiases, missing, copyType) {
 
     var rawScore = totalPossible > 0 ? (totalEarned / totalPossible) * 10 : 3.0;
     
-    // Cohesion multiplier (anti-cramming penalty)
+    // Soften the cohesion multiplier so dense copy doesn't drop off a cliff
     var c = 1.0; 
-    if (n === 4) c = 0.9;      
-    else if (n === 5) c = 0.8; 
-    else if (n >= 6) c = 0.7;  
+    if (detectedBiases.length === 4) c = 0.95;       // 5% penalty
+    else if (detectedBiases.length >= 5) c = 0.90;   // 10% penalty maximum
 
     var finalScore = rawScore * c;
     return Math.round(Math.max(0, Math.min(10, finalScore)) * 10) / 10;
@@ -2123,22 +2128,22 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
   if (extra)      parts.push(extra);
   parts.push(
     'SILENT AUDITOR ROUTING LOGIC:',
-    '1. Diagnose the single biggest psychological friction point based on the copy and intent (e.g. friction_ignorable, friction_skepticism, friction_low_value, friction_procrastination, or friction_forgettable).',
-    '2. Based on that friction tag, pull the most synergistic behavioral biases to rewrite the copy.',
-    '3. For each active bias found in the original copy, AND each bias used in the rewrite, you MUST assign an "executionScore" from 1 to 5 (1=Poor, 5=Perfectly integrated).',
+    '1. Diagnose the single biggest psychological friction point based on the copy and the stated Intent.',
+    '2. Based on the Intent and friction tag, pull the most synergistic behavioral biases to rewrite the copy.',
+    '3. For each active bias found, assign an "executionScore" from 1 to 5.',
     '',
     'STRICT RULES FOR AUDITING THE ORIGINAL COPY (WORKING BIASES):',
     '- Be completely objective, analytical, and highly strict.',
-    '- ONLY list a bias as "working" if it is UNDENIABLY and EXPLICITLY present in the text.',
-    '- Do not stretch definitions. If a bias is weak, accidental, or subjective, IGNORE IT.',
-    '- Limit working biases to ONLY the 1 to 4 most dominant psychological levers actually used to ensure scoring consistency.',
+    '- ONLY list a bias as "working" if it is UNDENIABLY present.',
+    '- INTENT MATCHING IS CRITICAL: Evaluate if the detected biases actually serve the user\'s stated Intent. If they used a heavy Conversion bias (like Scarcity) but the Intent is "Trust building", grade its executionScore poorly (1 or 2) because it creates the wrong psychological state.',
+    '- Limit working biases to a MAXIMUM of the 3 most dominant levers actually used.',
     '',
     'STRICT RULES FOR MISSING BIASES:',
-    '- Only list a bias as MISSING if it is (a) clearly absent AND (b) would materially improve conversion for this specific copy.',
-    '- Maximum 3 missing biases. Quality over quantity.',
-    'DO NOT include an overall score (we calculate it mathematically).',
+    '- Only list a bias as MISSING if it directly serves the user\'s stated Intent and is currently absent.',
+    '- Maximum 2 missing biases.',
+    'DO NOT include an overall score.',
     'In the rewrite: use **bold** for key phrases. Include [Visual: suggestion] tags for image ideas.',
-    'CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines (like pressing Enter) inside the JSON strings.',
+    'CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines inside the JSON strings.',
     'Return JSON only:',
     '{"friction_tag":"...","summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence","executionScore":4}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"...","executionScore":5},"rwBias2":{"name":"...","explanation":"...","application":"...","executionScore":5}}'
   );
@@ -2205,10 +2210,14 @@ function buildAuditHtml(d, origScore) {
 async function runAudit() {
   var copy = document.getElementById('a-copy').value.trim();
   if (!copy) { showErr('audit-err', 'Please paste your copy first.'); return; }
+  
+  var intentEl = document.getElementById('audit-intent-select');
+  var intent = intentEl ? intentEl.value : '';
+  if (!intent) { showErr('audit-err', 'Please select your Primary Intent so we can grade the copy accurately.'); return; }
+
   var brand  = document.getElementById('a-brand').value.trim();
   var urlEl  = document.getElementById('a-url');
   var auditUrl = urlEl ? urlEl.value.trim() : '';
-  var intent = getPill('audit-intent-pills'); 
 
   setLoading('audit-btn', true, 'Audit My Copy');
   showErr('audit-err', '');
@@ -2431,8 +2440,6 @@ async function generateCampaign() {
   var results = {};
   var errors  = [];
 
-  // Sequential — not parallel — to avoid simultaneous API timeout
-  // TOF first (most important), then MOF, then BOF
   for (var si = 0; si < stages.length; si++) {
     var stage = stages[si];
     document.getElementById('cm-load-label').textContent = 'Writing ' + FUNNEL_STAGES[stage].label + '...';
