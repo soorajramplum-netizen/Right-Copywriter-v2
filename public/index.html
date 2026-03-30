@@ -893,7 +893,7 @@
       <div class="logo"><span class="logo-letter">R</span></div>
       <div class="brand-text">
         <div class="brand-name">Right Copywriter</div>
-        <div class="brand-sub">Copy that sells.</div>
+        <div class="brand-sub">Copy that sells.Sooraj Ram</div>
       </div>
       <div class="science-badge">Behavioral Science</div>
     </div>
@@ -1598,48 +1598,77 @@ var BIAS_WEIGHTS = {
   "Mood": 1
 };
 
-// New Deterministic Bias Scoring Engine
-function calcBiasScore(detectedBiases, missing, copyType) {
+// Synergy Mapping for Audit Tab
+var INTENT_SYNERGY = {
+  'Awareness': ['Distinctiveness (Von Restorff)', 'Cognitive Ease', 'Halo Effect', 'Emotional Dynamism', 'Cocktail Party Effect', 'Wisdom of Wit'],
+  'Hook attention': ['Distinctiveness (Von Restorff)', 'Cocktail Party Effect', 'Framing', 'Loss Aversion'],
+  'Trust building': ['Social Proof', 'Pratfall Effect', 'Halo Effect', 'Keats Heuristic', 'Precision', 'Replicability Crisis'],
+  'Convey benefits': ['Concreteness', 'Expectancy Theory', 'Framing', 'Anchoring', 'WYSIATI'],
+  'Conversion': ['Scarcity', 'Loss Aversion', 'Fear of Regret', 'Default Choice Bias', 'Endowment Effect', 'Pain of Payment']
+};
+
+// V2 Deterministic Scoring Engine
+function calcBiasScore(detectedBiases, missing, copyType, intent) {
   if (!detectedBiases || detectedBiases.length === 0) return 4.5;
   
-  detectedBiases.sort(function(a, b) {
-    var wA = 1, wB = 1;
-    var nA = a.bias || a.name || "";
-    var nB = b.bias || b.name || "";
-    for (var k in BIAS_WEIGHTS) { if (nA.toLowerCase().indexOf(k.toLowerCase()) >= 0) { wA = BIAS_WEIGHTS[k]; break; } }
-    for (var k in BIAS_WEIGHTS) { if (nB.toLowerCase().indexOf(k.toLowerCase()) >= 0) { wB = BIAS_WEIGHTS[k]; break; } }
-    return wB - wA;
-  });
-
-  var raw = 5.0; // Higher baseline so decent copy doesn't fail
+  var baseScore = 5.0;
+  var earnedPoints = 0;
+  
   var n = detectedBiases.length;
+  var evalBiases = detectedBiases.slice(0, 3); // Evaluate max 3 core biases
 
-  var evalBiases = detectedBiases.slice(0, 3);
   evalBiases.forEach(function(b) {
-    var w = 1;
+    var w = 1; // Default fallback
     var nameMatch = b.bias || b.name || "";
+    var exactKey = "";
+    
+    // Find precise match
     for (var key in BIAS_WEIGHTS) {
       if (nameMatch.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
         w = BIAS_WEIGHTS[key];
+        exactKey = key;
         break;
       }
     }
-    if (w === 3) raw += 1.5;
-    else if (w === 2) raw += 1.0;
-    else raw += 0.6;
+    
+    // Base weight points
+    var points = w === 3 ? 1.5 : (w === 2 ? 1.0 : 0.6);
+    
+    // Multiplier 1: Context Awareness (Copywriter Tab)
+    if (copyType && BIAS_MATRIX[copyType]) {
+        var matrix = BIAS_MATRIX[copyType];
+        var isPriority = matrix.priority.some(function(p) { return nameMatch.toLowerCase().indexOf(p.toLowerCase()) >= 0; });
+        var isApplicable = matrix.applicable.some(function(p) { return nameMatch.toLowerCase().indexOf(p.toLowerCase()) >= 0; });
+        
+        if (isPriority) points *= 1.3;
+        else if (isApplicable) points *= 1.0;
+        else points *= 0.5; // Penalty for forcing an irrelevant bias into a specific format
+    }
+    
+    // Multiplier 2: Intent Synergy (Audit Tab)
+    if (intent && exactKey && INTENT_SYNERGY[intent]) {
+         if (INTENT_SYNERGY[intent].indexOf(exactKey) >= 0) {
+             points *= 1.4; // Huge boost for directly hitting the objective
+         }
+    }
+    
+    earnedPoints += points;
   });
 
-  // Cohesion bonus
-  if (n === 2 || n === 3) raw += 1.2;
+  // Cohesion bonus (exactly 2 or 3 biases creates perfect synergy)
+  if (n === 2 || n === 3) earnedPoints += 1.0;
 
-  // Overload penalty
-  if (n > 3) raw -= ((n - 3) * 0.5);
+  // Overload penalty (punishes "Frankenstein" copy)
+  if (n > 3) earnedPoints -= ((n - 3) * 0.8);
 
-  // Missing penalty
+  // Missing penalty (heavier punishment for failing to use obvious levers)
   var m = (missing || []).length;
-  raw -= (m * 0.5);
+  earnedPoints -= (m * 0.8);
 
-  return Math.round(Math.max(2.0, Math.min(9.8, raw)) * 10) / 10;
+  var raw = baseScore + earnedPoints;
+  
+  // Return clamped score between 2.0 and 10.0
+  return Math.round(Math.max(2.0, Math.min(10.0, raw)) * 10) / 10;
 }
 
 
@@ -1734,6 +1763,7 @@ function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo,
   if (websiteCtx)  parts.push('BRAND WEBSITE CONTEXT: ' + websiteCtx.slice(0, 800));
   parts.push('');
   parts.push(getCopyTypeStack(type));
+  parts.push('IMPORTANT RULE: Ensure the bias names you output match EXACTLY with established behavioral science terminology (e.g., "Loss Aversion", "Distinctiveness (Von Restorff)", "Cognitive Ease"). Do not make up new bias names.');
   parts.push(inferObjection(brand, ctx, product, audience));
   parts.push('');
   parts.push(biasNote);
@@ -1751,7 +1781,7 @@ function buildCopyHtml(variants, isLong) {
     var biases = (v.biases && v.biases.length)
       ? v.biases
       : [v.primaryBias, v.secondaryBias].filter(function(b) { return b && b.name; });
-    var sc = calcBiasScore(biases, [], lastCopyPrompt ? lastCopyPrompt.type : null);
+    var sc = calcBiasScore(biases, [], lastCopyPrompt ? lastCopyPrompt.type : null, null);
     var scCol = sc >= 8.5 ? 'var(--green)' : sc >= 7 ? 'var(--amber)' : 'var(--red)';
     html += '<div class="copy-card">'
       + '<div class="card-num" style="display:flex;justify-content:space-between;align-items:center;">'
@@ -2108,6 +2138,7 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
     '1. INTENT FILTERING IS MANDATORY: Only credit biases that actively serve the Target Intent ("' + intent + '"). If the copy uses high-pressure Scarcity (a Conversion bias) but the Target Intent is Awareness or Trust, DO NOT list it as a working bias. That is a strategic error.',
     '2. BE MERCILESS: Only list a bias if it is explicitly, undeniably present and highly effective.',
     '3. COGNITIVE OVERLOAD: If the copy crams 4 or more biases into a short space, list them all so our grading algorithm can actively penalize the copy for cognitive overload ("Frankenstein copy").',
+    '4. IMPORTANT RULE: Ensure the bias names you output match EXACTLY with established behavioral science terminology (e.g., "Loss Aversion", "Distinctiveness (Von Restorff)", "Cognitive Ease"). Do not make up new bias names.',
     '',
     'STRICT AUDIT RULES (MISSING BIASES):',
     '- Identify 1-2 critical biases that align perfectly with "' + intent + '" but are currently absent.',
@@ -2202,7 +2233,7 @@ async function runAudit() {
     // Send 0.0 temperature for strict audit
     var d = await callAI(buildAuditPrompt(copy, brand, intent, '', auditWebCtx), 0.0);
     
-    var origScore = calcBiasScore(d.working || [], d.missing || [], null);
+    var origScore = calcBiasScore(d.working || [], d.missing || [], null, intent);
     lastAuditPrompt.origScore = origScore;
     
     document.getElementById('audit-out').innerHTML = buildAuditHtml(d, origScore);
@@ -2280,6 +2311,7 @@ function buildCampaignPrompt(stage, brand, goal, audience, tone, competitor, web
   if (competitorContext)  parts.push('COMPETITOR INTELLIGENCE (use this to understand what they say and how to outflank them): ' + competitorContext.slice(0, 900));
   if (websiteContext)     parts.push('YOUR BRAND CONTEXT (use for accurate, brand-specific copy): ' + websiteContext.slice(0, 1200));
   parts.push('PRIORITY BIAS STACK for ' + s.label + ': ' + s.biasStack);
+  parts.push('IMPORTANT RULE: Ensure the bias names you output match EXACTLY with established behavioral science terminology (e.g., "Loss Aversion", "Distinctiveness (Von Restorff)", "Cognitive Ease"). Do not make up new bias names.');
   parts.push(inferObjection(brand, goal, '', audience));
   parts.push('FORMATS TO WRITE:');
   s.formats.forEach(function(fmt) {
