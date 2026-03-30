@@ -597,7 +597,7 @@
     .modal-loading-icon {
       width: 44px; height: 44px; border-radius: 50%;
       border: 3px solid var(--bd); border-top-color: var(--green);
-      animation: spin 1s linear infinite margin: 0 auto 14px;
+      animation: spin 1s linear infinite; margin: 0 auto 14px;
     }
     .modal-loading-text {
       font-size: 13px; color: var(--mid); line-height: 1.55;
@@ -1602,7 +1602,7 @@ var BIAS_WEIGHTS = {
 function calcBiasScore(detectedBiases, missing, copyType) {
   if (!detectedBiases || detectedBiases.length === 0) return 3.5;
   
-  // 1. Sort biases by their Weight (highest first)
+  // 1. Sort by Weight (highest W3 biases first)
   detectedBiases.sort(function(a, b) {
     var wA = 1, wB = 1;
     var nA = a.bias || a.name || "";
@@ -1612,13 +1612,13 @@ function calcBiasScore(detectedBiases, missing, copyType) {
     return wB - wA;
   });
 
-  // 2. Base score
-  var raw = 4.0;
-  
-  // 3. Grade up to the top 3 biases
-  var evalBiases = detectedBiases.slice(0, 3); 
+  var raw = 4.0; // Strict Base Score
+  var n = detectedBiases.length;
+
+  // 2. Add points for the Top 3 biases ONLY
+  var evalBiases = detectedBiases.slice(0, 3);
   evalBiases.forEach(function(b) {
-    var w = 1; 
+    var w = 1;
     var nameMatch = b.bias || b.name || "";
     for (var key in BIAS_WEIGHTS) {
       if (nameMatch.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
@@ -1626,20 +1626,26 @@ function calcBiasScore(detectedBiases, missing, copyType) {
         break;
       }
     }
-    if (w === 3) raw += 2.0;       // Macro lever
-    else if (w === 2) raw += 1.4;  // Standard lever
-    else raw += 0.8;               // Micro tweak
+    if (w === 3) raw += 1.5;      // Macro lever
+    else if (w === 2) raw += 1.0; // Standard lever
+    else raw += 0.5;              // Micro tweak
   });
 
-  // 4. Missing penalty
-  var m = (missing || []).length;
-  raw -= (m * 0.4);
+  // 3. Cohesion Bonus (The behavioral sweet spot)
+  if (n === 2 || n === 3) {
+    raw += 1.0;
+  }
 
-  // 5. Frankenstein / Stuffing penalty (if they cram >3 biases)
-  if (detectedBiases.length === 4) raw -= 0.6;
-  if (detectedBiases.length >= 5) raw -= 1.2;
+  // 4. Cognitive Overload (Clutter) Penalty
+  if (n > 3) {
+    var extra = n - 3;
+    raw -= (extra * 0.6); // Punish bias-stuffing
+  }
 
-  // Cap between 2.0 and 9.8
+  // 5. Missing Opportunity Penalty
+  var m = Math.min((missing || []).length, 3);
+  raw -= (m * 0.6);
+
   return Math.round(Math.max(2.0, Math.min(9.8, raw)) * 10) / 10;
 }
 
@@ -2093,34 +2099,31 @@ function openNameMoreOptions() {
 // ── BIAS AUDIT ─────────────────────────────────────────────────
 function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
   var parts = [
-    'Perform a comprehensive behavioral science audit of this copy.',
+    'You are a ruthless, world-class behavioral science copy auditor.',
+    'Evaluate the following copy against the user\'s explicit goal.',
     'Copy: "' + copy.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"',
-    'User Stated Intent: ' + intent
+    'Target Intent: ' + intent
   ];
   if (brand)      parts.push('Brand/Product: ' + brand);
   if (websiteCtx) parts.push('BRAND WEBSITE CONTEXT: ' + websiteCtx.slice(0, 800));
   if (brand || copy) parts.push(inferObjection(brand, copy.slice(0, 200), '', ''));
   if (extra)      parts.push(extra);
   parts.push(
-    'SILENT AUDITOR ROUTING LOGIC:',
-    '1. Diagnose the single biggest psychological friction point based on the copy and the stated Intent.',
-    '2. Based on the Intent and friction tag, pull the most synergistic behavioral biases to rewrite the copy.',
-    '3. For each active bias found, explain exactly how it is applied.',
     '',
-    'STRICT RULES FOR AUDITING THE ORIGINAL COPY (WORKING BIASES):',
-    '- Be completely objective, analytical, and highly strict.',
-    '- ONLY list a bias as "working" if it is UNDENIABLY present.',
-    '- INTENT MATCHING IS CRITICAL: Evaluate if the detected biases actually serve the user\'s stated Intent.',
-    '- Limit working biases to a MAXIMUM of the 3 most dominant levers actually used.',
+    'STRICT AUDIT RULES (WORKING BIASES):',
+    '1. INTENT FILTERING IS MANDATORY: Only credit biases that actively serve the Target Intent ("' + intent + '"). If the copy uses high-pressure Scarcity (a Conversion bias) but the Target Intent is Awareness or Trust, DO NOT list it as a working bias. That is a strategic error.',
+    '2. BE MERCILESS: Only list a bias if it is explicitly, undeniably present and highly effective.',
+    '3. COGNITIVE OVERLOAD: If the copy crams 4 or more biases into a short space, list them all so our grading algorithm can actively penalize the copy for cognitive overload ("Frankenstein copy").',
     '',
-    'STRICT RULES FOR MISSING BIASES:',
-    '- Only list a bias as MISSING if it directly serves the user\'s stated Intent and is currently absent.',
-    '- Maximum 2 missing biases.',
-    'DO NOT include an overall score.',
-    'In the rewrite: use **bold** for key phrases. Include [Visual: suggestion] tags for image ideas.',
+    'STRICT AUDIT RULES (MISSING BIASES):',
+    '- Identify 1-2 critical biases that align perfectly with "' + intent + '" but are currently absent.',
+    '- Do not invent flaws if the copy is genuinely excellent.',
+    'DO NOT include an overall numerical score.',
+    '',
+    'In the rewrite: use **bold** for key phrases. Provide a highly synergistic rewrite applying the missing biases for optimal conversion.',
     'CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines inside the JSON strings.',
     'Return JSON only:',
-    '{"friction_tag":"...","summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence"}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}'
+    '{"summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence explaining how it serves the intent"}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}'
   );
   return parts.join('\n');
 }
