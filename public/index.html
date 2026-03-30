@@ -893,7 +893,7 @@
       <div class="logo"><span class="logo-letter">R</span></div>
       <div class="brand-text">
         <div class="brand-name">Right Copywriter</div>
-        <div class="brand-sub">Copy that sells. Sooraj Ram</div>
+        <div class="brand-sub">Copy that sells.</div>
       </div>
       <div class="science-badge">Behavioral Science</div>
     </div>
@@ -1600,9 +1600,8 @@ var BIAS_WEIGHTS = {
 
 // New Deterministic Bias Scoring Engine
 function calcBiasScore(detectedBiases, missing, copyType) {
-  if (!detectedBiases || detectedBiases.length === 0) return 3.5;
+  if (!detectedBiases || detectedBiases.length === 0) return 4.5;
   
-  // 1. Sort by Weight (highest W3 biases first)
   detectedBiases.sort(function(a, b) {
     var wA = 1, wB = 1;
     var nA = a.bias || a.name || "";
@@ -1612,10 +1611,9 @@ function calcBiasScore(detectedBiases, missing, copyType) {
     return wB - wA;
   });
 
-  var raw = 4.0; // Strict Base Score
+  var raw = 5.0; // Higher baseline so decent copy doesn't fail
   var n = detectedBiases.length;
 
-  // 2. Add points for the Top 3 biases ONLY
   var evalBiases = detectedBiases.slice(0, 3);
   evalBiases.forEach(function(b) {
     var w = 1;
@@ -1626,28 +1624,24 @@ function calcBiasScore(detectedBiases, missing, copyType) {
         break;
       }
     }
-    if (w === 3) raw += 1.5;      // Macro lever
-    else if (w === 2) raw += 1.0; // Standard lever
-    else raw += 0.5;              // Micro tweak
+    if (w === 3) raw += 1.5;
+    else if (w === 2) raw += 1.0;
+    else raw += 0.6;
   });
 
-  // 3. Cohesion Bonus (The behavioral sweet spot)
-  if (n === 2 || n === 3) {
-    raw += 1.0;
-  }
+  // Cohesion bonus
+  if (n === 2 || n === 3) raw += 1.2;
 
-  // 4. Cognitive Overload (Clutter) Penalty
-  if (n > 3) {
-    var extra = n - 3;
-    raw -= (extra * 0.6); // Punish bias-stuffing
-  }
+  // Overload penalty
+  if (n > 3) raw -= ((n - 3) * 0.5);
 
-  // 5. Missing Opportunity Penalty
-  var m = Math.min((missing || []).length, 3);
-  raw -= (m * 0.6);
+  // Missing penalty
+  var m = (missing || []).length;
+  raw -= (m * 0.5);
 
   return Math.round(Math.max(2.0, Math.min(9.8, raw)) * 10) / 10;
 }
+
 
 function getCopyTypeStack(type) {
   var matrix = BIAS_MATRIX[type];
@@ -1725,8 +1719,8 @@ function getSoundProfile(val) {
 // ── COPYWRITER ─────────────────────────────────────────────────
 function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo, feedback, websiteCtx) {
   var biasNote = turbo
-    ? 'CRITICAL: Each variant MUST apply at least 6 distinct named biases. List ALL in the biases array. Copy must be extraordinary.'
-    : 'Each variant must apply at least 4 distinct named biases. List ALL in the biases array.';
+    ? 'CRITICAL: Each variant MUST apply exactly 3 perfectly synergistic biases. List ALL in the biases array. Copy must be extraordinary.'
+    : 'CRITICAL: Each variant must apply exactly 2 to 3 distinct named biases. Do not overstuff the copy. List ALL in the biases array.';
   var label = (CT[type] && CT[type].label) ? CT[type].label : 'Core Message';
   var parts = [
     'Write 3 behaviorally distinct ' + type + ' variants. Each must be genuinely different.',
@@ -2117,7 +2111,7 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
     '',
     'STRICT AUDIT RULES (MISSING BIASES):',
     '- Identify 1-2 critical biases that align perfectly with "' + intent + '" but are currently absent.',
-    '- Do not invent flaws if the copy is genuinely excellent.',
+    '- If the copy is already highly persuasive, leave the "missing" array completely EMPTY []. Do not invent flaws.',
     'DO NOT include an overall numerical score.',
     '',
     'In the rewrite: use **bold** for key phrases. Provide a highly synergistic rewrite applying the missing biases for optimal conversion.',
@@ -2304,6 +2298,7 @@ function buildCampaignPrompt(stage, brand, goal, audience, tone, competitor, web
       parts.push('- SMS / Push Notification: max 120 characters, urgent, concrete, one action');
     }
   });
+  parts.push('CRITICAL: For each format, use exactly 1 to 2 distinct named biases. Do not overstuff.');
   parts.push('CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines (like pressing Enter) inside the JSON strings.');
   parts.push('For each format, identify the PRIMARY behavioral bias applied and how.');
   parts.push('Return JSON only (no markdown):');
