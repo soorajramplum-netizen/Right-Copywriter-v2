@@ -893,7 +893,7 @@
       <div class="logo"><span class="logo-letter">R</span></div>
       <div class="brand-text">
         <div class="brand-name">Right Copywriter</div>
-        <div class="brand-sub">Copy that sells. Sooraj Ram</div>
+        <div class="brand-sub">Copy that sells.</div>
       </div>
       <div class="science-badge">Behavioral Science</div>
     </div>
@@ -1607,7 +1607,7 @@ var INTENT_SYNERGY = {
 function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
   if (!detectedBiases || detectedBiases.length === 0) return isGenerated ? 78 : 40;
   
-  var score = 45; // Base score
+  var score = 40; // Base score
   var n = detectedBiases.length;
   var earnedPoints = 0;
 
@@ -1745,7 +1745,7 @@ function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo,
     : 'CRITICAL: Each variant must apply exactly 2 to 3 distinct named biases. Do not overstuff the copy. List ALL in the biases array.';
   var label = (CT[type] && CT[type].label) ? CT[type].label : 'Core Message';
   var parts = [
-    'Write exactly 3 behaviorally distinct ' + type + ' variants. Each must be genuinely different.',
+    'Write exactly 4 behaviorally distinct ' + type + ' variants. Each must be genuinely different.',
     'Brand: ' + brand,
     label + ': ' + ctx
   ];
@@ -1769,8 +1769,7 @@ function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo,
 }
 
 function buildCopyHtml(variants, isLong) {
-  // Reverted to exact original UI markup with score out of 100
-  var html = '<div class="results-label">3 Behaviorally-Engineered Variants</div>';
+  var html = '<div class="results-label">Top 3 Behaviorally-Engineered Variants</div>';
   variants.forEach(function(v, i) {
     var biases = v.biases || [];
     var scCol = v.score >= 75 ? 'var(--green)' : v.score >= 50 ? 'var(--amber)' : 'var(--red)';
@@ -1820,8 +1819,11 @@ async function generateCopy() {
         var sc = calcBiasScore(v.biases || [], [], lastCopyPrompt.type, null, true); // isGenerated = true
         return Object.assign({}, v, { score: sc });
     });
+    
+    scoredVariants.sort(function(a, b) { return b.score - a.score; });
+    var topVariants = scoredVariants.slice(0, 3); // Take top 3 out of the 4 requested
 
-    document.getElementById('copy-out').innerHTML = buildCopyHtml(scoredVariants, isLong);
+    document.getElementById('copy-out').innerHTML = buildCopyHtml(topVariants, isLong);
     flashNew('copy-out');
   } catch(e) {
     showErr('copy-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
@@ -1845,8 +1847,10 @@ function openCopyMoreOptions() {
             var sc = calcBiasScore(v.biases || [], [], p.type, null, true); // isGenerated = true
             return Object.assign({}, v, { score: sc });
         });
+        scoredVariants.sort(function(a, b) { return b.score - a.score; });
+        var topVariants = scoredVariants.slice(0, 3);
 
-        document.getElementById('copy-out').innerHTML = buildCopyHtml(scoredVariants, p.isLong);
+        document.getElementById('copy-out').innerHTML = buildCopyHtml(topVariants, p.isLong);
         flashNew('copy-out');
         closeModal();
         document.getElementById('copy-out').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2120,7 +2124,6 @@ function openNameMoreOptions() {
 
 // ── BIAS AUDIT ─────────────────────────────────────────────────
 function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
-  var synergyList = INTENT_SYNERGY[intent] ? INTENT_SYNERGY[intent].join(', ') : 'Loss Aversion, Scarcity, Social Proof';
   var parts = [
     'You are a ruthless, world-class behavioral science copy auditor.',
     'Evaluate the following copy against the user\'s explicit goal.',
@@ -2157,7 +2160,6 @@ function buildAuditHtml(d, medianScore) {
   var missing = d.missing || [];
   
   var displayScore = medianScore;
-  // Reverted to exact original UI structure
   var scoreCol = displayScore >= 75 ? 'var(--green)' : displayScore >= 50 ? 'var(--amber)' : 'var(--red)';
 
   var workItems = working.map(function(w) {
@@ -2251,7 +2253,7 @@ async function runAudit() {
 
     validResults.sort(function(a, b) { return a.calculatedScore - b.calculatedScore; });
     
-    // Median calculation safely picks exactly the middle item
+    // Median calculation: physically pick the middle entry's score
     var mid = Math.floor(validResults.length / 2);
     var medianResult = validResults[mid];
     var medianScore = medianResult.calculatedScore;
