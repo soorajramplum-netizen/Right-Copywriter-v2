@@ -892,8 +892,8 @@
     <div class="brand-row">
       <div class="logo"><span class="logo-letter">R</span></div>
       <div class="brand-text">
-        <div class="brand-name">Right Copywriter</div>
-        <div class="brand-sub">Copy that sells.</div>
+        <div class="brand-name">Right Copywriter. Copy that sells</div>
+        <div class="brand-sub">By Sooraj Ram</div>
       </div>
       <div class="science-badge">Behavioral Science</div>
     </div>
@@ -1436,18 +1436,17 @@ function flashNew(elId) {
   }, 30);
 }
 
-// SCORE RANGE FORMATTER
+// SCORE RANGE FORMATTER (No Absolute Scores Displayed)
 function getScoreBand(score) {
-  if (score <= 10) return "1 - 10";
-  if (score <= 20) return "11 - 20";
-  if (score <= 30) return "21 - 30";
-  if (score <= 40) return "31 - 40";
-  if (score <= 50) return "41 - 50";
-  if (score <= 60) return "51 - 60";
-  if (score <= 70) return "61 - 70";
-  if (score <= 80) return "71 - 80";
-  if (score <= 90) return "81 - 90";
-  return "91 - 100";
+  if (score <= 20) return "1-20";
+  if (score <= 30) return "21-30";
+  if (score <= 40) return "31-40";
+  if (score <= 50) return "41-50";
+  if (score <= 60) return "51-60";
+  if (score <= 70) return "61-70";
+  if (score <= 80) return "71-80";
+  if (score <= 90) return "81-90";
+  return "91-100";
 }
 
 // ── BIAS TAGS ──────────────────────────────────────────────────
@@ -1583,30 +1582,7 @@ var BIAS_MATRIX = {
   }
 };
 
-var BIAS_WEIGHTS = {
-  "Distinctiveness (Von Restorff)": 3, "Cocktail Party Effect": 2, "Red Sneakers Effect": 2,
-  "Affect Heuristic": 2, "Emotional Dynamism": 2, "Moving Power": 2, "Category Fit vs Break": 2,
-  "Focusing Illusion": 2, "Wishful Seeing": 2, "Priming": 2, "Fame-Feeling-Fluency": 3,
-  "Bouba/Kiki Effect": 1, "Alliteration & Rhyme": 1, "Fluency in Naming": 1, "WYSIATI": 3,
-  "Media Context": 2, "Mirroring Principle": 2, "Social Proof": 3, "Pratfall Effect": 3,
-  "Halo Effect": 2, "Wisdom of Wit": 2, "Precision": 1, "Danger of Claimed Data": 2,
-  "Replicability Crisis": 2, "Fundamental Attribution Error": 2, "Bystander Effect": 2,
-  "Confirmation Bias": 3, "Narrative Coherence": 2, "Narrative Fallacy": 2, "Law of Small Numbers": 2,
-  "Representativeness": 2, "Keats Heuristic": 1, "Conjunction Fallacy": 2, "Power of Group": 3,
-  "Pain of Payment": 3, "Price Relativity": 3, "Extreme Aversion": 2, "Denominator Neglect": 1,
-  "Veblen Goods": 2, "Anchoring": 3, "Endowment Effect": 3, "Prospect Theory": 3,
-  "Costly Signalling": 3, "Reframing": 3, "Winner's Curse": 2, "Fairness": 2, "Expectancy Theory": 2,
-  "Placebo Effect": 3, "Peak-End Rule": 2, "Duration Neglect": 2, "Planning Fallacy": 2,
-  "Optimistic Bias": 2, "Overconfidence": 2, "Curse of Knowledge": 2, "Goodhart's Law": 2,
-  "IKEA Effect": 3, "Generation Effect": 2, "Labelling": 2, "Framing": 3, "Primacy Effect": 2,
-  "Scarcity": 3, "Loss Aversion": 3, "Fear of Regret": 3, "Make It Easy": 3, "Cognitive Ease": 2,
-  "Default Choice Bias": 3, "Satisficing": 2, "Affordance": 2, "Gratuitous Choices": 1,
-  "Substitution Heuristic": 2, "Availability Heuristic": 2, "Sunk Cost": 3, "Psycho-Logic": 2,
-  "Context Dependency": 2, "Concreteness": 1, "Concreteness in Naming": 1, "Fluent Innovation": 2,
-  "Habit Formation": 3, "Fresh Start Effect": 2, "Behaviour Before Attitude": 3, "Variability": 2,
-  "Mood": 1
-};
-
+// Apex Biases per Audit Intent
 var INTENT_SYNERGY = {
   'Awareness': { must: ['Distinctiveness (Von Restorff)', 'Cognitive Ease', 'Emotional Dynamism'], good: ['Halo Effect', 'Cocktail Party Effect', 'Wisdom of Wit'] },
   'Hook attention': { must: ['Distinctiveness (Von Restorff)', 'Cocktail Party Effect', 'Loss Aversion'], good: ['Framing', 'Curiosity Gap', 'Affect Heuristic'] },
@@ -1616,69 +1592,61 @@ var INTENT_SYNERGY = {
 };
 
 function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
-  if (!detectedBiases || detectedBiases.length === 0) return isGenerated ? 82 : 40;
+  // If nothing is found, floor at 35 (or 82 if generated logic kicks in)
+  if (!detectedBiases || detectedBiases.length === 0) return isGenerated ? 82 : 35;
   
-  var score = 40; 
+  var score = 40; // Base score floor
   var n = detectedBiases.length;
-  var earnedPoints = 0;
-  
   var hasMustHave = false;
   var goodToHaveCount = 0;
 
+  // Flattened Point System: Instead of multiplying, we add flat points to limit volatility
   detectedBiases.forEach(function(b) {
-    var w = 1; 
     var nameMatch = b.bias || b.name || "";
     var exactKey = "";
+    var pts = 5; // Default generic points
     
-    for (var key in BIAS_WEIGHTS) {
-      if (nameMatch.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
-        w = BIAS_WEIGHTS[key];
-        exactKey = key;
-        break;
-      }
-    }
-    
-    var pts = w === 3 ? 15 : (w === 2 ? 10 : 5);
-    
+    // Check Format match
     if (copyType && BIAS_MATRIX[copyType]) {
         var matrix = BIAS_MATRIX[copyType];
         if (matrix.priority.some(function(p) { return nameMatch.toLowerCase().indexOf(p.toLowerCase()) >= 0; })) {
-            pts *= 1.2;
-            hasMustHave = true;
+            pts = 15; hasMustHave = true;
         } else if (matrix.applicable.some(function(p) { return nameMatch.toLowerCase().indexOf(p.toLowerCase()) >= 0; })) {
-            pts *= 1.0;
-            goodToHaveCount++;
-        } else {
-            pts *= 0.5;
+            pts = 8; goodToHaveCount++;
         }
     }
     
-    if (intent && exactKey && INTENT_SYNERGY[intent]) {
-         if (INTENT_SYNERGY[intent].must.indexOf(exactKey) >= 0) {
-             pts *= 1.2; 
-             hasMustHave = true;
-         } else if (INTENT_SYNERGY[intent].good.indexOf(exactKey) >= 0) {
-             goodToHaveCount++;
-         }
+    // Check Intent match
+    if (intent) {
+        for (var key in INTENT_SYNERGY[intent].must) {
+             if (nameMatch.toLowerCase().indexOf(INTENT_SYNERGY[intent].must[key].toLowerCase()) >= 0) {
+                 pts = 15; hasMustHave = true;
+             }
+        }
+        for (var key in INTENT_SYNERGY[intent].good) {
+             if (nameMatch.toLowerCase().indexOf(INTENT_SYNERGY[intent].good[key].toLowerCase()) >= 0) {
+                 pts = Math.max(pts, 8); goodToHaveCount++;
+             }
+        }
     }
-    earnedPoints += pts;
+    score += pts;
   });
 
-  score += earnedPoints;
-
+  // Synergy & Frankenstein Penalty
   if (n === 2) {
-      score += 10;
+      score += 5;
   } else if (n === 3) {
-      score += 15;
-  } else if (n > 3) {
-      score -= ((n - 3) * 8); 
+      score += 10;
+  } else if (n >= 4) {
+      score -= 15; // Frankenstein Penalty for Bias Stuffing
   }
 
   var m = (missing || []).length;
   score -= (m * 8); 
 
+  // The Creator's Synergy Boost: Mathematically enforce high scores for generated outputs
   if (isGenerated || (hasMustHave && goodToHaveCount >= 2)) {
-      score = Math.max(81, score + 25);
+      score = Math.max(81, score + 20);
   }
 
   return Math.round(Math.max(10, Math.min(100, score)));
@@ -1728,7 +1696,6 @@ function updateCopyForm() {
 }
 updateCopyForm();
 
-// ── SOUND SLIDER (Name Generator) ─────────────────────────────
 function updateSliderLabel(slider, labelId) {
   var v = parseInt(slider.value);
   var label = document.getElementById(labelId);
@@ -2151,17 +2118,18 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
   parts.push(
     '',
     'STRICT AUDIT RULES (WORKING BIASES):',
-    'Step 1: Check ONLY against the MUST-HAVE biases for this intent: [' + mustList + ']. How many are unmistakably present?',
-    'Step 2: Check against the GOOD-TO-HAVE biases for this intent: [' + goodList + ']. How many are unmistakably present?',
-    'Step 3: Only list a bias if it is explicitly, undeniably present and highly effective. Put them in the "working" array.',
-    'Step 4: Ensure the bias names you output match EXACTLY with established behavioral science terminology (e.g., "Loss Aversion").',
+    'Step 1: Check ONLY against the MUST-HAVE biases for this intent: [' + mustList + ']. How many are undeniably present?',
+    'Step 2: Check against the GOOD-TO-HAVE biases for this intent: [' + goodList + ']. How many are undeniably present?',
+    'Step 3: EXECUTION CHECK (CRITICAL) - Do not credit a bias just because words match. It MUST be executed seamlessly and powerfully. If it feels spammy, forced, or like a Frankenstein amalgamation, REJECT IT entirely and do not list it.',
+    'Step 4: Only output biases that survived the Execution Check. Put them in the "working" array.',
+    'Step 5: Ensure the bias names you output match EXACTLY with established behavioral science terminology (e.g., "Loss Aversion").',
     '',
     'STRICT AUDIT RULES (MISSING BIASES & REWRITE):',
     '- Identify critical missing biases from the MUST-HAVE list: [' + mustList + ']. Put them in the "missing" array.',
     '- If the copy is already highly persuasive, leave the "missing" array completely EMPTY [].',
     'DO NOT include an overall numerical score.',
     '',
-    'Step 5: REWRITE. In the rewrite, provide a highly synergistic version explicitly combining ALL MUST-HAVE biases and AT LEAST 2 GOOD-TO-HAVE biases from the lists above. Make it impossible to score poorly.',
+    'Step 6: REWRITE. In the rewrite, provide a highly synergistic version explicitly combining ALL MUST-HAVE biases and AT LEAST 2 GOOD-TO-HAVE biases from the lists above. Make it impossible to score poorly.',
     'CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines inside the JSON strings.',
     'Return JSON only:',
     '{"summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence explaining how it serves the intent"}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}'
@@ -2174,8 +2142,6 @@ function buildAuditHtml(d, finalScore) {
   var missing = d.missing || [];
   
   var scoreBand = getScoreBand(finalScore);
-  
-  // UI Reverted exactly to original layout, placing the Band purely into the label text 
   var scoreCol = finalScore >= 75 ? 'var(--green)' : finalScore >= 50 ? 'var(--amber)' : 'var(--red)';
 
   var workItems = working.map(function(w) {
@@ -2193,12 +2159,11 @@ function buildAuditHtml(d, finalScore) {
   }).join('');
 
   var rwHeader = '<div class="rw-header" style="display:flex;justify-content:space-between;align-items:center;">'
-    + '<span>&#8593; Improved Version</span>'
+    + '<span>&#8593; Improved Version (Optimized to hit 81+ Range)</span>'
     + '</div>';
 
-  return '<div class="results-label">Audit Results (Stabilized)</div>'
+  return '<div class="results-label">Audit Results</div>'
     + '<div class="score-card"><div>'
-    // Applying an inline width and tight font size ONLY here so the range text string fits without breaking layout
     + '<div class="score-num" style="color:' + scoreCol + '; font-size: 32px; white-space: nowrap; min-width: 100px;">' + scoreBand + '</div>'
     + '<div class="score-den">SCORE BAND</div></div><div class="score-sep"></div>'
     + '<div class="score-body"><div class="score-label-text">Behavioral Impact</div>'
@@ -2241,56 +2206,66 @@ async function runAudit() {
   var urlEl  = document.getElementById('a-url');
   var auditUrl = urlEl ? urlEl.value.trim() : '';
 
-  setLoading('audit-btn', true, 'Running Strict Audit...');
   showErr('audit-err', '');
-  document.getElementById('audit-out').innerHTML = '';
+  setLoading('audit-btn', true, 'Auditing...');
+
+  // Interactive Loading Screen
+  document.getElementById('audit-out').innerHTML = `
+    <div style="text-align:center; padding: 40px 20px; background:var(--surface); border:1px solid var(--bd); border-radius:14px; box-shadow:var(--shadow-s); margin-bottom: 20px;">
+      <div class="spinner" style="width:34px; height:34px; border-width:3px; border-top-color:var(--green); margin:0 auto 16px; border-color:var(--bdhi);"></div>
+      <div style="font-size:32px; font-family:'Fraunces',serif; font-weight:600; color:var(--green); margin-bottom:6px; line-height:1;" id="audit-pct">0%</div>
+      <div style="font-size:11px; font-weight:700; color:var(--mid); letter-spacing:.1em; text-transform:uppercase; margin-bottom:12px;" id="audit-load-title">Extracting Psychological Levers</div>
+      <div style="font-size:13.5px; color:var(--ink); line-height:1.55; max-width:300px; margin:0 auto; font-style:italic;" id="audit-load-fact">Did you know? People value things more once they own them (Endowment Effect).</div>
+    </div>
+  `;
+
+  var pct = 0;
+  var facts = [
+    "Did you know? People prefer avoiding losses to acquiring equivalent gains (Loss Aversion).",
+    "Did you know? We rely heavily on the first piece of information offered (Anchoring).",
+    "Did you know? Rhyming copy is perceived as more truthful (Keats Heuristic).",
+    "Did you know? Items seem more valuable when they are scarce (Scarcity).",
+    "Did you know? We trust products more if they admit a small flaw (Pratfall Effect)."
+  ];
+  var factIdx = 0;
+  var loadInt = setInterval(function() {
+    pct += Math.floor(Math.random() * 3) + 1;
+    if (pct > 96) pct = 96;
+    var pctEl = document.getElementById('audit-pct');
+    if (pctEl) pctEl.innerText = pct + '%';
+    if (pct % 20 === 0 || pct % 20 === 1 || pct % 20 === 2) {
+       factIdx = (factIdx + 1) % facts.length;
+       var factEl = document.getElementById('audit-load-fact');
+       if (factEl) factEl.innerText = facts[factIdx];
+    }
+  }, 150);
 
   var auditWebCtx = auditUrl ? await fetchWebsiteContext(auditUrl, null, 'a-url-status') : null;
   lastAuditPrompt = { copy: copy, brand: brand, intent: intent, origScore: null, websiteCtx: auditWebCtx };
 
   try {
     var prompt = buildAuditPrompt(copy, brand, intent, '', auditWebCtx);
-    var validResults = [];
-
-    // PASS 1
-    var res1 = await callAI(prompt, 0.0).catch(function(e) { return null; });
-    if (res1) validResults.push(res1);
-
-    // Sequential Wait to bypass API Rate Limits / Burst limits
-    await new Promise(function(resolve) { setTimeout(resolve, 1500); });
-
-    // PASS 2
-    var res2 = await callAI(prompt, 0.0).catch(function(e) { return null; });
-    if (res2) validResults.push(res2);
-
-    if (validResults.length === 0) {
-        throw new Error('API limits reached. Please try again in a moment.');
-    }
-
-    // Score all valid results
-    validResults.forEach(function(r) {
-        r.calculatedScore = calcBiasScore(r.working || [], r.missing || [], null, intent, false); 
-    });
-
-    var finalScore;
-    var finalResult;
-
-    if (validResults.length >= 2) {
-        // Average the two scores for the stable median
-        finalScore = Math.round((validResults[0].calculatedScore + validResults[1].calculatedScore) / 2);
-        finalResult = validResults[0]; 
-    } else {
-        // Graceful fallback to the single successful request
-        finalScore = validResults[0].calculatedScore;
-        finalResult = validResults[0];
-    }
     
+    // Single API call to completely bypass Rate Limit errors
+    var d = await callAI(prompt, 0.0);
+    
+    clearInterval(loadInt);
+    var pEl = document.getElementById('audit-pct');
+    if (pEl) pEl.innerText = '100%';
+
+    var finalScore = calcBiasScore(d.working || [], d.missing || [], null, intent, false); // isGenerated = false
     lastAuditPrompt.origScore = finalScore;
 
-    document.getElementById('audit-out').innerHTML = buildAuditHtml(finalResult, finalScore);
-    flashNew('audit-out');
+    // Slight delay to let user see 100% before transition
+    setTimeout(function() {
+        document.getElementById('audit-out').innerHTML = buildAuditHtml(d, finalScore);
+        flashNew('audit-out');
+    }, 300);
+
   } catch(e) {
+    clearInterval(loadInt);
     showErr('audit-err', 'Audit failed \u2014 ' + (e.message || 'please try again.'));
+    document.getElementById('audit-out').innerHTML = '';
   }
   setLoading('audit-btn', false, 'Audit My Copy');
 }
@@ -2307,7 +2282,7 @@ function openAuditMoreOptions() {
       try {
         var d = await callAI(buildAuditPrompt(p.copy, p.brand, p.intent, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.', p.websiteCtx || null), 0.0);
         
-        var sc = calcBiasScore(d.working || [], d.missing || [], null, p.intent, true); // isGenerated = true
+        var sc = calcBiasScore(d.working || [], d.missing || [], null, p.intent, true); // isGenerated = true guarantees >75
         document.getElementById('audit-out').innerHTML = buildAuditHtml(d, sc);
         
         flashNew('audit-out');
