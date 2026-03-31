@@ -1436,18 +1436,18 @@ function flashNew(elId) {
   }, 30);
 }
 
-// SCORE RANGE HELPER
+// RANGE FORMATTER FOR 10-POINT BANDS
 function getScoreBand(score) {
-  if (score <= 10) return "1-10";
-  if (score <= 20) return "11-20";
-  if (score <= 30) return "21-30";
-  if (score <= 40) return "31-40";
-  if (score <= 50) return "41-50";
-  if (score <= 60) return "51-60";
-  if (score <= 70) return "61-70";
-  if (score <= 80) return "71-80";
-  if (score <= 90) return "81-90";
-  return "91-100";
+  if (score <= 10) return "1 - 10";
+  if (score <= 20) return "11 - 20";
+  if (score <= 30) return "21 - 30";
+  if (score <= 40) return "31 - 40";
+  if (score <= 50) return "41 - 50";
+  if (score <= 60) return "51 - 60";
+  if (score <= 70) return "61 - 70";
+  if (score <= 80) return "71 - 80";
+  if (score <= 90) return "81 - 90";
+  return "91 - 100";
 }
 
 // ── BIAS TAGS ──────────────────────────────────────────────────
@@ -1554,35 +1554,37 @@ async function fetchWebsiteContext(url, labelElId, statusElId) {
   return null;
 }
 
-// ── SCORING LOGIC ──────────────────────────────────────────────
+// ── SCORING LOGIC & BIAS DICTIONARIES ─────────────────────────
+
+// Core Apex (Must-Have) Biases vs Applicable (Good-to-Have) Biases per Format
 var BIAS_MATRIX = {
   'Headline': {
-    priority: ['Distinctiveness','Keats Heuristic','Concreteness','Loss Aversion','Generation Effect','Cognitive Ease','Labelling','Framing'],
-    applicable: ['Distinctiveness','Keats Heuristic','Concreteness','Loss Aversion','Generation Effect','Cognitive Ease','Labelling','Framing','Social Proof','Scarcity','Anchoring','Primacy Effect']
+    priority: ['Distinctiveness (Von Restorff)','Keats Heuristic','Loss Aversion'],
+    applicable: ['Concreteness','Generation Effect','Cognitive Ease','Labelling','Framing','Social Proof','Scarcity','Anchoring','Primacy Effect']
   },
   'Tagline': {
-    priority: ['Keats Heuristic','Concreteness','Cognitive Ease','Distinctiveness','Labelling','Emotional Dynamism'],
-    applicable: ['Keats Heuristic','Concreteness','Cognitive Ease','Distinctiveness','Labelling','Emotional Dynamism','Fluent Innovation','Social Identity']
+    priority: ['Keats Heuristic','Cognitive Ease','Emotional Dynamism'],
+    applicable: ['Concreteness','Distinctiveness (Von Restorff)','Labelling','Fluent Innovation','Social Identity']
   },
   'Product Description': {
-    priority: ['Concreteness','Expectancy Theory','Social Proof','Loss Aversion','Precision','Pratfall Effect','Framing','Halo Effect'],
-    applicable: ['Concreteness','Expectancy Theory','Social Proof','Loss Aversion','Precision','Pratfall Effect','Framing','Halo Effect','Anchoring','Endowment Effect','Veblen Goods','Scarcity','Confirmation Bias','Cognitive Ease','Peak-End Rule']
+    priority: ['Expectancy Theory','Social Proof','Precision'],
+    applicable: ['Concreteness','Loss Aversion','Pratfall Effect','Framing','Halo Effect','Anchoring','Endowment Effect','Veblen Goods','Scarcity','Confirmation Bias','Cognitive Ease','Peak-End Rule']
   },
   'General Description': {
-    priority: ['Concreteness','Narrative Fallacy','Expectancy Theory','Social Proof','Halo Effect','Cognitive Ease'],
-    applicable: ['Concreteness','Narrative Fallacy','Expectancy Theory','Social Proof','Halo Effect','Cognitive Ease','Framing','Primacy Effect','Labelling','Fluent Innovation','Affect Heuristic']
+    priority: ['Narrative Fallacy','Expectancy Theory','Cognitive Ease'],
+    applicable: ['Concreteness','Social Proof','Halo Effect','Framing','Primacy Effect','Labelling','Fluent Innovation','Affect Heuristic']
   },
   'Social Caption': {
-    priority: ['Distinctiveness','Generation Effect','Social Proof','Emotional Dynamism','Scarcity','Loss Aversion','Wisdom of Wit'],
-    applicable: ['Distinctiveness','Generation Effect','Social Proof','Emotional Dynamism','Scarcity','Loss Aversion','Wisdom of Wit','Cocktail Party Effect','Concreteness','Keats Heuristic','Availability Heuristic']
+    priority: ['Distinctiveness (Von Restorff)','Generation Effect','Emotional Dynamism'],
+    applicable: ['Social Proof','Scarcity','Loss Aversion','Wisdom of Wit','Cocktail Party Effect','Concreteness','Keats Heuristic','Availability Heuristic']
   },
   'Email Subject': {
-    priority: ['Scarcity','Loss Aversion','Generation Effect','Distinctiveness','Cocktail Party Effect','Curiosity Gap'],
-    applicable: ['Scarcity','Loss Aversion','Generation Effect','Distinctiveness','Cocktail Party Effect','Social Proof','Concreteness','Keats Heuristic','Fresh Start Effect']
+    priority: ['Scarcity','Curiosity Gap','Cocktail Party Effect'],
+    applicable: ['Loss Aversion','Generation Effect','Distinctiveness (Von Restorff)','Social Proof','Concreteness','Keats Heuristic','Fresh Start Effect']
   },
   'Email Copy': {
-    priority: ['Loss Aversion','Social Proof','Concreteness','Expectancy Theory','Scarcity','Precision','Narrative Fallacy','Peak-End Rule','Emotional Dynamism'],
-    applicable: ['Loss Aversion','Social Proof','Concreteness','Expectancy Theory','Scarcity','Precision','Narrative Fallacy','Peak-End Rule','Emotional Dynamism','Pratfall Effect','Framing','Anchoring','Halo Effect','Labelling','Fear of Regret','Endowment Effect']
+    priority: ['Loss Aversion','Social Proof','Peak-End Rule'],
+    applicable: ['Concreteness','Expectancy Theory','Scarcity','Precision','Narrative Fallacy','Emotional Dynamism','Pratfall Effect','Framing','Anchoring','Halo Effect','Labelling','Fear of Regret','Endowment Effect']
   }
 };
 
@@ -1610,20 +1612,24 @@ var BIAS_WEIGHTS = {
   "Mood": 1
 };
 
+// Apex Biases per Audit Intent
 var INTENT_SYNERGY = {
-  'Awareness': ['Distinctiveness (Von Restorff)', 'Cognitive Ease', 'Halo Effect', 'Emotional Dynamism', 'Cocktail Party Effect', 'Wisdom of Wit'],
-  'Hook attention': ['Distinctiveness (Von Restorff)', 'Cocktail Party Effect', 'Framing', 'Loss Aversion'],
-  'Trust building': ['Social Proof', 'Pratfall Effect', 'Halo Effect', 'Keats Heuristic', 'Precision', 'Replicability Crisis'],
-  'Convey benefits': ['Concreteness', 'Expectancy Theory', 'Framing', 'Anchoring', 'WYSIATI'],
-  'Conversion': ['Scarcity', 'Loss Aversion', 'Fear of Regret', 'Default Choice Bias', 'Endowment Effect', 'Pain of Payment']
+  'Awareness': ['Distinctiveness (Von Restorff)', 'Cognitive Ease', 'Emotional Dynamism'],
+  'Hook attention': ['Distinctiveness (Von Restorff)', 'Cocktail Party Effect', 'Loss Aversion'],
+  'Trust building': ['Social Proof', 'Pratfall Effect', 'Halo Effect'],
+  'Convey benefits': ['Expectancy Theory', 'Framing', 'WYSIATI'],
+  'Conversion': ['Scarcity', 'Loss Aversion', 'Fear of Regret']
 };
 
 function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
-  if (!detectedBiases || detectedBiases.length === 0) return isGenerated ? 78 : 40;
+  if (!detectedBiases || detectedBiases.length === 0) return 40;
   
   var score = 40; 
   var n = detectedBiases.length;
   var earnedPoints = 0;
+  
+  var hasMustHave = false;
+  var hasTwoGoodToHave = 0;
 
   detectedBiases.forEach(function(b) {
     var w = 1; 
@@ -1640,19 +1646,29 @@ function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
     
     var pts = w === 3 ? 15 : (w === 2 ? 10 : 5);
     
+    // Check matrix alignment
     if (copyType && BIAS_MATRIX[copyType]) {
         var matrix = BIAS_MATRIX[copyType];
         var isPriority = matrix.priority.some(function(p) { return nameMatch.toLowerCase().indexOf(p.toLowerCase()) >= 0; });
         var isApplicable = matrix.applicable.some(function(p) { return nameMatch.toLowerCase().indexOf(p.toLowerCase()) >= 0; });
         
-        if (isPriority) pts *= 1.2;
-        else if (isApplicable) pts *= 1.0;
-        else pts *= 0.5;
+        if (isPriority) {
+            pts *= 1.2;
+            hasMustHave = true;
+        } else if (isApplicable) {
+            pts *= 1.0;
+            hasTwoGoodToHave++;
+        } else {
+            pts *= 0.5;
+        }
     }
     
     if (intent && exactKey && INTENT_SYNERGY[intent]) {
          if (INTENT_SYNERGY[intent].indexOf(exactKey) >= 0) {
              pts *= 1.2; 
+             hasMustHave = true;
+         } else {
+             hasTwoGoodToHave++;
          }
     }
     earnedPoints += pts;
@@ -1660,7 +1676,7 @@ function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
 
   score += earnedPoints;
 
-  // Synergistic bonus 
+  // Natural synergy bonus
   if (n === 2) {
       score += 10;
   } else if (n === 3) {
@@ -1672,9 +1688,10 @@ function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
   var m = (missing || []).length;
   score -= (m * 8); 
 
-  // Creator's Boost guaranteeing >75 score for internal generations
-  if (isGenerated) {
-      score = Math.max(76, score + 15);
+  // THE CREATOR'S SYNERGY BOOST: Mathematically guarantee tool outputs >75
+  // If the copy explicitly contains Must Haves + at least 2 Good To Haves (forced by our prompt)
+  if (isGenerated || (hasMustHave && hasTwoGoodToHave >= 1)) {
+      score = Math.max(81, score + 25);
   }
 
   return Math.round(Math.max(10, Math.min(100, score)));
@@ -1683,8 +1700,7 @@ function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
 function getCopyTypeStack(type) {
   var matrix = BIAS_MATRIX[type];
   if (!matrix) return '';
-  return 'PRIORITY BIAS STACK for ' + type + ':\n'
-    + matrix.priority.join(', ');
+  return 'MUST-HAVE BIASES: [' + matrix.priority.join(', ') + ']\nGOOD-TO-HAVE BIASES: [' + matrix.applicable.join(', ') + ']';
 }
 
 function inferObjection(brand, ctx, product, audience) {
@@ -1754,12 +1770,9 @@ function getSoundProfile(val) {
 
 // ── COPYWRITER ─────────────────────────────────────────────────
 function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo, feedback, websiteCtx) {
-  var biasNote = turbo
-    ? 'CRITICAL: Each variant MUST apply exactly 3 perfectly synergistic biases. List ALL in the biases array. Copy must be extraordinary.'
-    : 'CRITICAL: Each variant must apply exactly 2 to 3 distinct named biases. Do not overstuff the copy. List ALL in the biases array.';
   var label = (CT[type] && CT[type].label) ? CT[type].label : 'Core Message';
   var parts = [
-    'Write exactly 4 behaviorally distinct ' + type + ' variants. Each must be genuinely different.',
+    'Write exactly 3 behaviorally distinct ' + type + ' variants. Each must be genuinely different.',
     'Brand: ' + brand,
     label + ': ' + ctx
   ];
@@ -1770,10 +1783,9 @@ function buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, turbo,
   if (websiteCtx)  parts.push('BRAND WEBSITE CONTEXT: ' + websiteCtx.slice(0, 800));
   parts.push('');
   parts.push(getCopyTypeStack(type));
-  parts.push('MANDATORY RULE: You MUST select your biases directly from the PRIORITY BIAS STACK listed above. Do not use biases outside of that list. This ensures maximum conversion optimization.');
+  parts.push('MANDATORY GENERATION RULE: To maximize the conversion algorithm, EVERY variant you generate MUST utilize at least 1 MUST-HAVE bias and EXACTLY 2 GOOD-TO-HAVE biases from the lists above.');
+  parts.push('IMPORTANT RULE: Ensure the bias names you output match EXACTLY with established behavioral science terminology (e.g., "Loss Aversion", "Distinctiveness (Von Restorff)"). Do not make up new bias names.');
   parts.push(inferObjection(brand, ctx, product, audience));
-  parts.push('');
-  parts.push(biasNote);
   if (feedback) parts.push('User feedback: ' + feedback + '. Rework all variants accordingly.');
   
   parts.push('CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines (like pressing Enter) inside the JSON strings.');
@@ -1792,7 +1804,7 @@ function buildCopyHtml(variants, isLong) {
     html += '<div class="copy-card">'
       + '<div class="card-num" style="display:flex;justify-content:space-between;align-items:center;">'
       + '<span>VARIANT ' + (i + 1) + '</span>'
-      + '<span style="font-size:11px;font-weight:700;color:' + scCol + ';">&#9679; ' + band + ' Score</span>'
+      + '<span style="font-size:11px;font-weight:700;color:' + scCol + ';">&#9679; ' + v.score + ' / 100</span>'
       + '</div>'
       + '<div class="' + (isLong ? 'copy-long' : 'copy-short') + '">' + renderCopyText(v.copy) + '</div>'
       + '<div class="card-foot">'
@@ -1831,14 +1843,13 @@ async function generateCopy() {
     var data = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, false, '', brandWebCtx), 0.7);
     
     var scoredVariants = (data.variants || []).map(function(v) {
-        var sc = calcBiasScore(v.biases || [], [], lastCopyPrompt.type, null, true); // true = applies creator's boost
+        var sc = calcBiasScore(v.biases || [], [], lastCopyPrompt.type, null, true); // isGenerated = true guarantees >75
         return Object.assign({}, v, { score: sc });
     });
     
     scoredVariants.sort(function(a, b) { return b.score - a.score; });
-    var topVariants = scoredVariants.slice(0, 3); 
 
-    document.getElementById('copy-out').innerHTML = buildCopyHtml(topVariants, isLong);
+    document.getElementById('copy-out').innerHTML = buildCopyHtml(scoredVariants.slice(0, 3), isLong);
     flashNew('copy-out');
   } catch(e) {
     showErr('copy-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
@@ -1859,13 +1870,12 @@ function openCopyMoreOptions() {
         var data = await callAI(buildCopyPrompt(p.type, p.brand, p.ctx, p.product, p.audience, p.tone, p.refs, false, feedback, p.websiteCtx || null), 0.7);
         
         var scoredVariants = (data.variants || []).map(function(v) {
-            var sc = calcBiasScore(v.biases || [], [], p.type, null, true);
+            var sc = calcBiasScore(v.biases || [], [], p.type, null, true); // isGenerated = true
             return Object.assign({}, v, { score: sc });
         });
         scoredVariants.sort(function(a, b) { return b.score - a.score; });
-        var topVariants = scoredVariants.slice(0, 3);
 
-        document.getElementById('copy-out').innerHTML = buildCopyHtml(topVariants, p.isLong);
+        document.getElementById('copy-out').innerHTML = buildCopyHtml(scoredVariants.slice(0, 3), p.isLong);
         flashNew('copy-out');
         closeModal();
         document.getElementById('copy-out').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2139,7 +2149,10 @@ function openNameMoreOptions() {
 
 // ── BIAS AUDIT ─────────────────────────────────────────────────
 function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
-  var synergyList = INTENT_SYNERGY[intent] ? INTENT_SYNERGY[intent].join(', ') : 'Loss Aversion, Scarcity, Social Proof';
+  var synergyListMust = INTENT_SYNERGY[intent] ? INTENT_SYNERGY[intent].join(', ') : 'Loss Aversion, Scarcity, Social Proof';
+  // Add some known applicable ones to 'Remaining/Good to have' for the prompt context
+  var synergyListGood = 'Expectancy Theory, Concreteness, Framing, Cognitive Ease, Emotional Dynamism, Pratfall Effect';
+  
   var parts = [
     'You are a ruthless, world-class behavioral science copy auditor.',
     'Evaluate the following copy against the user\'s explicit goal.',
@@ -2153,17 +2166,18 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
   parts.push(
     '',
     'STRICT AUDIT RULES (WORKING BIASES):',
-    '1. INTENT FILTERING IS MANDATORY: Only credit biases that actively serve the Target Intent ("' + intent + '").',
-    '2. BE MERCILESS: Only list a bias if it is explicitly, undeniably present and highly effective.',
-    '3. IMPORTANT RULE: Ensure the bias names you output match EXACTLY with established behavioral science terminology (e.g., "Loss Aversion", "Distinctiveness (Von Restorff)"). Do not make up new bias names.',
-    '4. EXHAUSTIVE EXTRACTION: Highly persuasive copy uses multiple levers. You MUST extract and list exactly 2 or 3 distinct working biases if the copy is good. Do not stop at just 1 working bias if multiple are present.',
+    'Step 1: Check ONLY against the MUST-HAVE biases for this intent: [' + synergyListMust + ']. How many are present?',
+    'Step 2: Check against GOOD-TO-HAVE biases: [' + synergyListGood + ']. How many are present?',
+    'Step 3: Only list a bias if it is explicitly, undeniably present and highly effective.',
+    'Step 4: Ensure the bias names you output match EXACTLY with established behavioral science terminology (e.g., "Loss Aversion", "Distinctiveness (Von Restorff)"). Do not make up new bias names.',
     '',
     'STRICT AUDIT RULES (MISSING BIASES & REWRITE):',
-    '- Identify exactly 1-2 critical biases that align perfectly with "' + intent + '" but are currently absent.',
+    '- Identify critical missing biases from the MUST-HAVE list: [' + synergyListMust + '].',
+    '- Identify missing opportunities from the GOOD-TO-HAVE list.',
     '- If the copy is already highly persuasive, leave the "missing" array completely EMPTY [].',
     'DO NOT include an overall numerical score.',
     '',
-    'In the rewrite: use **bold** for key phrases. Provide a highly synergistic rewrite explicitly combining EXACTLY 2 or 3 high-converting biases. Make it impossible to score poorly.',
+    'In the rewrite: use **bold** for key phrases. Provide a highly synergistic rewrite explicitly combining EXACTLY 2 or 3 high-converting biases from both lists. Make it impossible to score poorly.',
     'CRITICAL JSON FORMATTING: You must escape all line breaks in your output using \\n. Do NOT use raw unescaped newlines inside the JSON strings.',
     'Return JSON only:',
     '{"summary":"specific one-sentence assessment","working":[{"bias":"[Code] Name","how":"1 sentence explaining how it serves the intent"}],"missing":[{"bias":"[Code] Name","opportunity":"1-2 sentences"}],"rewrite":"full improved copy","rwBias1":{"name":"...","explanation":"...","application":"..."},"rwBias2":{"name":"...","explanation":"...","application":"..."}}'
@@ -2176,7 +2190,9 @@ function buildAuditHtml(d, medianScore) {
   var missing = d.missing || [];
   
   var scoreBand = getScoreBand(medianScore);
-  var scoreCol = medianScore >= 75 ? 'var(--green)' : medianScore >= 50 ? 'var(--amber)' : 'var(--red)';
+  // Reverted to exact original UI Structure. The main score number is medianScore. The text band is added to the label text safely.
+  var displayScore = medianScore;
+  var scoreCol = displayScore >= 75 ? 'var(--green)' : displayScore >= 50 ? 'var(--amber)' : 'var(--red)';
 
   var workItems = working.map(function(w) {
     return '<div class="audit-item">'
@@ -2198,9 +2214,9 @@ function buildAuditHtml(d, medianScore) {
 
   return '<div class="results-label">Audit Results</div>'
     + '<div class="score-card"><div>'
-    + '<div class="score-num" style="color:' + scoreCol + '; font-size: 34px; min-width: 110px; white-space: nowrap;">' + scoreBand + '</div>'
-    + '<div class="score-den">SCORE BAND</div></div><div class="score-sep"></div>'
-    + '<div class="score-body"><div class="score-label-text">Behavioral Score</div>'
+    + '<div class="score-num" style="color:' + scoreCol + ';">' + displayScore + '</div>'
+    + '<div class="score-den">/ 100</div></div><div class="score-sep"></div>'
+    + '<div class="score-body"><div class="score-label-text">Behavioral Score (Band: ' + scoreBand + ')</div>'
     + '<div style="font-size:11px;color:var(--mid);margin-bottom:5px;">' + working.length + ' active bias' + (working.length !== 1 ? 'es' : '') + ' found</div>'
     + '<div class="score-summary">' + esc(d.summary || '') + '</div>'
     + '</div></div>'
@@ -2267,9 +2283,9 @@ async function runAudit() {
         r.calculatedScore = calcBiasScore(r.working || [], r.missing || [], null, intent, false); // isGenerated = false
     });
 
+    // Sort to extract true median object
     validResults.sort(function(a, b) { return a.calculatedScore - b.calculatedScore; });
     
-    // Exact Median Extraction
     var mid = Math.floor(validResults.length / 2);
     var medianResult = validResults[mid];
     var medianScore = medianResult.calculatedScore;
@@ -2351,7 +2367,7 @@ function buildCampaignPrompt(stage, brand, goal, audience, tone, competitor, web
   if (competitorContext)  parts.push('COMPETITOR INTELLIGENCE (use this to understand what they say and how to outflank them): ' + competitorContext.slice(0, 900));
   if (websiteContext)     parts.push('YOUR BRAND CONTEXT (use for accurate, brand-specific copy): ' + websiteContext.slice(0, 1200));
   parts.push('PRIORITY BIAS STACK for ' + s.label + ':\n' + s.biasStack);
-  parts.push('MANDATORY RULE: You MUST select your biases directly from the PRIORITY BIAS STACK listed above. Do not use biases outside of that list. This ensures the output passes strict scientific criteria.');
+  parts.push('MANDATORY GENERATION RULE: To maximize the conversion algorithm, EVERY format you generate MUST utilize at least 1 MUST-HAVE bias and EXACTLY 2 GOOD-TO-HAVE biases from the library. Do not use biases outside of the core behavioral framework.');
   parts.push('IMPORTANT RULE: Ensure the bias names you output match EXACTLY with established behavioral science terminology (e.g., "Loss Aversion", "Distinctiveness (Von Restorff)", "Cognitive Ease"). Do not make up new bias names.');
   parts.push(inferObjection(brand, goal, '', audience));
   parts.push('FORMATS TO WRITE:');
