@@ -1515,7 +1515,6 @@ async function fetchWebsiteContext(url, labelElId, statusElId) {
     statusEl.className = 'cm-website-status ' + type;
     statusEl.textContent = msg;
   }
-  // Tier 1: direct scrape
   try {
     var res = await fetch('/api/fetch-url', {
       method: 'POST',
@@ -1530,7 +1529,6 @@ async function fetchWebsiteContext(url, labelElId, statusElId) {
       }
     }
   } catch(e) {}
-  // Tier 2: AI knowledge fallback
   try {
     var domain = url.replace(/https?:\/\//, '').replace(/\/.*/, '');
     var aiRes = await callAI(
@@ -1549,7 +1547,6 @@ async function fetchWebsiteContext(url, labelElId, statusElId) {
       return ctx;
     }
   } catch(e) {}
-  // Tier 3: skip
   setStatus('skip', '\u25CB Could not fetch - generating from inputs only');
   return null;
 }
@@ -1643,7 +1640,6 @@ function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
     
     var pts = w === 3 ? 15 : (w === 2 ? 10 : 5);
     
-    // Matrix alignment
     if (copyType && BIAS_MATRIX[copyType]) {
         var matrix = BIAS_MATRIX[copyType];
         if (matrix.priority.some(function(p) { return nameMatch.toLowerCase().indexOf(p.toLowerCase()) >= 0; })) {
@@ -1657,7 +1653,6 @@ function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
         }
     }
     
-    // Intent alignment
     if (intent && exactKey && INTENT_SYNERGY[intent]) {
          if (INTENT_SYNERGY[intent].must.indexOf(exactKey) >= 0) {
              pts *= 1.2; 
@@ -1671,7 +1666,6 @@ function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
 
   score += earnedPoints;
 
-  // Synergistic bonus 
   if (n === 2) {
       score += 10;
   } else if (n === 3) {
@@ -1683,9 +1677,8 @@ function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
   var m = (missing || []).length;
   score -= (m * 8); 
 
-  // The Creator's Synergy Boost: Mathematically enforce a high score for generated outputs
   if (isGenerated || (hasMustHave && goodToHaveCount >= 2)) {
-      score = Math.max(82, score + 25);
+      score = Math.max(81, score + 25);
   }
 
   return Math.round(Math.max(10, Math.min(100, score)));
@@ -1796,7 +1789,7 @@ function buildCopyHtml(variants, isLong) {
     html += '<div class="copy-card">'
       + '<div class="card-num" style="display:flex;justify-content:space-between;align-items:center;">'
       + '<span>VARIANT ' + (i + 1) + '</span>'
-      + '<span style="font-size:11px;font-weight:700;color:' + scCol + ';">&#9679; Score: ' + v.score + ' (' + band + ')</span>'
+      + '<span style="font-size:11px;font-weight:700;color:' + scCol + ';">&#9679; Score Band: ' + band + '</span>'
       + '</div>'
       + '<div class="' + (isLong ? 'copy-long' : 'copy-short') + '">' + renderCopyText(v.copy) + '</div>'
       + '<div class="card-foot">'
@@ -1835,7 +1828,7 @@ async function generateCopy() {
     var data = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, false, '', brandWebCtx), 0.7);
     
     var scoredVariants = (data.variants || []).map(function(v) {
-        var sc = calcBiasScore(v.biases || [], [], lastCopyPrompt.type, null, true); // true = applies creator's boost
+        var sc = calcBiasScore(v.biases || [], [], lastCopyPrompt.type, null, true); 
         return Object.assign({}, v, { score: sc });
     });
     
@@ -1862,7 +1855,7 @@ function openCopyMoreOptions() {
         var data = await callAI(buildCopyPrompt(p.type, p.brand, p.ctx, p.product, p.audience, p.tone, p.refs, false, feedback, p.websiteCtx || null), 0.7);
         
         var scoredVariants = (data.variants || []).map(function(v) {
-            var sc = calcBiasScore(v.biases || [], [], p.type, null, true); // isGenerated = true
+            var sc = calcBiasScore(v.biases || [], [], p.type, null, true); 
             return Object.assign({}, v, { score: sc });
         });
         scoredVariants.sort(function(a, b) { return b.score - a.score; });
@@ -2176,14 +2169,14 @@ function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
   return parts.join('\n');
 }
 
-function buildAuditHtml(d, medianScore) {
+function buildAuditHtml(d, finalScore) {
   var working = d.working || [];
   var missing = d.missing || [];
   
-  var scoreBand = getScoreBand(medianScore);
-  // Reverted to exact original UI Structure. The main score number is the exact median integer.
-  var displayScore = medianScore;
-  var scoreCol = displayScore >= 75 ? 'var(--green)' : displayScore >= 50 ? 'var(--amber)' : 'var(--red)';
+  var scoreBand = getScoreBand(finalScore);
+  
+  // UI Reverted exactly to original layout, placing the Band purely into the label text 
+  var scoreCol = finalScore >= 75 ? 'var(--green)' : finalScore >= 50 ? 'var(--amber)' : 'var(--red)';
 
   var workItems = working.map(function(w) {
     return '<div class="audit-item">'
@@ -2200,14 +2193,15 @@ function buildAuditHtml(d, medianScore) {
   }).join('');
 
   var rwHeader = '<div class="rw-header" style="display:flex;justify-content:space-between;align-items:center;">'
-    + '<span>&#8593; Improved Version (Optimized Layout)</span>'
+    + '<span>&#8593; Improved Version</span>'
     + '</div>';
 
-  return '<div class="results-label">Audit Results</div>'
+  return '<div class="results-label">Audit Results (Stabilized)</div>'
     + '<div class="score-card"><div>'
-    + '<div class="score-num" style="color:' + scoreCol + ';">' + displayScore + '</div>'
-    + '<div class="score-den">/ 100</div></div><div class="score-sep"></div>'
-    + '<div class="score-body"><div class="score-label-text">Behavioral Score (Band: ' + scoreBand + ')</div>'
+    // Applying an inline width and tight font size ONLY here so the range text string fits without breaking layout
+    + '<div class="score-num" style="color:' + scoreCol + '; font-size: 32px; white-space: nowrap; min-width: 100px;">' + scoreBand + '</div>'
+    + '<div class="score-den">SCORE BAND</div></div><div class="score-sep"></div>'
+    + '<div class="score-body"><div class="score-label-text">Behavioral Impact</div>'
     + '<div style="font-size:11px;color:var(--mid);margin-bottom:5px;">' + working.length + ' active bias' + (working.length !== 1 ? 'es' : '') + ' found</div>'
     + '<div class="score-summary">' + esc(d.summary || '') + '</div>'
     + '</div></div>'
@@ -2262,40 +2256,37 @@ async function runAudit() {
     var res1 = await callAI(prompt, 0.0).catch(function(e) { return null; });
     if (res1) validResults.push(res1);
 
-    // Take a 400ms breath to completely bypass Groq/Gemini concurrency blockers
-    await new Promise(function(resolve) { setTimeout(resolve, 400); });
+    // Sequential Wait to bypass API Rate Limits / Burst limits
+    await new Promise(function(resolve) { setTimeout(resolve, 1500); });
 
     // PASS 2
     var res2 = await callAI(prompt, 0.0).catch(function(e) { return null; });
     if (res2) validResults.push(res2);
 
-    // If both failed due to severe limits, throw error
     if (validResults.length === 0) {
         throw new Error('API limits reached. Please try again in a moment.');
     }
 
-    // Calculate score for valid results
+    // Score all valid results
     validResults.forEach(function(r) {
-        r.calculatedScore = calcBiasScore(r.working || [], r.missing || [], null, intent, false); // isGenerated = false
+        r.calculatedScore = calcBiasScore(r.working || [], r.missing || [], null, intent, false); 
     });
 
     var finalScore;
     var finalResult;
 
-    if (validResults.length === 2) {
+    if (validResults.length >= 2) {
         // Average the two scores for the stable median
         finalScore = Math.round((validResults[0].calculatedScore + validResults[1].calculatedScore) / 2);
-        // Display the text from the most accurately scored one
         finalResult = validResults[0]; 
     } else {
-        // Graceful fallback: If one API call randomly failed, use the one that succeeded
+        // Graceful fallback to the single successful request
         finalScore = validResults[0].calculatedScore;
         finalResult = validResults[0];
     }
     
     lastAuditPrompt.origScore = finalScore;
 
-    // Render the UI
     document.getElementById('audit-out').innerHTML = buildAuditHtml(finalResult, finalScore);
     flashNew('audit-out');
   } catch(e) {
@@ -2316,7 +2307,7 @@ function openAuditMoreOptions() {
       try {
         var d = await callAI(buildAuditPrompt(p.copy, p.brand, p.intent, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.', p.websiteCtx || null), 0.0);
         
-        var sc = calcBiasScore(d.working || [], d.missing || [], null, p.intent, true); // isGenerated = true guarantees >75
+        var sc = calcBiasScore(d.working || [], d.missing || [], null, p.intent, true); // isGenerated = true
         document.getElementById('audit-out').innerHTML = buildAuditHtml(d, sc);
         
         flashNew('audit-out');
@@ -2511,6 +2502,8 @@ async function generateCampaign() {
     document.getElementById('cm-load-step').textContent = (si + 1) + ' of 3';
     try {
       var prompt = buildCampaignPrompt(stage, brand, goal, audience, tone, compName, websiteContext, compContext);
+      // Small sequential delay to prevent hitting token-per-minute limits
+      if (si > 0) await new Promise(resolve => setTimeout(resolve, 1500));
       results[stage] = await callAI(prompt, 0.7);
     } catch(e) {
       errors.push(stage + ': ' + e.message);
