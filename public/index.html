@@ -1436,6 +1436,20 @@ function flashNew(elId) {
   }, 30);
 }
 
+// SCORE RANGE HELPER
+function getScoreBand(score) {
+  if (score <= 10) return "1-10";
+  if (score <= 20) return "11-20";
+  if (score <= 30) return "21-30";
+  if (score <= 40) return "31-40";
+  if (score <= 50) return "41-50";
+  if (score <= 60) return "51-60";
+  if (score <= 70) return "61-70";
+  if (score <= 80) return "71-80";
+  if (score <= 90) return "81-90";
+  return "91-100";
+}
+
 // ── BIAS TAGS ──────────────────────────────────────────────────
 var activePop = null;
 document.addEventListener('click', function(e) {
@@ -1607,7 +1621,7 @@ var INTENT_SYNERGY = {
 function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
   if (!detectedBiases || detectedBiases.length === 0) return isGenerated ? 78 : 40;
   
-  var score = 40; // Base score
+  var score = 40; 
   var n = detectedBiases.length;
   var earnedPoints = 0;
 
@@ -1646,7 +1660,7 @@ function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
 
   score += earnedPoints;
 
-  // Synergistic bonus for hitting the perfect combination of 2-3 biases
+  // Synergistic bonus 
   if (n === 2) {
       score += 10;
   } else if (n === 3) {
@@ -1658,9 +1672,9 @@ function calcBiasScore(detectedBiases, missing, copyType, intent, isGenerated) {
   var m = (missing || []).length;
   score -= (m * 8); 
 
-  // Unique mathematical floor ensuring generated copy always clears 75
+  // Creator's Boost guaranteeing >75 score for internal generations
   if (isGenerated) {
-      score = Math.max(78, score + 18);
+      score = Math.max(76, score + 15);
   }
 
   return Math.round(Math.max(10, Math.min(100, score)));
@@ -1773,11 +1787,12 @@ function buildCopyHtml(variants, isLong) {
   variants.forEach(function(v, i) {
     var biases = v.biases || [];
     var scCol = v.score >= 75 ? 'var(--green)' : v.score >= 50 ? 'var(--amber)' : 'var(--red)';
+    var band = getScoreBand(v.score);
     
     html += '<div class="copy-card">'
       + '<div class="card-num" style="display:flex;justify-content:space-between;align-items:center;">'
       + '<span>VARIANT ' + (i + 1) + '</span>'
-      + '<span style="font-size:11px;font-weight:700;color:' + scCol + ';">&#9679; ' + v.score + '/100</span>'
+      + '<span style="font-size:11px;font-weight:700;color:' + scCol + ';">&#9679; ' + band + ' Score</span>'
       + '</div>'
       + '<div class="' + (isLong ? 'copy-long' : 'copy-short') + '">' + renderCopyText(v.copy) + '</div>'
       + '<div class="card-foot">'
@@ -1816,12 +1831,12 @@ async function generateCopy() {
     var data = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, false, '', brandWebCtx), 0.7);
     
     var scoredVariants = (data.variants || []).map(function(v) {
-        var sc = calcBiasScore(v.biases || [], [], lastCopyPrompt.type, null, true); // isGenerated = true
+        var sc = calcBiasScore(v.biases || [], [], lastCopyPrompt.type, null, true); // true = applies creator's boost
         return Object.assign({}, v, { score: sc });
     });
     
     scoredVariants.sort(function(a, b) { return b.score - a.score; });
-    var topVariants = scoredVariants.slice(0, 3); // Take top 3 out of the 4 requested
+    var topVariants = scoredVariants.slice(0, 3); 
 
     document.getElementById('copy-out').innerHTML = buildCopyHtml(topVariants, isLong);
     flashNew('copy-out');
@@ -1844,7 +1859,7 @@ function openCopyMoreOptions() {
         var data = await callAI(buildCopyPrompt(p.type, p.brand, p.ctx, p.product, p.audience, p.tone, p.refs, false, feedback, p.websiteCtx || null), 0.7);
         
         var scoredVariants = (data.variants || []).map(function(v) {
-            var sc = calcBiasScore(v.biases || [], [], p.type, null, true); // isGenerated = true
+            var sc = calcBiasScore(v.biases || [], [], p.type, null, true);
             return Object.assign({}, v, { score: sc });
         });
         scoredVariants.sort(function(a, b) { return b.score - a.score; });
@@ -2124,6 +2139,7 @@ function openNameMoreOptions() {
 
 // ── BIAS AUDIT ─────────────────────────────────────────────────
 function buildAuditPrompt(copy, brand, intent, extra, websiteCtx) {
+  var synergyList = INTENT_SYNERGY[intent] ? INTENT_SYNERGY[intent].join(', ') : 'Loss Aversion, Scarcity, Social Proof';
   var parts = [
     'You are a ruthless, world-class behavioral science copy auditor.',
     'Evaluate the following copy against the user\'s explicit goal.',
@@ -2159,8 +2175,8 @@ function buildAuditHtml(d, medianScore) {
   var working = d.working || [];
   var missing = d.missing || [];
   
-  var displayScore = medianScore;
-  var scoreCol = displayScore >= 75 ? 'var(--green)' : displayScore >= 50 ? 'var(--amber)' : 'var(--red)';
+  var scoreBand = getScoreBand(medianScore);
+  var scoreCol = medianScore >= 75 ? 'var(--green)' : medianScore >= 50 ? 'var(--amber)' : 'var(--red)';
 
   var workItems = working.map(function(w) {
     return '<div class="audit-item">'
@@ -2182,8 +2198,8 @@ function buildAuditHtml(d, medianScore) {
 
   return '<div class="results-label">Audit Results</div>'
     + '<div class="score-card"><div>'
-    + '<div class="score-num" style="color:' + scoreCol + ';">' + displayScore + '</div>'
-    + '<div class="score-den">/ 100</div></div><div class="score-sep"></div>'
+    + '<div class="score-num" style="color:' + scoreCol + '; font-size: 34px; min-width: 110px; white-space: nowrap;">' + scoreBand + '</div>'
+    + '<div class="score-den">SCORE BAND</div></div><div class="score-sep"></div>'
     + '<div class="score-body"><div class="score-label-text">Behavioral Score</div>'
     + '<div style="font-size:11px;color:var(--mid);margin-bottom:5px;">' + working.length + ' active bias' + (working.length !== 1 ? 'es' : '') + ' found</div>'
     + '<div class="score-summary">' + esc(d.summary || '') + '</div>'
@@ -2224,7 +2240,7 @@ async function runAudit() {
   var urlEl  = document.getElementById('a-url');
   var auditUrl = urlEl ? urlEl.value.trim() : '';
 
-  setLoading('audit-btn', true, 'Audit My Copy');
+  setLoading('audit-btn', true, 'Running 5-Pass Audit');
   showErr('audit-err', '');
   document.getElementById('audit-out').innerHTML = '';
 
@@ -2234,7 +2250,7 @@ async function runAudit() {
   try {
     var prompt = buildAuditPrompt(copy, brand, intent, '', auditWebCtx);
     
-    // ENSEMBLE METHOD: Run 5 concurrent API calls at 0.0 temp
+    // Median Audit: 5 parallel requests to nullify hallucinated scores
     var promises = [];
     for(var i=0; i<5; i++) {
        promises.push(callAI(prompt, 0.0).catch(function(e) { return null; }));
@@ -2253,7 +2269,7 @@ async function runAudit() {
 
     validResults.sort(function(a, b) { return a.calculatedScore - b.calculatedScore; });
     
-    // Median calculation: physically pick the middle entry's score
+    // Exact Median Extraction
     var mid = Math.floor(validResults.length / 2);
     var medianResult = validResults[mid];
     var medianScore = medianResult.calculatedScore;
