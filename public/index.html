@@ -382,7 +382,7 @@
     .score-num {
       font-family: 'Fraunces', serif;
       font-size: 52px; font-weight: 600;
-      line-height: 1; min-width: 70px; text-align: center;
+      line-height: 1; min-width: 90px; text-align: center;
     }
     .score-den { font-size: 11px; color: var(--dim); text-align: center; margin-top: 3px; }
     .score-sep { width: 1px; background: var(--bd); align-self: stretch; flex-shrink: 0; }
@@ -1439,7 +1439,6 @@ function togglePopById(btn) {
 }
 
 // ── API ────────────────────────────────────────────────────────
-// ADDED explicit temp parameter handling in fetch
 async function callAI(prompt, temp) {
   var requestBody = { prompt: prompt };
   if (temp !== undefined) {
@@ -1491,7 +1490,6 @@ async function fetchWebsiteContext(url, labelElId, statusElId) {
   // Tier 2: AI knowledge fallback
   try {
     var domain = url.replace(/https?:\/\//, '').replace(/\/.*/, '');
-    // Using 0.7 temperature for general research
     var aiRes = await callAI(
       'What do you know about the brand or company at ' + url + '? '
       + 'Describe what they sell, their audience, brand positioning, and key messages. '
@@ -1514,67 +1512,6 @@ async function fetchWebsiteContext(url, labelElId, statusElId) {
 }
 
 // ── SCORING LOGIC ──────────────────────────────────────────────
-var BIAS_WEIGHTS = {
-  "Distinctiveness (Von Restorff)": 2, "Cocktail Party Effect": 2, "Red Sneakers Effect": 2,
-  "Affect Heuristic": 2, "Emotional Dynamism": 2, "Moving Power": 2, "Category Fit vs Break": 2,
-  "Focusing Illusion": 2, "Wishful Seeing": 2, "Priming": 2, "Fame-Feeling-Fluency": 3,
-  "Bouba/Kiki Effect": 1, "Alliteration & Rhyme": 1, "Fluency in Naming": 1, "WYSIATI": 3,
-  "Media Context": 2, "Mirroring Principle": 2, "Social Proof": 3, "Pratfall Effect": 3,
-  "Halo Effect": 2, "Wisdom of Wit": 2, "Precision": 1, "Danger of Claimed Data": 2,
-  "Replicability Crisis": 2, "Fundamental Attribution Error": 2, "Bystander Effect": 2,
-  "Confirmation Bias": 3, "Narrative Coherence": 2, "Narrative Fallacy": 2, "Law of Small Numbers": 2,
-  "Representativeness": 2, "Keats Heuristic": 1, "Conjunction Fallacy": 2, "Power of Group": 3,
-  "Pain of Payment": 3, "Price Relativity": 3, "Extreme Aversion": 2, "Denominator Neglect": 1,
-  "Veblen Goods": 2, "Anchoring": 3, "Endowment Effect": 3, "Prospect Theory": 3,
-  "Costly Signalling": 3, "Reframing": 3, "Winner's Curse": 2, "Fairness": 2, "Expectancy Theory": 2,
-  "Placebo Effect": 3, "Peak-End Rule": 2, "Duration Neglect": 2, "Planning Fallacy": 2,
-  "Optimistic Bias": 2, "Overconfidence": 2, "Curse of Knowledge": 2, "Goodhart's Law": 2,
-  "IKEA Effect": 3, "Generation Effect": 2, "Labelling": 2, "Framing": 3, "Primacy Effect": 2,
-  "Scarcity": 3, "Loss Aversion": 3, "Fear of Regret": 3, "Make It Easy": 3, "Cognitive Ease": 2,
-  "Default Choice Bias": 3, "Satisficing": 2, "Affordance": 2, "Gratuitous Choices": 1,
-  "Substitution Heuristic": 2, "Availability Heuristic": 2, "Sunk Cost": 3, "Psycho-Logic": 2,
-  "Context Dependency": 2, "Concreteness": 1, "Concreteness in Naming": 1, "Fluent Innovation": 2,
-  "Habit Formation": 3, "Fresh Start Effect": 2, "Behaviour Before Attitude": 3, "Variability": 2,
-  "Mood": 1
-};
-
-// V3 Deterministic Scoring Engine: Exactly mapping to your requested formula
-// Score = 5 + (working biases based on weight) - (missing biases * 0.5)
-function calcBiasScore(detectedBiases, missing) {
-  if (!detectedBiases || detectedBiases.length === 0) return 4.5;
-  
-  var score = 5.0;
-
-  detectedBiases.forEach(function(b) {
-    var w = 1; // Default fallback weight
-    var nameMatch = b.bias || b.name || "";
-    
-    // Find precise match in dictionary
-    for (var key in BIAS_WEIGHTS) {
-      if (nameMatch.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
-        w = BIAS_WEIGHTS[key];
-        break;
-      }
-    }
-    
-    // Strictly deterministic point allocation centered around 0.7
-    if (w === 3) {
-        score += 0.9;
-    } else if (w === 2) {
-        score += 0.7;
-    } else {
-        score += 0.5;
-    }
-  });
-
-  // Flat penalty for missing biases
-  var m = (missing || []).length;
-  score -= (m * 0.5);
-  
-  // Strictly clamped between 1.0 and 10.0
-  return Math.round(Math.max(1.0, Math.min(10.0, score)) * 10) / 10;
-}
-
 var BIAS_MATRIX = {
   'Headline': {
     priority: ['Distinctiveness','Keats Heuristic','Concreteness','Loss Aversion','Generation Effect','Cognitive Ease','Labelling','Framing'],
@@ -1605,6 +1542,104 @@ var BIAS_MATRIX = {
     applicable: ['Loss Aversion','Social Proof','Concreteness','Expectancy Theory','Scarcity','Precision','Narrative Fallacy','Peak-End Rule','Emotional Dynamism','Pratfall Effect','Framing','Anchoring','Halo Effect','Labelling','Fear of Regret','Endowment Effect']
   }
 };
+
+var BIAS_WEIGHTS = {
+  "Distinctiveness (Von Restorff)": 3, "Cocktail Party Effect": 2, "Red Sneakers Effect": 2,
+  "Affect Heuristic": 2, "Emotional Dynamism": 2, "Moving Power": 2, "Category Fit vs Break": 2,
+  "Focusing Illusion": 2, "Wishful Seeing": 2, "Priming": 2, "Fame-Feeling-Fluency": 3,
+  "Bouba/Kiki Effect": 1, "Alliteration & Rhyme": 1, "Fluency in Naming": 1, "WYSIATI": 3,
+  "Media Context": 2, "Mirroring Principle": 2, "Social Proof": 3, "Pratfall Effect": 3,
+  "Halo Effect": 2, "Wisdom of Wit": 2, "Precision": 1, "Danger of Claimed Data": 2,
+  "Replicability Crisis": 2, "Fundamental Attribution Error": 2, "Bystander Effect": 2,
+  "Confirmation Bias": 3, "Narrative Coherence": 2, "Narrative Fallacy": 2, "Law of Small Numbers": 2,
+  "Representativeness": 2, "Keats Heuristic": 1, "Conjunction Fallacy": 2, "Power of Group": 3,
+  "Pain of Payment": 3, "Price Relativity": 3, "Extreme Aversion": 2, "Denominator Neglect": 1,
+  "Veblen Goods": 2, "Anchoring": 3, "Endowment Effect": 3, "Prospect Theory": 3,
+  "Costly Signalling": 3, "Reframing": 3, "Winner's Curse": 2, "Fairness": 2, "Expectancy Theory": 2,
+  "Placebo Effect": 3, "Peak-End Rule": 2, "Duration Neglect": 2, "Planning Fallacy": 2,
+  "Optimistic Bias": 2, "Overconfidence": 2, "Curse of Knowledge": 2, "Goodhart's Law": 2,
+  "IKEA Effect": 3, "Generation Effect": 2, "Labelling": 2, "Framing": 3, "Primacy Effect": 2,
+  "Scarcity": 3, "Loss Aversion": 3, "Fear of Regret": 3, "Make It Easy": 3, "Cognitive Ease": 2,
+  "Default Choice Bias": 3, "Satisficing": 2, "Affordance": 2, "Gratuitous Choices": 1,
+  "Substitution Heuristic": 2, "Availability Heuristic": 2, "Sunk Cost": 3, "Psycho-Logic": 2,
+  "Context Dependency": 2, "Concreteness": 1, "Concreteness in Naming": 1, "Fluent Innovation": 2,
+  "Habit Formation": 3, "Fresh Start Effect": 2, "Behaviour Before Attitude": 3, "Variability": 2,
+  "Mood": 1
+};
+
+var INTENT_SYNERGY = {
+  'Awareness': ['Distinctiveness (Von Restorff)', 'Cognitive Ease', 'Halo Effect', 'Emotional Dynamism', 'Cocktail Party Effect', 'Wisdom of Wit'],
+  'Hook attention': ['Distinctiveness (Von Restorff)', 'Cocktail Party Effect', 'Framing', 'Loss Aversion'],
+  'Trust building': ['Social Proof', 'Pratfall Effect', 'Halo Effect', 'Keats Heuristic', 'Precision', 'Replicability Crisis'],
+  'Convey benefits': ['Concreteness', 'Expectancy Theory', 'Framing', 'Anchoring', 'WYSIATI'],
+  'Conversion': ['Scarcity', 'Loss Aversion', 'Fear of Regret', 'Default Choice Bias', 'Endowment Effect', 'Pain of Payment']
+};
+
+// 100-Point Deterministic Engine
+function calcBiasScore(detectedBiases, missing, copyType, intent) {
+  if (!detectedBiases || detectedBiases.length === 0) return 40;
+  
+  // Base 40: "Functional English" - grammatically correct, behaviorally empty.
+  var score = 40; 
+  var n = detectedBiases.length;
+  var earnedPoints = 0;
+
+  detectedBiases.forEach(function(b) {
+    var w = 1; 
+    var nameMatch = b.bias || b.name || "";
+    var exactKey = "";
+    
+    // Find precise match
+    for (var key in BIAS_WEIGHTS) {
+      if (nameMatch.toLowerCase().indexOf(key.toLowerCase()) >= 0) {
+        w = BIAS_WEIGHTS[key];
+        exactKey = key;
+        break;
+      }
+    }
+    
+    // Base Points out of 100
+    var pts = w === 3 ? 15 : (w === 2 ? 10 : 5);
+    
+    // Multiplier 1: Format Synergy
+    if (copyType && BIAS_MATRIX[copyType]) {
+        var matrix = BIAS_MATRIX[copyType];
+        var isPriority = matrix.priority.some(function(p) { return nameMatch.toLowerCase().indexOf(p.toLowerCase()) >= 0; });
+        var isApplicable = matrix.applicable.some(function(p) { return nameMatch.toLowerCase().indexOf(p.toLowerCase()) >= 0; });
+        
+        if (isPriority) pts *= 1.2;
+        else if (isApplicable) pts *= 1.0;
+        else pts *= 0.5; // Penalty for forcing an irrelevant bias into a format
+    }
+    
+    // Multiplier 2: Intent Synergy (For Audit Tab)
+    if (intent && exactKey && INTENT_SYNERGY[intent]) {
+         if (INTENT_SYNERGY[intent].indexOf(exactKey) >= 0) {
+             pts *= 1.2; 
+         }
+    }
+    
+    earnedPoints += pts;
+  });
+
+  score += earnedPoints;
+
+  // Synergy Focus vs Frankenstein Penalty
+  if (n === 2) {
+      score += 5;
+  } else if (n === 3) {
+      score += 10;
+  } else if (n > 3) {
+      score -= ((n - 3) * 10); // Punish stuffing too many biases
+  }
+
+  // Missing Opportunity Penalty (Audit Tab)
+  var m = (missing || []).length;
+  score -= (m * 10);
+
+  // Clamp strictly between 10 and 100
+  return Math.round(Math.max(10, Math.min(100, score)));
+}
 
 function getCopyTypeStack(type) {
   var matrix = BIAS_MATRIX[type];
@@ -1715,12 +1750,15 @@ function buildCopyHtml(variants, isLong) {
     var biases = (v.biases && v.biases.length)
       ? v.biases
       : [v.primaryBias, v.secondaryBias].filter(function(b) { return b && b.name; });
-    var sc = calcBiasScore(biases, []);
-    var scCol = sc >= 8.5 ? 'var(--green)' : sc >= 7 ? 'var(--amber)' : 'var(--red)';
+      
+    // Out of 100 calc
+    var sc = calcBiasScore(biases, [], lastCopyPrompt ? lastCopyPrompt.type : null, null);
+    var scCol = sc >= 80 ? 'var(--green)' : sc >= 60 ? 'var(--amber)' : 'var(--red)';
+    
     html += '<div class="copy-card">'
       + '<div class="card-num" style="display:flex;justify-content:space-between;align-items:center;">'
       + '<span>VARIANT ' + (i + 1) + '</span>'
-      + '<span style="font-size:11px;font-weight:700;color:' + scCol + ';">&#9679; ' + sc + '/10</span>'
+      + '<span style="font-size:11px;font-weight:700;color:' + scCol + ';">&#9679; ' + sc + '/100</span>'
       + '</div>'
       + '<div class="' + (isLong ? 'copy-long' : 'copy-short') + '">' + renderCopyText(v.copy) + '</div>'
       + '<div class="card-foot">'
@@ -1756,7 +1794,6 @@ async function generateCopy() {
   lastCopyPrompt = { type: type, brand: brand, ctx: ctx, product: product, audience: audience, tone: tone, refs: refs, isLong: isLong, websiteCtx: brandWebCtx };
 
   try {
-    // PASSING TEMP 0.7 FOR CREATIVE GENERATION
     var data = await callAI(buildCopyPrompt(type, brand, ctx, product, audience, tone, refs, false, '', brandWebCtx), 0.7);
     document.getElementById('copy-out').innerHTML = buildCopyHtml(data.variants || [], isLong);
     flashNew('copy-out');
@@ -1776,7 +1813,6 @@ function openCopyMoreOptions() {
       var p = lastCopyPrompt;
       setModalLoading('Regenerating with your feedback\u2026', 'Applying behavioral biases\u2026');
       try {
-        // PASSING TEMP 0.7 FOR CREATIVE GENERATION
         var data = await callAI(buildCopyPrompt(p.type, p.brand, p.ctx, p.product, p.audience, p.tone, p.refs, false, feedback, p.websiteCtx || null), 0.7);
         document.getElementById('copy-out').innerHTML = buildCopyHtml(data.variants || [], p.isLong);
         flashNew('copy-out');
@@ -1851,7 +1887,6 @@ async function generateBrandNames() {
   lastNamePrompt = { mode: 'brand', what: what, cat: cat, market: market, syl: syl, avoid: avoid, sound: sound, guard: guard, webCtx: webCtx };
 
   try {
-    // PASSING TEMP 0.7 FOR CREATIVE GENERATION
     var d = await callAI(buildBrandNamePrompt(what, cat, market, syl, avoid, sound, guard, webCtx, ''), 0.7);
     document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'brand');
     flashNew('name-out');
@@ -1919,7 +1954,6 @@ async function generateSubBrandNames() {
   lastNamePrompt = { mode: 'subbrand', parent: parent, what: what, dist: dist, audRel: audRel, existing: existing, guard: guard, webCtx: webCtx };
 
   try {
-    // PASSING TEMP 0.7 FOR CREATIVE GENERATION
     var d = await callAI(buildSubBrandNamePrompt(parent, what, dist, audRel, existing, guard, webCtx, ''), 0.7);
     document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'subbrand');
     flashNew('name-out');
@@ -1984,7 +2018,6 @@ async function generateProductNames() {
   lastNamePrompt = { mode: 'product', parent: parent, what: what, cat: cat, audience: audience, existing: [], guard: guard, webCtx: webCtx };
 
   try {
-    // PASSING TEMP 0.7 FOR CREATIVE GENERATION
     var d = await callAI(buildProductNamePrompt(parent, what, cat, audience, [], guard, webCtx, ''), 0.7);
     document.getElementById('name-out').innerHTML = buildNameHtml(d.names || [], 'product');
     flashNew('name-out');
@@ -2039,7 +2072,6 @@ function openNameMoreOptions() {
       setModalLoading('Generating new names\u2026', 'Applying naming science\u2026');
       try {
         var d;
-        // PASSING TEMP 0.7 FOR CREATIVE GENERATION
         if (p.mode === 'brand') {
           d = await callAI(buildBrandNamePrompt(p.what, p.cat, p.market, p.syl, p.avoid, p.sound, p.guard, p.webCtx, feedback), 0.7);
         } else if (p.mode === 'subbrand') {
@@ -2098,7 +2130,8 @@ function buildAuditHtml(d, origScore) {
   var missing = d.missing || [];
   
   var displayScore = origScore;
-  var scoreCol = displayScore >= 7.5 ? 'var(--green)' : displayScore >= 5 ? 'var(--amber)' : 'var(--red)';
+  // Thresholds updated for 100-point scale
+  var scoreCol = displayScore >= 80 ? 'var(--green)' : displayScore >= 60 ? 'var(--amber)' : 'var(--red)';
 
   var workItems = working.map(function(w) {
     return '<div class="audit-item">'
@@ -2121,7 +2154,7 @@ function buildAuditHtml(d, origScore) {
   return '<div class="results-label">Audit Results</div>'
     + '<div class="score-card"><div>'
     + '<div class="score-num" style="color:' + scoreCol + ';">' + displayScore + '</div>'
-    + '<div class="score-den">/ 10</div></div><div class="score-sep"></div>'
+    + '<div class="score-den">/ 100</div></div><div class="score-sep"></div>'
     + '<div class="score-body"><div class="score-label-text">Behavioral Score</div>'
     + '<div style="font-size:11px;color:var(--mid);margin-bottom:5px;">' + working.length + ' active bias' + (working.length !== 1 ? 'es' : '') + ' found</div>'
     + '<div class="score-summary">' + esc(d.summary || '') + '</div>'
@@ -2170,10 +2203,10 @@ async function runAudit() {
   lastAuditPrompt = { copy: copy, brand: brand, intent: intent, origScore: null, websiteCtx: auditWebCtx };
 
   try {
-    // PASSING TEMP 0.0 FOR STRICT ANALYTICAL AUDIT
     var d = await callAI(buildAuditPrompt(copy, brand, intent, '', auditWebCtx), 0.0);
     
-    var origScore = calcBiasScore(d.working || [], d.missing || []);
+    // Passing intent to out-of-100 logic
+    var origScore = calcBiasScore(d.working || [], d.missing || [], null, intent);
     lastAuditPrompt.origScore = origScore;
     
     document.getElementById('audit-out').innerHTML = buildAuditHtml(d, origScore);
@@ -2194,7 +2227,6 @@ function openAuditMoreOptions() {
       var p = lastAuditPrompt;
       setModalLoading('Rewriting with your feedback\u2026', 'Applying behavioral science\u2026');
       try {
-        // PASSING TEMP 0.0 FOR STRICT ANALYTICAL AUDIT
         var d = await callAI(buildAuditPrompt(p.copy, p.brand, p.intent, 'User feedback: ' + feedback + '. Rework the rewrite accordingly.', p.websiteCtx || null), 0.0);
         var oSc = p.origScore || null;
 
@@ -2391,7 +2423,6 @@ async function generateCampaign() {
     document.getElementById('cm-load-step').textContent = (si + 1) + ' of 3';
     try {
       var prompt = buildCampaignPrompt(stage, brand, goal, audience, tone, compName, websiteContext, compContext);
-      // PASSING TEMP 0.7 FOR CREATIVE GENERATION
       results[stage] = await callAI(prompt, 0.7);
     } catch(e) {
       errors.push(stage + ': ' + e.message);
