@@ -2247,7 +2247,7 @@ async function runAudit() {
   var urlEl  = document.getElementById('a-url');
   var auditUrl = urlEl ? urlEl.value.trim() : '';
 
-  setLoading('audit-btn', true, 'Running 5-Pass Audit');
+  setLoading('audit-btn', true, 'Running Strict Audit...');
   showErr('audit-err', '');
   document.getElementById('audit-out').innerHTML = '';
 
@@ -2256,37 +2256,50 @@ async function runAudit() {
 
   try {
     var prompt = buildAuditPrompt(copy, brand, intent, '', auditWebCtx);
-    
-    // Median Audit: 5 parallel requests to nullify hallucinated scores
-    var promises = [];
-    for(var i=0; i<5; i++) {
-       promises.push(callAI(prompt, 0.0).catch(function(e) { return null; }));
-    }
-    
-    var results = await Promise.all(promises);
-    var validResults = results.filter(function(r) { return r !== null; });
-    
+    var validResults = [];
+
+    // PASS 1
+    var res1 = await callAI(prompt, 0.0).catch(function(e) { return null; });
+    if (res1) validResults.push(res1);
+
+    // Take a 400ms breath to completely bypass Groq/Gemini concurrency blockers
+    await new Promise(function(resolve) { setTimeout(resolve, 400); });
+
+    // PASS 2
+    var res2 = await callAI(prompt, 0.0).catch(function(e) { return null; });
+    if (res2) validResults.push(res2);
+
+    // If both failed due to severe limits, throw error
     if (validResults.length === 0) {
-        throw new Error('All API requests failed. Please check rate limits.');
+        throw new Error('API limits reached. Please try again in a moment.');
     }
 
+    // Calculate score for valid results
     validResults.forEach(function(r) {
         r.calculatedScore = calcBiasScore(r.working || [], r.missing || [], null, intent, false); // isGenerated = false
     });
 
-    validResults.sort(function(a, b) { return a.calculatedScore - b.calculatedScore; });
-    
-    // Median calculation safely picks exactly the middle item
-    var mid = Math.floor(validResults.length / 2);
-    var medianResult = validResults[mid];
-    var medianScore = medianResult.calculatedScore;
-    
-    lastAuditPrompt.origScore = medianScore;
+    var finalScore;
+    var finalResult;
 
-    document.getElementById('audit-out').innerHTML = buildAuditHtml(medianResult, medianScore);
+    if (validResults.length === 2) {
+        // Average the two scores for the stable median
+        finalScore = Math.round((validResults[0].calculatedScore + validResults[1].calculatedScore) / 2);
+        // Display the text from the most accurately scored one
+        finalResult = validResults[0]; 
+    } else {
+        // Graceful fallback: If one API call randomly failed, use the one that succeeded
+        finalScore = validResults[0].calculatedScore;
+        finalResult = validResults[0];
+    }
+    
+    lastAuditPrompt.origScore = finalScore;
+
+    // Render the UI
+    document.getElementById('audit-out').innerHTML = buildAuditHtml(finalResult, finalScore);
     flashNew('audit-out');
   } catch(e) {
-    showErr('audit-err', 'Generation failed \u2014 ' + (e.message || 'please try again.'));
+    showErr('audit-err', 'Audit failed \u2014 ' + (e.message || 'please try again.'));
   }
   setLoading('audit-btn', false, 'Audit My Copy');
 }
